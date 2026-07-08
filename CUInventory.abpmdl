@@ -1,0 +1,114 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "5.4.1",
+      "isInstalled": true,
+      "creationTime": "07/08/2026 10:17:58 +00:00"
+    },
+    "Volo.Abp.Account": {
+      "version": "10.4.1",
+      "isInstalled": true,
+      "creationTime": "07/08/2026 10:17:58 +00:00"
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "10.4.1",
+      "isInstalled": true,
+      "creationTime": "07/08/2026 10:17:58 +00:00"
+    },
+    "Volo.Abp.Identity": {
+      "version": "10.4.1",
+      "isInstalled": true,
+      "creationTime": "07/08/2026 10:17:58 +00:00"
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "10.4.1",
+      "isInstalled": true,
+      "creationTime": "07/08/2026 10:17:58 +00:00"
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "10.4.1",
+      "isInstalled": true,
+      "creationTime": "07/08/2026 10:17:58 +00:00"
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "10.4.1",
+      "isInstalled": true,
+      "creationTime": "07/08/2026 10:17:58 +00:00"
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "10.4.1",
+      "isInstalled": true,
+      "creationTime": "07/08/2026 10:17:58 +00:00"
+    },
+    "Volo.Abp.BlobStoring.Database": {
+      "version": "10.4.1",
+      "isInstalled": true,
+      "creationTime": "07/08/2026 10:17:58 +00:00"
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "CUInventory.Application": {
+      "path": "src/CUInventory.Application/CUInventory.Application.abppkg",
+      "folder": "src"
+    },
+    "CUInventory.Application.Tests": {
+      "path": "test/CUInventory.Application.Tests/CUInventory.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "CUInventory.Domain.Shared": {
+      "path": "src/CUInventory.Domain.Shared/CUInventory.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "CUInventory.Application.Contracts": {
+      "path": "src/CUInventory.Application.Contracts/CUInventory.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "CUInventory.HttpApi": {
+      "path": "src/CUInventory.HttpApi/CUInventory.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "CUInventory.HttpApi.Client": {
+      "path": "src/CUInventory.HttpApi.Client/CUInventory.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "CUInventory.EntityFrameworkCore.Tests": {
+      "path": "test/CUInventory.EntityFrameworkCore.Tests/CUInventory.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "CUInventory.EntityFrameworkCore": {
+      "path": "src/CUInventory.EntityFrameworkCore/CUInventory.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "CUInventory.TestBase": {
+      "path": "test/CUInventory.TestBase/CUInventory.TestBase.abppkg",
+      "folder": "test"
+    },
+    "CUInventory.Domain.Tests": {
+      "path": "test/CUInventory.Domain.Tests/CUInventory.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "CUInventory.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/CUInventory.HttpApi.Client.ConsoleTestApp/CUInventory.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "CUInventory.DbMigrator": {
+      "path": "src/CUInventory.DbMigrator/CUInventory.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "CUInventory.HttpApi.Host": {
+      "path": "src/CUInventory.HttpApi.Host/CUInventory.HttpApi.Host.abppkg",
+      "folder": "src"
+    },
+    "CUInventory.Domain": {
+      "path": "src/CUInventory.Domain/CUInventory.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}
