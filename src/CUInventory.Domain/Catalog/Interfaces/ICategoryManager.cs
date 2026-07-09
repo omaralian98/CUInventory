@@ -7,5 +7,6 @@ namespace CUInventory.Catalog.Interfaces;
 
 public interface ICategoryManager : IDomainService
 {
-    Task<Category> CreateAsync(/* TODO: parameters once Category has properties */);
+    Task<Category> CreateAsync(string name);
+    Task<Category> UpdateAsync(Category category, string name, int orderIndex, bool isActive);
 }

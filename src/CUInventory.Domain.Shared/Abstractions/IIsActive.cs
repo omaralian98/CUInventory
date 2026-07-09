@@ -6,4 +6,5 @@ public interface IIsActive
     public void Activate();
     public void Deactivate();
     public void ToggleIsActive();
+    public void SetIsActive(bool isActive);
 }
