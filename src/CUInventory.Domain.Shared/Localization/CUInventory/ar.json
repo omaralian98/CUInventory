@@ -37,6 +37,8 @@
     "Unspecified": "نظام",
     "SeeAllUsers": "رؤية كافة المستخدمين",
     "TakePhoto": "تصوير",
-    "ChoosePhoto": "اختر صورة"
+    "ChoosePhoto": "اختر صورة",
+    "CUInventory:Catalog:001": "توجد فئة بالاسم '{Name}' بالفعل.",
+    "CUInventory:Catalog:002": "يوجد منتج برمز SKU '{Sku}' بالفعل."
   }
 }

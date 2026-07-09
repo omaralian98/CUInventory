@@ -1,4 +1,5 @@
 using System;
+using CUInventory.Catalog.ValueObjects;
 using CUInventory.ValueObjects;
 using Volo.Abp;
 

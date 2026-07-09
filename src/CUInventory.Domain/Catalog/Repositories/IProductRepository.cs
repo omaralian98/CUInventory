@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 using CUInventory.Catalog.Aggregates;
+using CUInventory.Catalog.ValueObjects;
 using CUInventory.ValueObjects;
 
 namespace CUInventory.Catalog.Repositories;

@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Services;
 using CUInventory.Catalog.Aggregates;
+using CUInventory.Catalog.Exceptions;
 using CUInventory.Catalog.Interfaces;
 using CUInventory.Catalog.Repositories;
 
@@ -13,7 +14,7 @@ public class CategoryManager(ICategoryRepository categoryRepository) : DomainSer
         var exists = await categoryRepository.ExistsAsync(name);
         if (exists)
         {
-            //todo throw domain exception
+            throw new CategoryNameAlreadyExistsDomainException(name);
         }
 
         var category = new Category(GuidGenerator.Create(), name);
@@ -27,8 +28,10 @@ public class CategoryManager(ICategoryRepository categoryRepository) : DomainSer
             var exists = await categoryRepository.ExistsAsync(name);
             if (exists)
             {
-                //todo throw domain exception
+                throw new CategoryNameAlreadyExistsDomainException(name);
             }
+
+            category.SetName(name);
         }
 
         category.OrderIndex = orderIndex;

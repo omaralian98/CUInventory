@@ -2,8 +2,10 @@ using System;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Services;
 using CUInventory.Catalog.Aggregates;
+using CUInventory.Catalog.Exceptions;
 using CUInventory.Catalog.Interfaces;
 using CUInventory.Catalog.Repositories;
+using CUInventory.Catalog.ValueObjects;
 using CUInventory.ValueObjects;
 
 namespace CUInventory.Catalog.Managers;
@@ -58,7 +60,7 @@ public class ProductManager(IProductRepository productRepository) : DomainServic
             var exists = await productRepository.GetProductBySkuOrDefaultAsync(sku);
             if (exists is not null)
             {
-                //todo throw domain exception
+                throw new ProductSkuAlreadyExistsDomainException(sku);
             }
         }
 

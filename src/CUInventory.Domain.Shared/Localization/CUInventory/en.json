@@ -4,6 +4,8 @@
     "AppName": "CUInventory",
     "Menu:Home": "Home",
     "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information visit",
-    "Welcome": "Welcome"
+    "Welcome": "Welcome",
+    "CUInventory:Catalog:001": "A category named '{Name}' already exists.",
+    "CUInventory:Catalog:002": "A product with SKU '{Sku}' already exists."
   }
 }

@@ -3,4 +3,7 @@
 public static class CUInventoryDomainErrorCodes
 {
     /* You can add your business exception error codes here, as constants */
+
+    public const string CategoryNameAlreadyExists = "CUInventory:Catalog:001";
+    public const string ProductSkuAlreadyExists = "CUInventory:Catalog:002";
 }
