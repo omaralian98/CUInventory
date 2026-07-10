@@ -1,5 +1,5 @@
+using System;
 using CUInventory.Catalog.ValueObjects;
-using CUInventory.ValueObjects;
 using Shouldly;
 using Xunit;
 
@@ -7,16 +7,36 @@ namespace CUInventory.Catalog;
 
 public class SkuTests
 {
-    [Fact]
-    public void Skus_With_Same_Normalized_Value_Are_Equal()
+    [Theory]
+    [InlineData(" abc-123 ", "ABC-123")]
+    [InlineData("abc", "ABC")]
+    [InlineData("Xyz-9", "XYZ-9")]
+    public void Normalizes_By_Trimming_And_Uppercasing(string input, string expected)
     {
-        var a = new Sku(" abc-123 ");
-        var b = new Sku("ABC-123");
+        new Sku(input).Value.ShouldBe(expected);
+    }
 
-        a.ShouldBe(b);
-        (a == b).ShouldBeTrue();
-        (a != b).ShouldBeFalse();
-        a.GetHashCode().ShouldBe(b.GetHashCode());
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Rejects_Blank_Values(string input)
+    {
+        Should.Throw<ArgumentException>(() => new Sku(input));
+    }
+
+    [Theory]
+    [InlineData(" abc-123 ", "ABC-123")]
+    [InlineData("sku", "SKU")]
+    public void Skus_With_Same_Normalized_Value_Are_Equal(string left, string right)
+    {
+        var a = new Sku(left);
+        var b = new Sku(right);
+
+        a.ShouldSatisfyAllConditions(
+            () => a.ShouldBe(b),
+            () => (a == b).ShouldBeTrue(),
+            () => (a != b).ShouldBeFalse(),
+            () => a.GetHashCode().ShouldBe(b.GetHashCode()));
     }
 
     [Fact]
