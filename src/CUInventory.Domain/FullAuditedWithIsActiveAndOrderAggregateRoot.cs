@@ -1,12 +1,15 @@
-﻿using CUInventory.Abstractions;
+﻿using System;
+using CUInventory.Abstractions;
 using Volo.Abp.Domain.Entities.Auditing;
+using Volo.Abp.MultiTenancy;
 
 namespace CUInventory;
 
-public class FullAuditedWithIsActiveAndOrderAggregateRoot<TKey> : FullAuditedAggregateRoot<TKey>, IIsActive, ISortable
+public class FullAuditedWithIsActiveAndOrderAggregateRoot<TKey> : FullAuditedAggregateRoot<TKey>, IIsActive, ISortable, IMultiTenant
 {
     public bool IsActive { get; private set; }
     public int OrderIndex { get; set; }
+    public Guid? TenantId { get; protected set; }
 
     protected FullAuditedWithIsActiveAndOrderAggregateRoot() : base()
     {
