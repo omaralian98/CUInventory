@@ -1,5 +1,6 @@
 using System;
 using Shouldly;
+using Volo.Abp;
 using Xunit;
 
 namespace CUInventory.ValueObjects;
@@ -25,7 +26,7 @@ public class EmailTests
     [InlineData("two@@at.com")]
     public void Rejects_Invalid_Values(string input)
     {
-        Should.Throw<ArgumentException>(() => new Email(input));
+        Should.Throw<BusinessException>(() => new Email(input));
     }
 
     [Theory]

@@ -1,4 +1,5 @@
 using System;
+using CUInventory.Common.Exceptions;
 using Shouldly;
 using Xunit;
 
@@ -18,7 +19,7 @@ public class AddressTests
     [MemberData(nameof(BlankParts))]
     public void Requires_Every_Part(string governorate, string city, string street)
     {
-        Should.Throw<ArgumentException>(() => new Address(governorate, city, street));
+        Should.Throw<RequiredArgumentDomainException>(() => new Address(governorate, city, street));
     }
 
     [Fact]

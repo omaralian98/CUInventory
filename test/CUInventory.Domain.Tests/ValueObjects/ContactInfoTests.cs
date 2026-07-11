@@ -1,4 +1,5 @@
 using System;
+using CUInventory.Common.Exceptions;
 using Shouldly;
 using Xunit;
 
@@ -15,9 +16,9 @@ public class ContactInfoTests
     [Fact]
     public void Requires_Every_Component()
     {
-        Should.Throw<ArgumentException>(() => new ContactInfo(null!, Phone(), Addr()));
-        Should.Throw<ArgumentException>(() => new ContactInfo(Email(), null!, Addr()));
-        Should.Throw<ArgumentException>(() => new ContactInfo(Email(), Phone(), null!));
+        Should.Throw<RequiredArgumentDomainException>(() => new ContactInfo(null!, Phone(), Addr()));
+        Should.Throw<RequiredArgumentDomainException>(() => new ContactInfo(Email(), null!, Addr()));
+        Should.Throw<RequiredArgumentDomainException>(() => new ContactInfo(Email(), Phone(), null!));
     }
 
     [Fact]

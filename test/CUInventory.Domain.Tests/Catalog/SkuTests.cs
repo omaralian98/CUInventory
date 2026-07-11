@@ -1,5 +1,6 @@
 using System;
 using CUInventory.Catalog.ValueObjects;
+using CUInventory.Common.Exceptions;
 using Shouldly;
 using Xunit;
 
@@ -21,7 +22,7 @@ public class SkuTests
     [InlineData("   ")]
     public void Rejects_Blank_Values(string input)
     {
-        Should.Throw<ArgumentException>(() => new Sku(input));
+        Should.Throw<RequiredArgumentDomainException>(() => new Sku(input));
     }
 
     [Theory]

@@ -1,5 +1,6 @@
 using System;
 using Shouldly;
+using Volo.Abp;
 using Xunit;
 
 namespace CUInventory.ValueObjects;
@@ -24,7 +25,7 @@ public class PhoneNumberTests
     [InlineData("+12a45678")]
     public void Rejects_Invalid_Values(string input)
     {
-        Should.Throw<ArgumentException>(() => new PhoneNumber(input));
+        Should.Throw<BusinessException>(() => new PhoneNumber(input));
     }
 
     [Fact]
