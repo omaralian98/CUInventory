@@ -1,5 +1,8 @@
 using CUInventory.Catalog.Aggregates;
+using CUInventory.Inventory.Aggregates;
 using CUInventory.Procurement.Aggregates;
+using CUInventory.Sales.Aggregates;
+using CUInventory.Warehousing.Aggregates;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -62,6 +65,13 @@ public class CUInventoryDbContext :
     public DbSet<Product> Products { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Supplier> Suppliers { get; set; }
+    public DbSet<Warehouse> Warehouses { get; set; }
+    public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+    public DbSet<Shipment> Shipments { get; set; }
+    public DbSet<InventoryLot> InventoryLots { get; set; }
+    public DbSet<InventoryBalance> InventoryBalances { get; set; }
+    public DbSet<StockTransfer> StockTransfers { get; set; }
+    public DbSet<Sale> Sales { get; set; }
 
 
     public CUInventoryDbContext(DbContextOptions<CUInventoryDbContext> options)
