@@ -9,6 +9,7 @@
     "CUInventory:Common:002": "'{ParameterName}' must be positive (was {Value}).",
     "CUInventory:Common:003": "'{ParameterName}' cannot be negative (was {Value}).",
     "CUInventory:Common:004": "'{ParameterName}' has an invalid format: '{Value}'.",
+    "CUInventory:Inventory:010": "Restoring {Requested} to lot '{InventoryLotId}' would exceed its original quantity of {Original} (currently {Remaining} remaining).",
     "CUInventory:Catalog:001": "A category named '{Name}' already exists.",
     "CUInventory:Catalog:002": "A product with SKU '{Sku}' already exists."
   }

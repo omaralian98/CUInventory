@@ -35,6 +35,7 @@ public static class CUInventoryDomainErrorCodes
     public const string StockTransferNotDispatched = "CUInventory:Inventory:007";
     public const string StockTransferCannotBeCancelled = "CUInventory:Inventory:008";
     public const string StockTransferSameWarehouse = "CUInventory:Inventory:009";
+    public const string InventoryLotRestoreExceedsOriginal = "CUInventory:Inventory:010";
 
     public const string SaleNotInDraftState = "CUInventory:Sales:001";
     public const string SaleHasNoLines = "CUInventory:Sales:002";

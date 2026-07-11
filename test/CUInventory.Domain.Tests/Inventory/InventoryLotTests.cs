@@ -52,7 +52,7 @@ public class InventoryLotTests
     {
         var lot = NewLot(10m);
 
-        Should.Throw<ArgumentException>(() => lot.Restore(new Quantity(1m)));
+        Should.Throw<InventoryLotRestoreExceedsOriginalDomainException>(() => lot.Restore(new Quantity(1m)));
     }
 
     [Fact]

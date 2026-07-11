@@ -66,7 +66,7 @@ public class InventoryLot : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
         if (RemainingQuantity.Value + quantity.Value > OriginalQuantity.Value)
         {
-            throw new ArgumentException("Restored quantity exceeds the lot's original quantity.", nameof(quantity));
+            throw new InventoryLotRestoreExceedsOriginalDomainException(Id, quantity.Value, RemainingQuantity.Value, OriginalQuantity.Value);
         }
 
         RemainingQuantity = RemainingQuantity.Add(quantity);
