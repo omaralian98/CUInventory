@@ -11,6 +11,25 @@
     "CUInventory:Common:004": "'{ParameterName}' has an invalid format: '{Value}'.",
     "CUInventory:Inventory:010": "Restoring {Requested} to lot '{InventoryLotId}' would exceed its original quantity of {Original} (currently {Remaining} remaining).",
     "CUInventory:Catalog:001": "A category named '{Name}' already exists.",
-    "CUInventory:Catalog:002": "A product with SKU '{Sku}' already exists."
+    "CUInventory:Catalog:002": "A product with SKU '{Sku}' already exists.",
+    "Permission:CUInventory": "CUInventory",
+    "Permission:Categories": "Categories",
+    "Permission:Products": "Products",
+    "Permission:Suppliers": "Suppliers",
+    "Permission:Warehouses": "Warehouses",
+    "Permission:PurchaseOrders": "Purchase orders",
+    "Permission:Shipments": "Shipments",
+    "Permission:StockTransfers": "Stock transfers",
+    "Permission:Sales": "Sales",
+    "Permission:InventoryBalances": "Inventory balances",
+    "Permission:InventoryLots": "Inventory lots",
+    "Permission:Create": "Create",
+    "Permission:Edit": "Edit",
+    "Permission:Delete": "Delete",
+    "Permission:Confirm": "Confirm",
+    "Permission:Cancel": "Cancel",
+    "Permission:Dispatch": "Dispatch",
+    "Permission:Receive": "Receive",
+    "Permission:SetThreshold": "Set low-stock threshold"
   }
 }

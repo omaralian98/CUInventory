@@ -13,6 +13,7 @@ namespace CUInventory;
 [DependsOn(
     typeof(CUInventoryDomainModule),
     typeof(CUInventoryApplicationContractsModule),
+    typeof(AbpMapperlyModule),
     typeof(AbpPermissionManagementApplicationModule),
     typeof(AbpFeatureManagementApplicationModule),
     typeof(AbpIdentityApplicationModule),
@@ -22,5 +23,8 @@ namespace CUInventory;
     )]
 public class CUInventoryApplicationModule : AbpModule
 {
-
+    public override void ConfigureServices(ServiceConfigurationContext context)
+    {
+        context.Services.AddMapperlyObjectMapper<CUInventoryApplicationModule>();
+    }
 }
