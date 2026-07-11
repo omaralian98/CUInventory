@@ -7,5 +7,5 @@ namespace CUInventory.Inventory.Interfaces;
 
 public interface IInventoryBalanceManager : IDomainService
 {
-    Task<InventoryBalance> CreateAsync(/* TODO: parameters once InventoryBalance has properties */);
+    Task<InventoryBalance> GetOrCreateAsync(Guid warehouseId, Guid productId, decimal? lowStockThreshold = null);
 }

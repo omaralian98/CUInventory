@@ -3,13 +3,25 @@ using System.Threading.Tasks;
 using Volo.Abp.Domain.Services;
 using CUInventory.Inventory.Aggregates;
 using CUInventory.Inventory.Interfaces;
+using CUInventory.Inventory.Repositories;
 
 namespace CUInventory.Inventory.Managers;
 
-public class InventoryBalanceManager : DomainService, IInventoryBalanceManager
+public class InventoryBalanceManager(IInventoryBalanceRepository inventoryBalanceRepository)
+    : DomainService, IInventoryBalanceManager
 {
-    public Task<InventoryBalance> CreateAsync(/* TODO: parameters once InventoryBalance has properties */)
+    public async Task<InventoryBalance> GetOrCreateAsync(Guid warehouseId, Guid productId, decimal? lowStockThreshold = null)
     {
-        throw new NotImplementedException();
+        var existing = await inventoryBalanceRepository.GetByWarehouseAndProductOrDefaultAsync(warehouseId, productId);
+        if (existing is not null)
+        {
+            return existing;
+        }
+
+        // Since the caller is Expecting to get the balance meaning he shouldn't consider himself with the responsibility of creating the balance, we will create it with and save it.
+        var newBalance = new InventoryBalance(GuidGenerator.Create(), warehouseId, productId, lowStockThreshold);
+        
+        await inventoryBalanceRepository.InsertAsync(newBalance, autoSave: true);
+        return newBalance;
     }
 }

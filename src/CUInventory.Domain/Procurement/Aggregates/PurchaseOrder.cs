@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CUInventory.Common;
 using CUInventory.Procurement.Entities;
 using CUInventory.Procurement.Events;
 using CUInventory.Procurement.Exceptions;
@@ -25,21 +26,17 @@ public class PurchaseOrder : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
     }
 
-    public PurchaseOrder(Guid id, Guid supplierId, Guid destinationWarehouseId) : base(id)
+    public PurchaseOrder(Guid id, Guid supplierId, Guid destinationWarehouseId, IReadOnlyCollection<PurchaseOrderLineData> lines) : base(id)
     {
         SupplierId = supplierId;
         DestinationWarehouseId = destinationWarehouseId;
         Status = PurchaseOrderStatus.Draft;
-    }
 
-    public void AddLine(Guid lineId, Guid productId, Quantity orderedQuantity, Money unitCost)
-    {
-        if (Status != PurchaseOrderStatus.Draft)
+        Guard.NotNull(lines, nameof(lines));
+        foreach (var line in lines)
         {
-            throw new PurchaseOrderNotInDraftStateDomainException(Id, Status);
+            _lines.Add(new PurchaseOrderLine(line.Id, Id, line.ProductId, line.OrderedQuantity, line.UnitCost));
         }
-
-        _lines.Add(new PurchaseOrderLine(lineId, Id, productId, orderedQuantity, unitCost));
     }
 
     public void Confirm(DateTime now)
@@ -65,10 +62,7 @@ public class PurchaseOrder : FullAuditedAggregateRoot<Guid>, IMultiTenant
             throw new PurchaseOrderNotConfirmedDomainException(Id, Status);
         }
 
-        if (quantity.IsZero)
-        {
-            throw new ArgumentException("Receipt quantity must be positive.", nameof(quantity));
-        }
+        Guard.Positive(quantity, nameof(quantity));
 
         var line = _lines.FirstOrDefault(l => l.ProductId == productId)
                    ?? throw new PurchaseOrderLineNotFoundDomainException(Id, productId);
