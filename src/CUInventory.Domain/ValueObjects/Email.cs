@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Volo.Abp;
+using CUInventory.Common;
 using Volo.Abp.Domain.Values;
 
 namespace CUInventory.ValueObjects;
@@ -18,13 +18,10 @@ public partial class Email : ValueObject, IEquatable<Email>
 
     public Email(string value)
     {
-        Check.NotNullOrWhiteSpace(value, nameof(value));
+        Guard.NotNullOrWhiteSpace(value, nameof(value));
 
         var normalized = value.Trim().ToLowerInvariant();
-        if (!Pattern.IsMatch(normalized))
-        {
-            throw new ArgumentException($"'{value}' is not a valid email address.", nameof(value));
-        }
+        Guard.MatchesPattern(normalized, Pattern, nameof(value));
 
         Value = normalized;
     }

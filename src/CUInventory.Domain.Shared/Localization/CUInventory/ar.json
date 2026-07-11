@@ -38,6 +38,10 @@
     "SeeAllUsers": "رؤية كافة المستخدمين",
     "TakePhoto": "تصوير",
     "ChoosePhoto": "اختر صورة",
+    "CUInventory:Common:001": "الحقل '{ParameterName}' مطلوب.",
+    "CUInventory:Common:002": "يجب أن تكون قيمة '{ParameterName}' موجبة (كانت {Value}).",
+    "CUInventory:Common:003": "لا يمكن أن تكون قيمة '{ParameterName}' سالبة (كانت {Value}).",
+    "CUInventory:Common:004": "صيغة '{ParameterName}' غير صالحة: '{Value}'.",
     "CUInventory:Catalog:001": "توجد فئة بالاسم '{Name}' بالفعل.",
     "CUInventory:Catalog:002": "يوجد منتج برمز SKU '{Sku}' بالفعل."
   }

@@ -1,6 +1,6 @@
 using System;
+using CUInventory.Common;
 using CUInventory.ValueObjects;
-using Volo.Abp;
 using Volo.Abp.Domain.Entities;
 
 namespace CUInventory.Procurement.Entities;
@@ -25,8 +25,8 @@ public class PurchaseOrderLine : Entity<Guid>
     {
         PurchaseOrderId = purchaseOrderId;
         ProductId = productId;
-        OrderedQuantity = Check.NotNull(orderedQuantity, nameof(orderedQuantity));
-        UnitCost = Check.NotNull(unitCost, nameof(unitCost));
+        OrderedQuantity = Guard.NotNull(orderedQuantity, nameof(orderedQuantity));
+        UnitCost = Guard.NotNull(unitCost, nameof(unitCost));
         ReceivedQuantity = Quantity.Zero;
     }
 

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Volo.Abp;
+using CUInventory.Common;
 using Volo.Abp.Domain.Values;
 
 namespace CUInventory.ValueObjects;
@@ -17,9 +17,9 @@ public class ContactInfo : ValueObject, IEquatable<ContactInfo>
 
     public ContactInfo(Email email, PhoneNumber phoneNumber, Address address)
     {
-        Email = Check.NotNull(email, nameof(email));
-        PhoneNumber = Check.NotNull(phoneNumber, nameof(phoneNumber));
-        Address = Check.NotNull(address, nameof(address));
+        Email = Guard.NotNull(email, nameof(email));
+        PhoneNumber = Guard.NotNull(phoneNumber, nameof(phoneNumber));
+        Address = Guard.NotNull(address, nameof(address));
     }
 
     public bool Equals(ContactInfo? other)

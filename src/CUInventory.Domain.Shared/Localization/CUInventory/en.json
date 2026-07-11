@@ -5,6 +5,10 @@
     "Menu:Home": "Home",
     "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information visit",
     "Welcome": "Welcome",
+    "CUInventory:Common:001": "'{ParameterName}' is required.",
+    "CUInventory:Common:002": "'{ParameterName}' must be positive (was {Value}).",
+    "CUInventory:Common:003": "'{ParameterName}' cannot be negative (was {Value}).",
+    "CUInventory:Common:004": "'{ParameterName}' has an invalid format: '{Value}'.",
     "CUInventory:Catalog:001": "A category named '{Name}' already exists.",
     "CUInventory:Catalog:002": "A product with SKU '{Sku}' already exists."
   }

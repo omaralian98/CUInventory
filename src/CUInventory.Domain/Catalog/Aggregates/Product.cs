@@ -1,7 +1,7 @@
 using System;
 using CUInventory.Catalog.ValueObjects;
+using CUInventory.Common;
 using CUInventory.ValueObjects;
-using Volo.Abp;
 
 namespace CUInventory.Catalog.Aggregates;
 
@@ -37,7 +37,7 @@ public class Product : FullAuditedWithIsActiveAndOrderAggregateRoot<Guid>
 
     public void SetName(string name)
     {
-        Check.NotNullOrWhiteSpace(name, nameof(name));
+        Guard.NotNullOrWhiteSpace(name, nameof(name));
 
         Name = name;
     }

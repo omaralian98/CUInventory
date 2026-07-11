@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Volo.Abp;
+using CUInventory.Common;
 using Volo.Abp.Domain.Values;
 
 namespace CUInventory.Catalog.ValueObjects;
@@ -15,7 +15,7 @@ public class Sku : ValueObject, IEquatable<Sku>
 
     public Sku(string value)
     {
-        Check.NotNullOrWhiteSpace(value, nameof(value));
+        Guard.NotNullOrWhiteSpace(value, nameof(value));
         Value = value.Trim().ToUpperInvariant();
     }
 

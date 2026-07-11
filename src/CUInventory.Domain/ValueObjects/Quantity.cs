@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Volo.Abp;
+using CUInventory.Common;
 using Volo.Abp.Domain.Values;
 
 namespace CUInventory.ValueObjects;
@@ -17,7 +17,7 @@ public class Quantity : ValueObject, IEquatable<Quantity>
 
     public Quantity(decimal value)
     {
-        Check.Positive(value, nameof(value));
+        Guard.NonNegative(value, nameof(value));
 
         Value = value;
     }

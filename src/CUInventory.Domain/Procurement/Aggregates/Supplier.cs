@@ -1,6 +1,6 @@
 using System;
+using CUInventory.Common;
 using CUInventory.ValueObjects;
-using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
 
@@ -24,12 +24,12 @@ public class Supplier : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     internal void SetName(string name)
     {
-        Check.NotNullOrWhiteSpace(name, nameof(name));
+        Guard.NotNullOrWhiteSpace(name, nameof(name));
         Name = name;
     }
 
     internal void SetContact(ContactInfo contact)
     {
-        Contact = Check.NotNull(contact, nameof(contact));
+        Contact = Guard.NotNull(contact, nameof(contact));
     }
 }

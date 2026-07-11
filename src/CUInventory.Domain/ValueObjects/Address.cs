@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Volo.Abp;
+using CUInventory.Common;
 using Volo.Abp.Domain.Values;
 
 namespace CUInventory.ValueObjects;
@@ -17,9 +17,9 @@ public class Address : ValueObject, IEquatable<Address>
 
     public Address(string governorate, string city, string street)
     {
-        Check.NotNullOrWhiteSpace(governorate, nameof(governorate));
-        Check.NotNullOrWhiteSpace(city, nameof(city));
-        Check.NotNullOrWhiteSpace(street, nameof(street));
+        Guard.NotNullOrWhiteSpace(governorate, nameof(governorate));
+        Guard.NotNullOrWhiteSpace(city, nameof(city));
+        Guard.NotNullOrWhiteSpace(street, nameof(street));
 
         Governorate = governorate.Trim();
         City = city.Trim();

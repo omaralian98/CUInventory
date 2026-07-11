@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Volo.Abp;
+using CUInventory.Common;
 using Volo.Abp.Domain.Values;
 
 namespace CUInventory.ValueObjects;
@@ -18,13 +18,10 @@ public partial class PhoneNumber : ValueObject, IEquatable<PhoneNumber>
 
     public PhoneNumber(string value)
     {
-        Check.NotNullOrWhiteSpace(value, nameof(value));
+        Guard.NotNullOrWhiteSpace(value, nameof(value));
 
         var normalized = value.Trim();
-        if (!Pattern.IsMatch(normalized))
-        {
-            throw new ArgumentException($"'{value}' is not a valid phone number.", nameof(value));
-        }
+        Guard.MatchesPattern(normalized, Pattern, nameof(value));
 
         Value = normalized;
     }

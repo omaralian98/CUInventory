@@ -1,6 +1,6 @@
 using System;
 using CUInventory.Abstractions;
-using Volo.Abp;
+using CUInventory.Common;
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace CUInventory.Catalog.Aggregates;
@@ -20,7 +20,7 @@ public class Category : FullAuditedWithIsActiveAndOrderAggregateRoot<Guid>
 
     internal void SetName(string name)
     {
-        Check.NotNullOrWhiteSpace(name, nameof(name));
+        Guard.NotNullOrWhiteSpace(name, nameof(name));
         Name = name;
     }
 }
