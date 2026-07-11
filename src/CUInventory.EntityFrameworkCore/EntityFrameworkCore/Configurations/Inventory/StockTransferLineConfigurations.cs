@@ -13,13 +13,12 @@ public class StockTransferLineConfigurations : IEntityTypeConfiguration<StockTra
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
 
-        builder.OwnsOne(x => x.Quantity, quantity =>
+        builder.ComplexProperty(x => x.Quantity, quantity =>
         {
             quantity
                 .Property(x => x.Value)
                 .HasColumnName(nameof(StockTransferLine.Quantity))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.Quantity).IsRequired();
     }
 }

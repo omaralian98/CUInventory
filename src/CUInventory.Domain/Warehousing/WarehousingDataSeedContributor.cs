@@ -21,8 +21,16 @@ public class WarehousingDataSeedContributor(
     {
         var warehouses = new List<(string Name, string Code, string Governorate, string City, string Street)>
         {
-            ("Main Warehouse", "WH-MAIN", "Damascus", "Damascus", "Industrial City Rd"),
-            ("Secondary Warehouse", "WH-SEC", "Aleppo", "Aleppo", "Sheikh Najjar Rd"),
+            ("Damascus Central Warehouse", "WH-DAM", "Damascus", "Damascus", "Industrial City Rd"),
+            ("Aleppo North Warehouse", "WH-ALE", "Aleppo", "Aleppo", "Sheikh Najjar Rd"),
+            ("Homs Distribution Center", "WH-HOM", "Homs", "Homs", "Al-Waer St"),
+            ("Hama Regional Warehouse", "WH-HAM", "Hama", "Hama", "Aleppo Rd"),
+            ("Latakia Port Warehouse", "WH-LAT", "Latakia", "Latakia", "Port Rd"),
+            ("Tartus Coastal Warehouse", "WH-TAR", "Tartus", "Tartus", "Corniche St"),
+            ("Deir ez-Zor Warehouse", "WH-DEZ", "Deir ez-Zor", "Deir ez-Zor", "Euphrates St"),
+            ("Raqqa Warehouse", "WH-RAQ", "Raqqa", "Raqqa", "Al-Mansour St"),
+            ("Hasakah Warehouse", "WH-HAS", "Hasakah", "Hasakah", "Al-Aziziyah St"),
+            ("Daraa South Warehouse", "WH-DAR", "Daraa", "Daraa", "Al-Sad Rd"),
         };
 
         foreach (var warehouse in warehouses)

@@ -16,32 +16,29 @@ public class PurchaseOrderLineConfigurations : IEntityTypeConfiguration<Purchase
         builder.Ignore(x => x.OutstandingQuantity);
         builder.Ignore(x => x.IsFullyReceived);
 
-        builder.OwnsOne(x => x.OrderedQuantity, quantity =>
+        builder.ComplexProperty(x => x.OrderedQuantity, quantity =>
         {
             quantity
                 .Property(x => x.Value)
                 .HasColumnName(nameof(PurchaseOrderLine.OrderedQuantity))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.OrderedQuantity).IsRequired();
 
-        builder.OwnsOne(x => x.ReceivedQuantity, quantity =>
+        builder.ComplexProperty(x => x.ReceivedQuantity, quantity =>
         {
             quantity
                 .Property(x => x.Value)
                 .HasColumnName(nameof(PurchaseOrderLine.ReceivedQuantity))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.ReceivedQuantity).IsRequired();
 
-        builder.OwnsOne(x => x.UnitCost, cost =>
+        builder.ComplexProperty(x => x.UnitCost, cost =>
         {
             cost
                 .Property(x => x.Amount)
                 .HasColumnName(nameof(PurchaseOrderLine.UnitCost))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.UnitCost).IsRequired();
 
         builder.HasIndex(x => x.ProductId);
     }

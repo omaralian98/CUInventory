@@ -15,18 +15,18 @@ public class SaleAllocationConfigurations : IEntityTypeConfiguration<SaleAllocat
 
         builder.Ignore(x => x.IsReserved);
 
-        builder.OwnsOne(x => x.Quantity, quantity =>
+        builder.ComplexProperty(x => x.Quantity, quantity =>
         {
             quantity
                 .Property(x => x.Value)
                 .HasColumnName(nameof(SaleAllocation.Quantity))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.Quantity).IsRequired();
 
         // UnitCost is null until the reservation is confirmed against a specific lot.
-        builder.OwnsOne(x => x.UnitCost, cost =>
+        builder.ComplexProperty(x => x.UnitCost, cost =>
         {
+            cost.IsRequired(false);
             cost
                 .Property(x => x.Amount)
                 .HasColumnName(nameof(SaleAllocation.UnitCost))

@@ -13,23 +13,21 @@ public class ShipmentLineConfigurations : IEntityTypeConfiguration<ShipmentLine>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
 
-        builder.OwnsOne(x => x.Quantity, quantity =>
+        builder.ComplexProperty(x => x.Quantity, quantity =>
         {
             quantity
                 .Property(x => x.Value)
                 .HasColumnName(nameof(ShipmentLine.Quantity))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.Quantity).IsRequired();
 
-        builder.OwnsOne(x => x.UnitCost, cost =>
+        builder.ComplexProperty(x => x.UnitCost, cost =>
         {
             cost
                 .Property(x => x.Amount)
                 .HasColumnName(nameof(ShipmentLine.UnitCost))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.UnitCost).IsRequired();
 
         builder.HasIndex(x => x.ProductId);
     }

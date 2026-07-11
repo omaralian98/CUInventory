@@ -5,6 +5,7 @@ using Volo.Abp.DependencyInjection;
 
 namespace CUInventory.Inventory.Allocation;
 
+[ExposeServices(typeof(IInventoryAllocationStrategy))]
 public class FifoAllocationStrategy : InventoryAllocationStrategyBase, ITransientDependency
 {
     public override AllocationStrategyKind Kind => AllocationStrategyKind.Fifo;

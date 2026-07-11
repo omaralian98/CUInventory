@@ -13,23 +13,21 @@ public class SaleLineConfigurations : IEntityTypeConfiguration<SaleLine>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
 
-        builder.OwnsOne(x => x.Quantity, quantity =>
+        builder.ComplexProperty(x => x.Quantity, quantity =>
         {
             quantity
                 .Property(x => x.Value)
                 .HasColumnName(nameof(SaleLine.Quantity))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.Quantity).IsRequired();
 
-        builder.OwnsOne(x => x.UnitPrice, price =>
+        builder.ComplexProperty(x => x.UnitPrice, price =>
         {
             price
                 .Property(x => x.Amount)
                 .HasColumnName(nameof(SaleLine.UnitPrice))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.UnitPrice).IsRequired();
 
         builder.HasIndex(x => x.ProductId);
 

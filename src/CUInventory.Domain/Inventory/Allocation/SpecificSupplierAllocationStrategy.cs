@@ -6,6 +6,7 @@ using Volo.Abp.DependencyInjection;
 
 namespace CUInventory.Inventory.Allocation;
 
+[ExposeServices(typeof(IInventoryAllocationStrategy))]
 public class SpecificSupplierAllocationStrategy : InventoryAllocationStrategyBase, ITransientDependency
 {
     public override AllocationStrategyKind Kind => AllocationStrategyKind.SpecificSupplier;

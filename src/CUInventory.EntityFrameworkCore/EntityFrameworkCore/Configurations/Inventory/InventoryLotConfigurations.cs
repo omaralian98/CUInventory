@@ -12,32 +12,29 @@ public class InventoryLotConfigurations : IEntityTypeConfiguration<InventoryLot>
         builder.ToModuleTable(x => x.InventoryLots);
         builder.ConfigureByConvention();
 
-        builder.OwnsOne(x => x.OriginalQuantity, quantity =>
+        builder.ComplexProperty(x => x.OriginalQuantity, quantity =>
         {
             quantity
                 .Property(x => x.Value)
                 .HasColumnName(nameof(InventoryLot.OriginalQuantity))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.OriginalQuantity).IsRequired();
 
-        builder.OwnsOne(x => x.RemainingQuantity, quantity =>
+        builder.ComplexProperty(x => x.RemainingQuantity, quantity =>
         {
             quantity
                 .Property(x => x.Value)
                 .HasColumnName(nameof(InventoryLot.RemainingQuantity))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.RemainingQuantity).IsRequired();
 
-        builder.OwnsOne(x => x.UnitCost, cost =>
+        builder.ComplexProperty(x => x.UnitCost, cost =>
         {
             cost
                 .Property(x => x.Amount)
                 .HasColumnName(nameof(InventoryLot.UnitCost))
                 .HasColumnType("decimal(18,2)");
         });
-        builder.Navigation(x => x.UnitCost).IsRequired();
 
         // FIFO allocation ordering + per-product/warehouse availability scans.
         builder.HasIndex(x => new { x.ProductId, x.WarehouseId, x.ReceivedAt, x.Id });
