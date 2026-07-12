@@ -1,9 +1,14 @@
+using System;
+using System.Linq.Expressions;
+using CUInventory.Abstractions;
 using CUInventory.Catalog.Aggregates;
 using CUInventory.Inventory.Aggregates;
 using CUInventory.Procurement.Aggregates;
 using CUInventory.Sales.Aggregates;
 using CUInventory.Warehousing.Aggregates;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
@@ -108,5 +113,56 @@ public class CUInventoryDbContext :
 
         builder.ApplyConfigurationsFromAssembly(typeof(CUInventoryEntityFrameworkCoreModule).Assembly);
 
+    }
+
+    protected virtual bool IsActiveFilterEnabled => DataFilter?.IsEnabled<IIsActive>() ?? false;
+
+    protected override bool ShouldFilterEntity<TEntity>(IMutableEntityType entityType)
+    {
+        if (typeof(IIsActive).IsAssignableFrom(typeof(TEntity)))
+        {
+            return true;
+        }
+
+        return base.ShouldFilterEntity<TEntity>(entityType);
+    }
+
+    protected override Expression<Func<TEntity, bool>>? CreateFilterExpression<TEntity>(
+        ModelBuilder modelBuilder,
+        EntityTypeBuilder<TEntity> entityTypeBuilder)
+    {
+        var expression = base.CreateFilterExpression<TEntity>(modelBuilder, entityTypeBuilder);
+
+        if (typeof(IIsActive).IsAssignableFrom(typeof(TEntity)))
+        {
+            Expression<Func<TEntity, bool>> isActiveFilter =
+                e => !IsActiveFilterEnabled || EF.Property<bool>(e, nameof(IIsActive.IsActive));
+            expression = expression == null ? isActiveFilter : CombineExpressions(expression, isActiveFilter);
+        }
+
+        return expression;
+    }
+
+    private static Expression<Func<T, bool>> CombineExpressions<T>(
+        Expression<Func<T, bool>> expression1,
+        Expression<Func<T, bool>> expression2)
+    {
+        var parameter = Expression.Parameter(typeof(T));
+
+        var leftVisitor = new ReplaceExpressionVisitor(expression1.Parameters[0], parameter);
+        var left = leftVisitor.Visit(expression1.Body);
+
+        var rightVisitor = new ReplaceExpressionVisitor(expression2.Parameters[0], parameter);
+        var right = rightVisitor.Visit(expression2.Body);
+
+        return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(left!, right!), parameter);
+    }
+
+    private sealed class ReplaceExpressionVisitor(Expression oldValue, Expression newValue) : ExpressionVisitor
+    {
+        public override Expression? Visit(Expression? node)
+        {
+            return node == oldValue ? newValue : base.Visit(node);
+        }
     }
 }

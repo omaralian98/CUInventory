@@ -1,4 +1,5 @@
 using System;
+using CUInventory.Abstractions;
 using CUInventory.Catalog.Aggregates;
 using CUInventory.EntityFrameworkCore.Repositories.Catalog;
 using CUInventory.EntityFrameworkCore.Repositories.Inventory;
@@ -11,6 +12,7 @@ using CUInventory.Sales.Aggregates;
 using CUInventory.Warehousing.Aggregates;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Uow;
+using Volo.Abp.Data;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -69,6 +71,11 @@ public class CUInventoryEntityFrameworkCoreModule : AbpModule
             options.AddRepository<InventoryLot, EfCoreInventoryLotRepository>();
             options.AddRepository<StockTransfer, EfCoreStockTransferRepository>();
             options.AddRepository<Sale, EfCoreSaleRepository>();
+        });
+
+        Configure<AbpDataFilterOptions>(options =>
+        {
+            options.DefaultStates[typeof(IIsActive)] = new DataFilterState(isEnabled: false);
         });
 
         if (AbpStudioAnalyzeHelper.IsInAnalyzeMode)

@@ -4,13 +4,12 @@ using System.Threading.Tasks;
 using CUInventory.Sales.Aggregates;
 using CUInventory.Sales.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 
 namespace CUInventory.EntityFrameworkCore.Repositories.Sales;
 
 public class EfCoreSaleRepository(IDbContextProvider<CUInventoryDbContext> dbContextProvider)
-    : EfCoreRepository<CUInventoryDbContext, Sale, Guid>(dbContextProvider), ISaleRepository
+    : CUInventoryEfCoreRepository<Sale, Guid>(dbContextProvider), ISaleRepository
 {
     public override async Task<IQueryable<Sale>> WithDetailsAsync()
     {
