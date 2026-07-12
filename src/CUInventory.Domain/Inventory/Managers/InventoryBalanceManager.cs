@@ -21,6 +21,7 @@ public class InventoryBalanceManager(IInventoryBalanceRepository inventoryBalanc
         // Since the caller is Expecting to get the balance meaning he shouldn't consider himself with the responsibility of creating the balance, we will create it with and save it.
         var newBalance = new InventoryBalance(GuidGenerator.Create(), warehouseId, productId, lowStockThreshold);
         
+        // We use autosave so if there was another call to GetOrCreateAsync for the same warehouse and product, it will fetch the autosaved one instead of creating another one.
         await inventoryBalanceRepository.InsertAsync(newBalance, autoSave: true);
         return newBalance;
     }

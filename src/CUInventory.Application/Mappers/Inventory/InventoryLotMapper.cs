@@ -4,14 +4,14 @@ using CUInventory.ValueObjects;
 using Riok.Mapperly.Abstractions;
 using Volo.Abp.Mapperly;
 
-namespace CUInventory.Inventory;
+namespace CUInventory.Mappers.Inventory;
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
-public partial class StockTransferMapper : MapperBase<StockTransfer, StockTransferDto>
+public partial class InventoryLotMapper : MapperBase<InventoryLot, InventoryLotDto>
 {
-    public override partial StockTransferDto Map(StockTransfer source);
+    public override partial InventoryLotDto Map(InventoryLot source);
 
-    public override partial void Map(StockTransfer source, StockTransferDto destination);
+    public override partial void Map(InventoryLot source, InventoryLotDto destination);
 
     private static decimal MapQuantity(Quantity quantity) => quantity.Value;
 

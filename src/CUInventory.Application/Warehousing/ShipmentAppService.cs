@@ -18,7 +18,7 @@ namespace CUInventory.Warehousing;
 
 [Authorize(CUInventoryPermissions.Shipments.Default)]
 public class ShipmentAppService :
-    CUInventoryReadOnlyAppService<Shipment, ShipmentDto, ShipmentDto, Guid, GetShipmentListDto>,
+    CUInventoryCrudAppService<Shipment, ShipmentDto, ShipmentDto, Guid, GetShipmentListDto, CreateShipmentDto>,
     IShipmentAppService
 {
     private readonly IShipmentRepository _repository;
@@ -46,11 +46,13 @@ public class ShipmentAppService :
 
         GetPolicyName = CUInventoryPermissions.Shipments.Default;
         GetListPolicyName = CUInventoryPermissions.Shipments.Default;
+        CreatePolicyName = CUInventoryPermissions.Shipments.Create;
+        DeletePolicyName = CUInventoryPermissions.Shipments.Delete;
     }
 
-    public virtual async Task<ShipmentDto> CreateAsync(CreateShipmentDto input)
+    public override async Task<ShipmentDto> CreateAsync(CreateShipmentDto input)
     {
-        await CheckPolicyAsync(CUInventoryPermissions.Shipments.Create);
+        await CheckCreatePolicyAsync();
 
         var lines = input.Lines
             .Select(l => new ShipmentLineData(
@@ -60,14 +62,8 @@ public class ShipmentAppService :
         var shipment = new Shipment(
             GuidGenerator.Create(), input.PurchaseOrderId, input.SupplierId, input.DestinationWarehouseId, lines);
 
-        await _repository.InsertAsync(shipment, autoSave: true);
+        await _repository.InsertAsync(shipment);
         return await MapToGetOutputDtoAsync(shipment);
-    }
-
-    public virtual async Task DeleteAsync(Guid id)
-    {
-        await CheckPolicyAsync(CUInventoryPermissions.Shipments.Delete);
-        await _repository.DeleteAsync(id);
     }
 
     public virtual async Task<ShipmentDto> DispatchAsync(Guid id)
@@ -77,7 +73,7 @@ public class ShipmentAppService :
         var shipment = await _repository.GetAsync(id);
         shipment.Dispatch(Clock.Now);
 
-        await _repository.UpdateAsync(shipment, autoSave: true);
+        await _repository.UpdateAsync(shipment);
         return await MapToGetOutputDtoAsync(shipment);
     }
 

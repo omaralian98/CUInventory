@@ -14,7 +14,7 @@ namespace CUInventory.Inventory;
 
 [Authorize(CUInventoryPermissions.StockTransfers.Default)]
 public class StockTransferAppService :
-    CUInventoryReadOnlyAppService<StockTransfer, StockTransferDto, StockTransferDto, Guid, GetStockTransferListDto>,
+    CUInventoryCrudAppService<StockTransfer, StockTransferDto, StockTransferDto, Guid, GetStockTransferListDto, CreateStockTransferDto>,
     IStockTransferAppService
 {
     private readonly IStockTransferRepository _repository;
@@ -39,11 +39,13 @@ public class StockTransferAppService :
 
         GetPolicyName = CUInventoryPermissions.StockTransfers.Default;
         GetListPolicyName = CUInventoryPermissions.StockTransfers.Default;
+        CreatePolicyName = CUInventoryPermissions.StockTransfers.Create;
+        DeletePolicyName = CUInventoryPermissions.StockTransfers.Delete;
     }
 
-    public virtual async Task<StockTransferDto> CreateAsync(CreateStockTransferDto input)
+    public override async Task<StockTransferDto> CreateAsync(CreateStockTransferDto input)
     {
-        await CheckPolicyAsync(CUInventoryPermissions.StockTransfers.Create);
+        await CheckCreatePolicyAsync();
 
         var lines = input.Lines
             .Select(l => new StockTransferLineData(GuidGenerator.Create(), l.ProductId, new Quantity(l.Quantity)))
@@ -52,14 +54,8 @@ public class StockTransferAppService :
         var transfer = new StockTransfer(
             GuidGenerator.Create(), input.SourceWarehouseId, input.DestinationWarehouseId, lines);
 
-        await _repository.InsertAsync(transfer, autoSave: true);
+        await _repository.InsertAsync(transfer);
         return await MapToGetOutputDtoAsync(transfer);
-    }
-
-    public virtual async Task DeleteAsync(Guid id)
-    {
-        await CheckPolicyAsync(CUInventoryPermissions.StockTransfers.Delete);
-        await _repository.DeleteAsync(id);
     }
 
     public virtual async Task<StockTransferDto> DispatchAsync(Guid id)

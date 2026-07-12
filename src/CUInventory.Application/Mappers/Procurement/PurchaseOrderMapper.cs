@@ -4,7 +4,7 @@ using CUInventory.ValueObjects;
 using Riok.Mapperly.Abstractions;
 using Volo.Abp.Mapperly;
 
-namespace CUInventory.Procurement;
+namespace CUInventory.Mappers.Procurement;
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
 public partial class PurchaseOrderMapper : MapperBase<PurchaseOrder, PurchaseOrderDto>

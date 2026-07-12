@@ -17,10 +17,10 @@ public class CreateSaleLineDto
     [Required]
     public Guid ProductId { get; set; }
 
-    [Range(typeof(decimal), "0.0000000001", "79228162514264337593543950335")]
+    [Range(typeof(decimal), ValidationConsts.PositiveDecimalMin, ValidationConsts.DecimalMax)]
     public decimal Quantity { get; set; }
 
-    [Range(typeof(decimal), "0", "79228162514264337593543950335")]
+    [Range(typeof(decimal), ValidationConsts.ZeroDecimalMin, ValidationConsts.DecimalMax)]
     public decimal UnitPrice { get; set; }
 
     public AllocationStrategyKind Kind { get; set; } = AllocationStrategyKind.Fifo;

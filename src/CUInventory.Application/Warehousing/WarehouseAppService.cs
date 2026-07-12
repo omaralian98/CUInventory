@@ -39,7 +39,7 @@ public class WarehouseAppService :
         warehouse.OrderIndex = input.OrderIndex;
         warehouse.SetIsActive(input.IsActive);
 
-        await Repository.InsertAsync(warehouse, autoSave: true);
+        await Repository.InsertAsync(warehouse);
         return await MapToGetOutputDtoAsync(warehouse);
     }
 
@@ -53,7 +53,7 @@ public class WarehouseAppService :
             new Address(input.Address.Governorate, input.Address.City, input.Address.Street), input.IsActive);
         warehouse.OrderIndex = input.OrderIndex;
 
-        await Repository.UpdateAsync(warehouse, autoSave: true);
+        await Repository.UpdateAsync(warehouse);
         return await MapToGetOutputDtoAsync(warehouse);
     }
 
@@ -63,7 +63,6 @@ public class WarehouseAppService :
         return query
             .WhereIf(
                 !string.IsNullOrWhiteSpace(input.Filter),
-                w => w.Name.Contains(input.Filter!) || w.Code.Contains(input.Filter!))
-            .WhereIf(input.IsActive.HasValue, w => w.IsActive == input.IsActive!.Value);
+                w => w.Name.Contains(input.Filter!) || w.Code.Contains(input.Filter!));
     }
 }

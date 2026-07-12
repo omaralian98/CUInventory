@@ -12,7 +12,7 @@ namespace CUInventory.Procurement;
 
 [Authorize(CUInventoryPermissions.PurchaseOrders.Default)]
 public class PurchaseOrderAppService :
-    CUInventoryReadOnlyAppService<PurchaseOrder, PurchaseOrderDto, PurchaseOrderDto, Guid, GetPurchaseOrderListDto>,
+    CUInventoryCrudAppService<PurchaseOrder, PurchaseOrderDto, PurchaseOrderDto, Guid, GetPurchaseOrderListDto, CreatePurchaseOrderDto>,
     IPurchaseOrderAppService
 {
     private readonly IPurchaseOrderRepository _repository;
@@ -24,11 +24,13 @@ public class PurchaseOrderAppService :
 
         GetPolicyName = CUInventoryPermissions.PurchaseOrders.Default;
         GetListPolicyName = CUInventoryPermissions.PurchaseOrders.Default;
+        CreatePolicyName = CUInventoryPermissions.PurchaseOrders.Create;
+        DeletePolicyName = CUInventoryPermissions.PurchaseOrders.Delete;
     }
 
-    public virtual async Task<PurchaseOrderDto> CreateAsync(CreatePurchaseOrderDto input)
+    public override async Task<PurchaseOrderDto> CreateAsync(CreatePurchaseOrderDto input)
     {
-        await CheckPolicyAsync(CUInventoryPermissions.PurchaseOrders.Create);
+        await CheckCreatePolicyAsync();
 
         var lines = input.Lines
             .Select(l => new PurchaseOrderLineData(
@@ -38,14 +40,8 @@ public class PurchaseOrderAppService :
         var purchaseOrder = new PurchaseOrder(
             GuidGenerator.Create(), input.SupplierId, input.DestinationWarehouseId, lines);
 
-        await _repository.InsertAsync(purchaseOrder, autoSave: true);
+        await _repository.InsertAsync(purchaseOrder);
         return await MapToGetOutputDtoAsync(purchaseOrder);
-    }
-
-    public virtual async Task DeleteAsync(Guid id)
-    {
-        await CheckPolicyAsync(CUInventoryPermissions.PurchaseOrders.Delete);
-        await _repository.DeleteAsync(id);
     }
 
     public virtual async Task<PurchaseOrderDto> ConfirmAsync(Guid id)
@@ -55,7 +51,7 @@ public class PurchaseOrderAppService :
         var purchaseOrder = await _repository.GetAsync(id);
         purchaseOrder.Confirm(Clock.Now);
 
-        await _repository.UpdateAsync(purchaseOrder, autoSave: true);
+        await _repository.UpdateAsync(purchaseOrder);
         return await MapToGetOutputDtoAsync(purchaseOrder);
     }
 
@@ -66,7 +62,7 @@ public class PurchaseOrderAppService :
         var purchaseOrder = await _repository.GetAsync(id);
         purchaseOrder.Cancel();
 
-        await _repository.UpdateAsync(purchaseOrder, autoSave: true);
+        await _repository.UpdateAsync(purchaseOrder);
         return await MapToGetOutputDtoAsync(purchaseOrder);
     }
 }

@@ -3,7 +3,7 @@ using CUInventory.Catalog.Dtos;
 using Riok.Mapperly.Abstractions;
 using Volo.Abp.Mapperly;
 
-namespace CUInventory.Catalog;
+namespace CUInventory.Mappers.Catalog;
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
 public partial class CategoryMapper : MapperBase<Category, CategoryDto>

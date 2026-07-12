@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Threading.Tasks;
 using CUInventory.Localization;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
@@ -16,5 +18,10 @@ public abstract class CUInventoryReadOnlyAppService<TEntity, TGetOutputDto, TGet
         : base(repository)
     {
         LocalizationResource = typeof(CUInventoryResource);
+    }
+    
+    protected override IQueryable<TEntity> ApplySorting(IQueryable<TEntity> query, TGetListInput input)
+    {
+        return SortableQuery.TryApplyDefaultOrderIndex(query, input) ?? base.ApplySorting(query, input);
     }
 }

@@ -220,8 +220,19 @@ public class CUInventoryHttpApiHostModule : AbpModule
             null,
             options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "CUInventory API", Version = "v1" });
-                options.DocInclusionPredicate((docName, description) => true);
+                options.SwaggerDoc("app", new OpenApiInfo { Title = "CUInventory App API", Version = "v1" });
+                options.SwaggerDoc("default", new OpenApiInfo { Title = "CUInventory Default API", Version = "v1" });
+                options.DocInclusionPredicate((docName, description) =>
+                {
+                    var route = description.RelativePath ?? string.Empty;
+                    var isAppService = route.StartsWith("api/app/", StringComparison.OrdinalIgnoreCase);
+                    return docName switch
+                    {
+                        "app" => isAppService,
+                        "default" => !isAppService,
+                        _ => false
+                    };
+                });
                 options.CustomSchemaIds(type => type.FullName);
             });
     }
@@ -293,7 +304,8 @@ public class CUInventoryHttpApiHostModule : AbpModule
         app.UseSwagger();
         app.UseAbpSwaggerUI(options =>
         {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "CUInventory API");
+            options.SwaggerEndpoint("/swagger/app/swagger.json", "CUInventory App API");
+            options.SwaggerEndpoint("/swagger/default/swagger.json", "CUInventory Default API");
 
             var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
             options.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);

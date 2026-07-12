@@ -4,7 +4,7 @@ using CUInventory.Catalog.ValueObjects;
 using Riok.Mapperly.Abstractions;
 using Volo.Abp.Mapperly;
 
-namespace CUInventory.Catalog;
+namespace CUInventory.Mappers.Catalog;
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
 public partial class ProductMapper : MapperBase<Product, ProductDto>

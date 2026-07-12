@@ -32,7 +32,7 @@ public class InventoryBalanceAppService :
         var balance = await _repository.GetAsync(id);
         balance.SetLowStockThreshold(input.Threshold);
 
-        await _repository.UpdateAsync(balance, autoSave: true);
+        await _repository.UpdateAsync(balance);
         return await MapToGetOutputDtoAsync(balance);
     }
 

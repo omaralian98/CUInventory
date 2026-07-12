@@ -39,7 +39,7 @@ public class ProductAppService :
         product.OrderIndex = input.OrderIndex;
         product.SetIsActive(input.IsActive);
 
-        await Repository.InsertAsync(product, autoSave: true);
+        await Repository.InsertAsync(product);
         return await MapToGetOutputDtoAsync(product);
     }
 
@@ -53,7 +53,7 @@ public class ProductAppService :
         product.OrderIndex = input.OrderIndex;
         product.SetIsActive(input.IsActive);
 
-        await Repository.UpdateAsync(product, autoSave: true);
+        await Repository.UpdateAsync(product);
         return await MapToGetOutputDtoAsync(product);
     }
 
@@ -64,7 +64,6 @@ public class ProductAppService :
             .WhereIf(
                 !string.IsNullOrWhiteSpace(input.Filter),
                 p => p.Name.Contains(input.Filter!) || (p.SKU != null && p.SKU.Value.Contains(input.Filter!)))
-            .WhereIf(input.IsActive.HasValue, p => p.IsActive == input.IsActive!.Value)
             .WhereIf(input.CategoryId.HasValue, p => p.CategoryId == input.CategoryId!.Value);
     }
 }

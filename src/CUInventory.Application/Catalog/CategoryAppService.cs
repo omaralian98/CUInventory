@@ -37,7 +37,7 @@ public class CategoryAppService :
         category.OrderIndex = input.OrderIndex;
         category.SetIsActive(input.IsActive);
 
-        await Repository.InsertAsync(category, autoSave: true);
+        await Repository.InsertAsync(category);
         return await MapToGetOutputDtoAsync(category);
     }
 
@@ -48,7 +48,7 @@ public class CategoryAppService :
         var category = await Repository.GetAsync(id);
         await _categoryManager.UpdateAsync(category, input.Name, input.OrderIndex, input.IsActive);
 
-        await Repository.UpdateAsync(category, autoSave: true);
+        await Repository.UpdateAsync(category);
         return await MapToGetOutputDtoAsync(category);
     }
 
@@ -56,7 +56,6 @@ public class CategoryAppService :
     {
         var query = await Repository.GetQueryableAsync();
         return query
-            .WhereIf(!string.IsNullOrWhiteSpace(input.Filter), c => c.Name.Contains(input.Filter!))
-            .WhereIf(input.IsActive.HasValue, c => c.IsActive == input.IsActive!.Value);
+            .WhereIf(!string.IsNullOrWhiteSpace(input.Filter), c => c.Name.Contains(input.Filter!));
     }
 }
