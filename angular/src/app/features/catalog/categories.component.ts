@@ -12,6 +12,7 @@ import {
   FormFieldComponent,
   ModalComponent,
   StatusBadgeComponent,
+  AuditInfoComponent,
   ColumnConfig,
   RowAction,
   LookupService,
@@ -31,6 +32,7 @@ import { ListPageBase } from '../shared/list-page.base';
     FormFieldComponent,
     ModalComponent,
     StatusBadgeComponent,
+    AuditInfoComponent,
   ],
   providers: [ListService],
   templateUrl: './categories.component.html',
@@ -46,6 +48,8 @@ export class CategoriesComponent extends ListPageBase<CategoryDto> {
   modalOpen = signal(false);
   saving = signal(false);
   editing = signal<CategoryDto | null>(null);
+  detailOpen = signal(false);
+  detailRow = signal<CategoryDto | null>(null);
 
   form = this.fb.group({
     name: ['', Validators.required],
@@ -61,6 +65,7 @@ export class CategoriesComponent extends ListPageBase<CategoryDto> {
   ];
 
   actions: RowAction[] = [
+    { key: 'details', label: 'Details', icon: 'fa-circle-info' },
     { key: 'edit', label: 'Edit', icon: 'fa-pen' },
     { key: 'delete', label: 'Delete', icon: 'fa-trash-can', tone: 'danger' },
   ];
@@ -90,8 +95,14 @@ export class CategoriesComponent extends ListPageBase<CategoryDto> {
   }
 
   onAction(e: { key: string; row: CategoryDto }): void {
-    if (e.key === 'edit') this.edit(e.row);
+    if (e.key === 'details') this.showDetails(e.row);
+    else if (e.key === 'edit') this.edit(e.row);
     else if (e.key === 'delete') this.remove(e.row);
+  }
+
+  private showDetails(row: CategoryDto): void {
+    this.detailRow.set(row);
+    this.detailOpen.set(true);
   }
 
   private edit(row: CategoryDto): void {

@@ -27,26 +27,25 @@ describe('StockNotificationStore', () => {
   let store: StockNotificationStore;
   let handlers: StockStreamHandlers;
   let warn: ReturnType<typeof vi.fn>;
+  let connect: ReturnType<typeof vi.fn>;
+  let abort: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     handlers = undefined as unknown as StockStreamHandlers;
     warn = vi.fn();
+    abort = vi.fn();
+    connect = vi.fn((h: StockStreamHandlers) => {
+      handlers = h;
+      h.onConnected?.();
+      return abort;
+    });
 
     TestBed.configureTestingModule({
       providers: [
         StockNotificationStore,
         { provide: ToasterService, useValue: { warn } },
         { provide: LookupService, useValue: { load: () => {}, nameOf: () => 'Widget' } },
-        {
-          provide: StockNotificationClient,
-          useValue: {
-            connect: (h: StockStreamHandlers) => {
-              handlers = h;
-              h.onConnected?.();
-              return () => {};
-            },
-          },
-        },
+        { provide: StockNotificationClient, useValue: { connect } },
       ],
     });
 
@@ -81,5 +80,30 @@ describe('StockNotificationStore', () => {
 
     handlers.onEvent('StockChanged', notification({ quantityAvailable: 12, isBelowThreshold: false }));
     expect(store.lowStockCount()).toBe(0);
+  });
+
+  it('reconnect aborts the current stream and opens a new one immediately', () => {
+    store.reconnect();
+
+    expect(abort).toHaveBeenCalledOnce();
+    expect(connect).toHaveBeenCalledTimes(2);
+    expect(store.connected()).toBe(true);
+  });
+
+  it('reconnect cancels a pending backoff retry before opening', () => {
+    vi.useFakeTimers();
+    try {
+      handlers.onError?.(new Error('boom'));
+      expect(store.connected()).toBe(false);
+
+      store.reconnect();
+      expect(connect).toHaveBeenCalledTimes(2);
+      expect(store.connected()).toBe(true);
+
+      vi.runAllTimers();
+      expect(connect).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

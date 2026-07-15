@@ -10,6 +10,7 @@ import {
   DataTableComponent,
   FormFieldComponent,
   ModalComponent,
+  AuditInfoComponent,
   ColumnConfig,
   RowAction,
   LookupService,
@@ -28,6 +29,7 @@ import { ListPageBase } from '../shared/list-page.base';
     DataTableComponent,
     FormFieldComponent,
     ModalComponent,
+    AuditInfoComponent,
   ],
   providers: [ListService],
   templateUrl: './suppliers.component.html',
@@ -42,6 +44,8 @@ export class SuppliersComponent extends ListPageBase<SupplierDto> {
   modalOpen = signal(false);
   saving = signal(false);
   editing = signal<SupplierDto | null>(null);
+  detailOpen = signal(false);
+  detailRow = signal<SupplierDto | null>(null);
 
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(256)]],
@@ -72,6 +76,7 @@ export class SuppliersComponent extends ListPageBase<SupplierDto> {
   ];
 
   actions: RowAction[] = [
+    { key: 'details', label: 'Details', icon: 'fa-circle-info' },
     { key: 'edit', label: 'Edit', icon: 'fa-pen' },
     { key: 'delete', label: 'Delete', icon: 'fa-trash-can', tone: 'danger' },
   ];
@@ -100,8 +105,14 @@ export class SuppliersComponent extends ListPageBase<SupplierDto> {
   }
 
   onAction(e: { key: string; row: SupplierDto }): void {
-    if (e.key === 'edit') this.edit(e.row);
+    if (e.key === 'details') this.showDetails(e.row);
+    else if (e.key === 'edit') this.edit(e.row);
     else if (e.key === 'delete') this.remove(e.row);
+  }
+
+  private showDetails(row: SupplierDto): void {
+    this.detailRow.set(row);
+    this.detailOpen.set(true);
   }
 
   private edit(row: SupplierDto): void {

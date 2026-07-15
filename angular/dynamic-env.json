@@ -1,2 +1,17 @@
 {
+  "application": {
+    "baseUrl": "http://localhost:4200"
+  },
+  "oAuthConfig": {
+    "issuer": "http://localhost:8080/",
+    "requireHttps": false
+  },
+  "apis": {
+    "default": {
+      "url": "http://localhost:8080"
+    },
+    "AbpAccountPublic": {
+      "url": "http://localhost:8080/"
+    }
+  }
 }

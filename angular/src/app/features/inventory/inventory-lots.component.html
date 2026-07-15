@@ -6,8 +6,10 @@
     [rows]="rows()"
     [count]="count()"
     [list]="list"
+    [actions]="actions"
     [loading]="loading()"
-    [showToolbar]="true">
+    [showToolbar]="true"
+    (action)="onAction($event)">
     <ng-container slot="toolbar">
       <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="All warehouses" [(ngModel)]="warehouseId" (ngModelChange)="onFilter()" />
       <cu-autocomplete class="cu-inline-filter" kind="product" [inline]="true" [small]="true" placeholder="All products" [(ngModel)]="productId" (ngModelChange)="onFilter()" />
@@ -30,3 +32,20 @@
     </ng-template>
   </cu-data-table>
 </cu-page-shell>
+
+<cu-modal [open]="detailOpen()" title="Lot details" (closed)="detailOpen.set(false)">
+  @if (detailRow(); as l) {
+    <div class="d-flex flex-wrap gap-4 mb-2">
+      <div><span class="cu-muted d-block small">Lot</span><span class="cu-mono">{{ l.id | slice: 0 : 8 }}</span></div>
+      <div><span class="cu-muted d-block small">Product</span>{{ l.productId | idName: 'product' }}</div>
+      <div><span class="cu-muted d-block small">Warehouse</span>{{ l.warehouseId | idName: 'warehouse' }}</div>
+      <div><span class="cu-muted d-block small">Supplier</span>{{ l.supplierId | idName: 'supplier' }}</div>
+      <div><span class="cu-muted d-block small">Remaining</span><span class="cu-mono">{{ l.remainingQuantity | number: '1.0-2' }}</span></div>
+      <div><span class="cu-muted d-block small">Received</span>{{ l.receivedAt | date: 'short' }}</div>
+    </div>
+    <cu-audit-info [entity]="l" />
+  }
+  <ng-container slot="footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
+  </ng-container>
+</cu-modal>

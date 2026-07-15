@@ -3,6 +3,9 @@
     <span class="cu-live" [class.cu-live--on]="store.connected()">
       <span class="cu-live-dot"></span>{{ store.connected() ? 'Live' : 'Offline' }}
     </span>
+    <button type="button" class="btn btn-sm btn-outline-secondary" title="Reconnect" (click)="store.reconnect()">
+      <i class="fas fa-rotate"></i>
+    </button>
   </ng-container>
 
   <div class="cu-tile-row">

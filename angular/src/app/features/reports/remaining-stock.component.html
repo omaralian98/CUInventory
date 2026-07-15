@@ -40,6 +40,7 @@
           </tbody>
         </table>
       </div>
+      <cu-pager [page]="page()" [count]="r.totalCount || 0" [pageSize]="pageSize" (pageChange)="goTo($event)" />
     </div>
 
     @if (showDetail()) {
@@ -68,6 +69,7 @@
             </tbody>
           </table>
         </div>
+        <cu-pager [page]="detailPage()" [count]="detailCount()" [pageSize]="pageSize" (pageChange)="goToDetail($event)" />
       </div>
     }
   } @else if (loading()) {

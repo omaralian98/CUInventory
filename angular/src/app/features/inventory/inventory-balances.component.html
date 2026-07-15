@@ -4,6 +4,9 @@
       <i class="fas fa-circle" style="font-size: 0.5rem"></i>
       {{ store.connected() ? 'Live' : 'Offline' }}
     </span>
+    <button type="button" class="btn btn-sm btn-outline-secondary" title="Reconnect" (click)="store.reconnect()">
+      <i class="fas fa-rotate"></i>
+    </button>
   </ng-container>
 
   <cu-data-table
@@ -56,5 +59,21 @@
     <button type="button" class="btn btn-primary" [disabled]="savingThreshold()" (click)="saveThreshold()">
       @if (savingThreshold()) { <i class="fas fa-circle-notch fa-spin"></i> } Save
     </button>
+  </ng-container>
+</cu-modal>
+
+<cu-modal [open]="detailOpen()" title="Balance details" (closed)="detailOpen.set(false)">
+  @if (detailRow(); as b) {
+    <div class="d-flex flex-wrap gap-4 mb-2">
+      <div><span class="cu-muted d-block small">Warehouse</span>{{ b.warehouseId | idName: 'warehouse' }}</div>
+      <div><span class="cu-muted d-block small">Product</span>{{ b.productId | idName: 'product' }}</div>
+      <div><span class="cu-muted d-block small">On hand</span><span class="cu-mono">{{ b.quantityOnHand | number: '1.0-2' }}</span></div>
+      <div><span class="cu-muted d-block small">Reserved</span><span class="cu-mono">{{ b.quantityReserved | number: '1.0-2' }}</span></div>
+      <div><span class="cu-muted d-block small">Available</span><span class="cu-mono">{{ b.quantityAvailable | number: '1.0-2' }}</span></div>
+    </div>
+    <cu-audit-info [entity]="b" />
+  }
+  <ng-container slot="footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
   </ng-container>
 </cu-modal>

@@ -12,6 +12,7 @@ import {
   ModalComponent,
   AutocompleteComponent,
   IdNamePipe,
+  AuditInfoComponent,
   ColumnConfig,
   RowAction,
   LookupService,
@@ -31,6 +32,7 @@ import { ListPageBase } from '../shared/list-page.base';
     ModalComponent,
     AutocompleteComponent,
     IdNamePipe,
+    AuditInfoComponent,
   ],
   providers: [ListService],
   templateUrl: './inventory-balances.component.html',
@@ -48,6 +50,8 @@ export class InventoryBalancesComponent extends ListPageBase<InventoryBalanceDto
   savingThreshold = signal(false);
   thresholdTarget = signal<InventoryBalanceDto | null>(null);
   thresholdValue: number | null = null;
+  detailOpen = signal(false);
+  detailRow = signal<InventoryBalanceDto | null>(null);
 
   columns: ColumnConfig[] = [
     { prop: 'warehouseId', header: 'Warehouse', cell: 'warehouse' },
@@ -58,7 +62,10 @@ export class InventoryBalancesComponent extends ListPageBase<InventoryBalanceDto
     { prop: 'lowStockThreshold', header: 'Threshold', pipe: 'number', align: 'end' },
   ];
 
-  actions: RowAction[] = [{ key: 'threshold', label: 'Set threshold', icon: 'fa-bell' }];
+  actions: RowAction[] = [
+    { key: 'details', label: 'Details', icon: 'fa-circle-info' },
+    { key: 'threshold', label: 'Set threshold', icon: 'fa-bell' },
+  ];
 
   // Live: when the SSE store reports a new snapshot for a balance we're showing,
   // patch that row's quantities in place so managers see changes without refreshing.
@@ -115,6 +122,10 @@ export class InventoryBalancesComponent extends ListPageBase<InventoryBalanceDto
 
   onAction(e: { key: string; row: InventoryBalanceDto }): void {
     if (e.key === 'threshold') this.openThreshold(e.row);
+    else if (e.key === 'details') {
+      this.detailRow.set(e.row);
+      this.detailOpen.set(true);
+    }
   }
 
   private openThreshold(row: InventoryBalanceDto): void {

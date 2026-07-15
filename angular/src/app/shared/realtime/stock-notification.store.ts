@@ -39,6 +39,20 @@ export class StockNotificationStore {
     this.open();
   }
 
+  reconnect(): void {
+    if (!this.started) {
+      this.start();
+      return;
+    }
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+    this.disconnect?.();
+    this.reconnectDelay = 3000;
+    this.open();
+  }
+
   stop(): void {
     this.started = false;
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);

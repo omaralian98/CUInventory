@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ListService } from '@abp/ng.core';
@@ -10,8 +10,11 @@ import {
   ColumnDirective,
   StatusBadgeComponent,
   AutocompleteComponent,
+  ModalComponent,
   IdNamePipe,
+  AuditInfoComponent,
   ColumnConfig,
+  RowAction,
   LookupService,
 } from '../../shared';
 import { ListPageBase } from '../shared/list-page.base';
@@ -27,7 +30,9 @@ import { ListPageBase } from '../shared/list-page.base';
     ColumnDirective,
     StatusBadgeComponent,
     AutocompleteComponent,
+    ModalComponent,
     IdNamePipe,
+    AuditInfoComponent,
   ],
   providers: [ListService],
   templateUrl: './inventory-lots.component.html',
@@ -40,6 +45,11 @@ export class InventoryLotsComponent extends ListPageBase<InventoryLotDto> {
   productId: string | null = null;
   supplierId: string | null = null;
   hasRemaining = false;
+
+  detailOpen = signal(false);
+  detailRow = signal<InventoryLotDto | null>(null);
+
+  actions: RowAction[] = [{ key: 'details', label: 'Details', icon: 'fa-circle-info' }];
 
   columns: ColumnConfig[] = [
     { prop: 'productId', header: 'Product', cell: 'product' },
@@ -64,6 +74,13 @@ export class InventoryLotsComponent extends ListPageBase<InventoryLotDto> {
         hasRemaining: this.hasRemaining,
       }),
     );
+  }
+
+  onAction(e: { key: string; row: InventoryLotDto }): void {
+    if (e.key === 'details') {
+      this.detailRow.set(e.row);
+      this.detailOpen.set(true);
+    }
   }
 
   onFilter(): void {

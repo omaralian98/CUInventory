@@ -79,9 +79,12 @@ export class StockNotificationClient {
     }
     if (dataLines.length === 0) return;
 
+    const name = (event ?? 'StockChanged') as StockNotificationEventName;
+    if (name !== 'StockChanged' && name !== 'LowStockReached') return;
+
     try {
-      const payload = JSON.parse(dataLines.join('\n')) as StockNotificationDto;
-      const name = (event ?? 'StockChanged') as StockNotificationEventName;
+      const payload = JSON.parse(dataLines.join('\n')) as StockNotificationDto | null;
+      if (!payload) return;
       handlers.onEvent(name, payload);
     } catch {
       // Ignore keep-alive / malformed frames.

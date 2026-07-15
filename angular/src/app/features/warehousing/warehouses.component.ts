@@ -12,6 +12,7 @@ import {
   FormFieldComponent,
   ModalComponent,
   StatusBadgeComponent,
+  AuditInfoComponent,
   ColumnConfig,
   RowAction,
   LookupService,
@@ -31,6 +32,7 @@ import { ListPageBase } from '../shared/list-page.base';
     FormFieldComponent,
     ModalComponent,
     StatusBadgeComponent,
+    AuditInfoComponent,
   ],
   providers: [ListService],
   templateUrl: './warehouses.component.html',
@@ -46,6 +48,8 @@ export class WarehousesComponent extends ListPageBase<WarehouseDto> {
   modalOpen = signal(false);
   saving = signal(false);
   editing = signal<WarehouseDto | null>(null);
+  detailOpen = signal(false);
+  detailRow = signal<WarehouseDto | null>(null);
 
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(256)]],
@@ -72,6 +76,7 @@ export class WarehousesComponent extends ListPageBase<WarehouseDto> {
   ];
 
   actions: RowAction[] = [
+    { key: 'details', label: 'Details', icon: 'fa-circle-info' },
     { key: 'edit', label: 'Edit', icon: 'fa-pen' },
     { key: 'delete', label: 'Delete', icon: 'fa-trash-can', tone: 'danger' },
   ];
@@ -106,8 +111,14 @@ export class WarehousesComponent extends ListPageBase<WarehouseDto> {
     this.modalOpen.set(true);
   }
 
+  showDetails(row: WarehouseDto): void {
+    this.detailRow.set(row);
+    this.detailOpen.set(true);
+  }
+
   onAction(e: { key: string; row: WarehouseDto }): void {
-    if (e.key === 'edit') this.edit(e.row);
+    if (e.key === 'details') this.showDetails(e.row);
+    else if (e.key === 'edit') this.edit(e.row);
     else if (e.key === 'delete') this.remove(e.row);
   }
 

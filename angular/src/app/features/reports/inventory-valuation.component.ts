@@ -7,6 +7,7 @@ import {
   StatTileComponent,
   DonutChartComponent,
   ReportFilterBarComponent,
+  PagerComponent,
   IdNamePipe,
   LookupService,
 } from '../../shared';
@@ -16,7 +17,7 @@ import { ReportFilterFields } from '../../shared/report-filter-bar/report-filter
 @Component({
   selector: 'cu-inventory-valuation',
   standalone: true,
-  imports: [CommonModule, PageShellComponent, StatTileComponent, DonutChartComponent, ReportFilterBarComponent, IdNamePipe],
+  imports: [CommonModule, PageShellComponent, StatTileComponent, DonutChartComponent, ReportFilterBarComponent, PagerComponent, IdNamePipe],
   templateUrl: './inventory-valuation.component.html',
 })
 export class InventoryValuationComponent {
@@ -25,13 +26,16 @@ export class InventoryValuationComponent {
 
   loading = signal(false);
   report = signal<InventoryValuationReportDto | null>(null);
+  page = signal(0);
+  readonly pageSize = 20;
   private filter: ReportFilterFields = {};
+  private chartItems = signal<InventoryValuationItemDto[]>([]);
 
   items = computed<InventoryValuationItemDto[]>(() => this.report()?.items ?? []);
 
   valueByCategory = computed<DonutDatum[]>(() => {
     const map = new Map<string, number>();
-    for (const it of this.items()) {
+    for (const it of this.chartItems()) {
       const key = it.categoryId ?? 'uncategorized';
       map.set(key, (map.get(key) ?? 0) + (it.totalValue ?? 0));
     }
@@ -47,13 +51,30 @@ export class InventoryValuationComponent {
 
   onFilter(f: ReportFilterFields): void {
     this.filter = f;
+    this.page.set(0);
+    this.load();
+    this.loadChart();
+  }
+
+  goTo(page: number): void {
+    this.page.set(page);
+    this.load();
+  }
+
+  private load(): void {
     this.loading.set(true);
-    this.service.getInventoryValuation({ ...this.filter, maxResultCount: 1000, skipCount: 0 }).subscribe({
+    this.service.getInventoryValuation({ ...this.filter, skipCount: this.page() * this.pageSize, maxResultCount: this.pageSize }).subscribe({
       next: r => {
         this.report.set(r);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
+    });
+  }
+
+  private loadChart(): void {
+    this.service.getInventoryValuation({ ...this.filter, maxResultCount: 1000, skipCount: 0 }).subscribe(r => {
+      this.chartItems.set(r.items ?? []);
     });
   }
 }

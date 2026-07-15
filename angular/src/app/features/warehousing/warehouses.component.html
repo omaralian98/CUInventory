@@ -63,3 +63,19 @@
     </button>
   </ng-container>
 </cu-modal>
+
+
+<cu-modal [open]="detailOpen()" title="Warehouse details" (closed)="detailOpen.set(false)">
+  @if (detailRow(); as w) {
+    <div class="d-flex flex-wrap gap-4 mb-2">
+      <div><span class="cu-muted d-block small">Name</span>{{ w.name }}</div>
+      <div><span class="cu-muted d-block small">Code</span>{{ w.code }}</div>
+      <div><span class="cu-muted d-block small">City</span>{{ w.address?.city || '—' }}</div>
+      <div><span class="cu-muted d-block small">Status</span><cu-status-badge kind="active" [value]="w.isActive ? 1 : 0" /></div>
+    </div>
+    <cu-audit-info [entity]="w" />
+  }
+  <ng-container slot="footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
+  </ng-container>
+</cu-modal>

@@ -34,6 +34,7 @@
           </tbody>
         </table>
       </div>
+      <cu-pager [page]="page()" [count]="r.totalCount || 0" [pageSize]="pageSize" (pageChange)="goTo($event)" />
     </div>
   } @else if (loading()) {
     <p class="cu-muted"><i class="fas fa-circle-notch fa-spin"></i> Loading report…</p>

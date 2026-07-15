@@ -36,11 +36,13 @@ public class StockNotificationsController(
         await result.ExecuteAsync(HttpContext);
     }
 
-    private static async IAsyncEnumerable<SseItem<StockNotificationDto>> StreamForTenantAsync(
+    private static async IAsyncEnumerable<SseItem<StockNotificationDto?>> StreamForTenantAsync(
         IStockNotificationSubscription subscription,
         Guid? tenantId,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
+        yield return new SseItem<StockNotificationDto?>(null, "Connected");
+
         await foreach (var notification in subscription.ReadAllAsync(cancellationToken))
         {
             if (notification.TenantId != tenantId)
@@ -48,7 +50,7 @@ public class StockNotificationsController(
                 continue;
             }
 
-            yield return new SseItem<StockNotificationDto>(notification, notification.Type.ToString());
+            yield return new SseItem<StockNotificationDto?>(notification, notification.Type.ToString());
         }
     }
 }

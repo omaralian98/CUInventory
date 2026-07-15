@@ -14,6 +14,7 @@ import {
   StatusBadgeComponent,
   AutocompleteComponent,
   IdNamePipe,
+  AuditInfoComponent,
   ColumnConfig,
   RowAction,
   LookupService,
@@ -35,6 +36,7 @@ import { ListPageBase } from '../shared/list-page.base';
     StatusBadgeComponent,
     AutocompleteComponent,
     IdNamePipe,
+    AuditInfoComponent,
   ],
   providers: [ListService],
   templateUrl: './products.component.html',
@@ -50,6 +52,8 @@ export class ProductsComponent extends ListPageBase<ProductDto> {
   modalOpen = signal(false);
   saving = signal(false);
   editing = signal<ProductDto | null>(null);
+  detailOpen = signal(false);
+  detailRow = signal<ProductDto | null>(null);
 
   form = this.fb.group({
     name: ['', Validators.required],
@@ -70,6 +74,7 @@ export class ProductsComponent extends ListPageBase<ProductDto> {
   ];
 
   actions: RowAction[] = [
+    { key: 'details', label: 'Details', icon: 'fa-circle-info' },
     { key: 'edit', label: 'Edit', icon: 'fa-pen' },
     { key: 'delete', label: 'Delete', icon: 'fa-trash-can', tone: 'danger' },
   ];
@@ -100,8 +105,14 @@ export class ProductsComponent extends ListPageBase<ProductDto> {
   }
 
   onAction(e: { key: string; row: ProductDto }): void {
-    if (e.key === 'edit') this.edit(e.row);
+    if (e.key === 'details') this.showDetails(e.row);
+    else if (e.key === 'edit') this.edit(e.row);
     else if (e.key === 'delete') this.remove(e.row);
+  }
+
+  private showDetails(row: ProductDto): void {
+    this.detailRow.set(row);
+    this.detailOpen.set(true);
   }
 
   private edit(row: ProductDto): void {
