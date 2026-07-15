@@ -10,5 +10,7 @@ namespace CUInventory.Warehousing.Interfaces;
 
 public interface IShipmentManager : IDomainService
 {
+    Task<Shipment> CreateAsync(PurchaseOrder purchaseOrder, Guid supplierId, Guid destinationWarehouseId, IReadOnlyCollection<ShipmentLineData> lines);
+
     Task<List<InventoryLot>> ReceiveAsync(Shipment shipment, PurchaseOrder purchaseOrder, List<InventoryBalance> destinationBalances);
 }

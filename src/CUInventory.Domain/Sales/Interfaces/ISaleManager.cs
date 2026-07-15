@@ -10,7 +10,7 @@ public interface ISaleManager : IDomainService
 {
     Task<Sale> CreateAsync(List<SaleLineRequest> lines, List<InventoryBalance> balances, List<InventoryLot> candidateLots);
 
-    Task<Sale> ConfirmAsync(Sale sale, List<InventoryBalance> balances, List<InventoryLot> candidateLots);
+    Task<Sale> ConfirmAsync(Sale sale, List<InventoryBalance> balances, List<InventoryLot> pinnedLots);
 
-    Task<Sale> CancelAsync(Sale sale, List<InventoryBalance> balances);
+    Task<Sale> CancelAsync(Sale sale, List<InventoryBalance> balances, List<InventoryLot> pinnedLots);
 }

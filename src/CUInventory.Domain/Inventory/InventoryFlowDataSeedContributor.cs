@@ -165,7 +165,7 @@ public class InventoryFlowDataSeedContributor(
                     Guid.NewGuid(), p.Id, new Quantity(TransferredQuantity)))
                 .ToList());
         await stockTransferManager.DispatchAsync(stockTransfer, mainBalances, lots);
-        var transferLots = await stockTransferManager.ReceiveAsync(stockTransfer, secondBalances);
+        var transferLots = await stockTransferManager.ReceiveAsync(stockTransfer, secondBalances, lots);
 
         await stockTransferRepository.InsertAsync(stockTransfer);
         foreach (var transferLot in transferLots)
@@ -177,7 +177,7 @@ public class InventoryFlowDataSeedContributor(
         var saleLines = chosenProducts
             .Select(p => new SaleLineRequest(p.Id, SoldQuantity, unitPrice))
             .ToList();
-        var candidateLots = lots.Where(l => l.RemainingQuantity.Value > 0).ToList();
+        var candidateLots = lots.Where(l => l.AvailableQuantity > 0).ToList();
 
         var sale = await saleManager.CreateAsync(saleLines, mainBalances, candidateLots);
         await saleManager.ConfirmAsync(sale, mainBalances, candidateLots);

@@ -18,6 +18,8 @@ public class Sale : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public Guid? TenantId { get; protected set; }
     public SaleStatus Status { get; private set; }
     public DateTime? ConfirmedAt { get; private set; }
+    public int LinesCount { get; private set; }
+    public Money TotalAmount { get; private set; }
     public IReadOnlyCollection<SaleLine> Lines => _lines;
 
     protected Sale()
@@ -29,10 +31,15 @@ public class Sale : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Status = SaleStatus.Draft;
 
         Guard.NotNull(lines, nameof(lines));
+        var total = Money.Zero;
         foreach (var line in lines)
         {
             _lines.Add(new SaleLine(line.Id, Id, line.ProductId, line.Quantity, line.UnitPrice, line.Kind, line.WarehouseId, line.SupplierId, line.LotId));
+            total = total.Add(line.UnitPrice.Multiply(line.Quantity.Value));
         }
+
+        LinesCount = _lines.Count;
+        TotalAmount = total;
     }
 
     internal void Confirm(DateTime now)

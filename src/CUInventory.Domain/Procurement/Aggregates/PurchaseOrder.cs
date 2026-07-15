@@ -16,7 +16,8 @@ public class PurchaseOrder : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public Guid SupplierId { get; private set; }
     public Guid DestinationWarehouseId { get; private set; }
     public PurchaseOrderStatus Status { get; private set; }
-    
+    public int LinesCount { get; private set; }
+
     public Guid? TenantId { get; protected set; }
     
     private readonly List<PurchaseOrderLine> _lines = [];
@@ -33,10 +34,21 @@ public class PurchaseOrder : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Status = PurchaseOrderStatus.Draft;
 
         Guard.NotNull(lines, nameof(lines));
+
+        var duplicatedProduct = lines
+            .GroupBy(line => line.ProductId)
+            .FirstOrDefault(group => group.Count() > 1);
+        if (duplicatedProduct is not null)
+        {
+            throw new PurchaseOrderDuplicateProductLineDomainException(Id, duplicatedProduct.Key);
+        }
+
         foreach (var line in lines)
         {
             _lines.Add(new PurchaseOrderLine(line.Id, Id, line.ProductId, line.OrderedQuantity, line.UnitCost));
         }
+
+        LinesCount = _lines.Count;
     }
 
     public void Confirm(DateTime now)

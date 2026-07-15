@@ -13,11 +13,11 @@ public class InventoryBalance : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public Guid? TenantId { get; protected set; }
     public Guid WarehouseId { get; private set; }
     public Guid ProductId { get; private set; }
-    public decimal QuantityOnHand { get; private set; }
-    public decimal QuantityReserved { get; private set; }
+    public Quantity QuantityOnHand { get; private set; }
+    public Quantity QuantityReserved { get; private set; }
     public decimal? LowStockThreshold { get; private set; }
 
-    public decimal QuantityAvailable => QuantityOnHand - QuantityReserved;
+    public decimal QuantityAvailable => QuantityOnHand.Value - QuantityReserved.Value;
 
     protected InventoryBalance()
     {
@@ -27,8 +27,8 @@ public class InventoryBalance : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
         WarehouseId = warehouseId;
         ProductId = productId;
-        QuantityOnHand = 0m;
-        QuantityReserved = 0m;
+        QuantityOnHand = Quantity.Zero;
+        QuantityReserved = Quantity.Zero;
         SetLowStockThreshold(lowStockThreshold);
     }
 
@@ -43,7 +43,7 @@ public class InventoryBalance : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
         GuardPositive(quantity);
 
-        QuantityOnHand += quantity.Value;
+        QuantityOnHand = QuantityOnHand.Add(quantity);
         RaiseStockChanged(now);
     }
 
@@ -57,7 +57,7 @@ public class InventoryBalance : FullAuditedAggregateRoot<Guid>, IMultiTenant
         }
 
         var availableBefore = QuantityAvailable;
-        QuantityReserved += quantity.Value;
+        QuantityReserved = QuantityReserved.Add(quantity);
         RaiseStockChanged(now);
         CheckLowStock(availableBefore, now);
     }
@@ -66,12 +66,12 @@ public class InventoryBalance : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
         GuardPositive(quantity);
 
-        if (quantity.Value > QuantityReserved)
+        if (quantity.Value > QuantityReserved.Value)
         {
-            throw new InsufficientReservedStockDomainException(Id, quantity.Value, QuantityReserved);
+            throw new InsufficientReservedStockDomainException(Id, quantity.Value, QuantityReserved.Value);
         }
 
-        QuantityReserved -= quantity.Value;
+        QuantityReserved = QuantityReserved.Subtract(quantity);
         RaiseStockChanged(now);
     }
 
@@ -79,13 +79,13 @@ public class InventoryBalance : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
         GuardPositive(quantity);
 
-        if (quantity.Value > QuantityReserved)
+        if (quantity.Value > QuantityReserved.Value)
         {
-            throw new InsufficientReservedStockDomainException(Id, quantity.Value, QuantityReserved);
+            throw new InsufficientReservedStockDomainException(Id, quantity.Value, QuantityReserved.Value);
         }
 
-        QuantityReserved -= quantity.Value;
-        QuantityOnHand -= quantity.Value;
+        QuantityReserved = QuantityReserved.Subtract(quantity);
+        QuantityOnHand = QuantityOnHand.Subtract(quantity);
         RaiseStockChanged(now);
     }
 
@@ -99,7 +99,7 @@ public class InventoryBalance : FullAuditedAggregateRoot<Guid>, IMultiTenant
         }
 
         var availableBefore = QuantityAvailable;
-        QuantityOnHand -= quantity.Value;
+        QuantityOnHand = QuantityOnHand.Subtract(quantity);
         RaiseStockChanged(now);
         CheckLowStock(availableBefore, now);
     }
@@ -111,7 +111,8 @@ public class InventoryBalance : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     private void CheckLowStock(decimal availableBefore, DateTime now)
     {
-        if (LowStockThreshold is { } threshold && availableBefore >= threshold && QuantityAvailable < threshold)
+        if (!LowStockRule.IsBelowThreshold(LowStockThreshold, availableBefore) &&
+            LowStockRule.IsBelowThreshold(LowStockThreshold, QuantityAvailable))
         {
             AddLocalEvent(new LowStockReachedDomainEvent(Id, now));
         }

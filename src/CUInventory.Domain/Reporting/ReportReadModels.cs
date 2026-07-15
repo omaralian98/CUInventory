@@ -6,8 +6,6 @@ namespace CUInventory.Reporting;
 
 public record ReportPage<T>(IReadOnlyList<T> Items, long TotalCount);
 
-// Summary reports carry a page of grouped rows plus grand totals computed over the WHOLE filtered
-// result (not just the current page), so callers can show accurate report-wide figures while paging.
 public record SalesBySourceReport(
     IReadOnlyList<SalesBySourceRow> Items,
     long TotalCount,

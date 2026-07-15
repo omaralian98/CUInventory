@@ -40,7 +40,7 @@ public class StockTransferManager(InventoryAllocationService allocationService)
         return Task.FromResult(transfer);
     }
 
-    public async Task<List<InventoryLot>> ReceiveAsync(StockTransfer transfer, List<InventoryBalance> destinationBalances)
+    public async Task<List<InventoryLot>> ReceiveAsync(StockTransfer transfer, List<InventoryBalance> destinationBalances, List<InventoryLot> sourceLots)
     {
         var now = Clock.Now;
         transfer.MarkReceived(now);
@@ -49,15 +49,17 @@ public class StockTransferManager(InventoryAllocationService allocationService)
 
         foreach (var allocation in transfer.Allocations)
         {
+            var sourceLot = sourceLots.First(l => l.Id == allocation.SourceLotId);
             var lot = new InventoryLot(
-                GuidGenerator.Create(), 
-                allocation.ProductId, 
+                GuidGenerator.Create(),
+                allocation.ProductId,
                 transfer.DestinationWarehouseId,
-                InventoryLotSource.TransferIn, 
-                allocation.Quantity, 
-                allocation.UnitCost, 
-                now,
-                allocation.SupplierId
+                InventoryLotSource.TransferIn,
+                allocation.Quantity,
+                allocation.UnitCost,
+                sourceLot.ReceivedAt,
+                allocation.SupplierId,
+                sourceLot.ShipmentLineId
             );
 
             createdLots.Add(lot);

@@ -17,7 +17,7 @@ public abstract class InventoryAllocationStrategyBase : IInventoryAllocationStra
         var remaining = request.Quantity;
 
         var eligible = SelectCandidates(request, candidates)
-            .Where(lot => lot.ProductId == request.ProductId && lot.RemainingQuantity.Value > 0);
+            .Where(lot => lot.ProductId == request.ProductId && lot.AvailableQuantity > 0);
 
         foreach (var lot in eligible)
         {
@@ -26,7 +26,7 @@ public abstract class InventoryAllocationStrategyBase : IInventoryAllocationStra
                 break;
             }
 
-            var take = remaining < lot.RemainingQuantity.Value ? remaining : lot.RemainingQuantity.Value;
+            var take = remaining < lot.AvailableQuantity ? remaining : lot.AvailableQuantity;
             results.Add(new AllocationResult(lot.Id, lot.WarehouseId, lot.SupplierId, lot.UnitCost, take));
             remaining -= take;
         }

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using CUInventory.Common;
 using CUInventory.Inventory;
 using CUInventory.ValueObjects;
-using Volo.Abp.Domain.Entities;
+using Volo.Abp.Domain.Entities.Auditing;
 
 namespace CUInventory.Sales.Entities;
 
-public class SaleLine : Entity<Guid>
+public class SaleLine : FullAuditedEntity<Guid>
 {
     private readonly List<SaleAllocation> _allocations = [];
 
@@ -46,18 +46,8 @@ public class SaleLine : Entity<Guid>
         LotId = lotId;
     }
 
-    internal void AddReservation(Guid allocationId, Guid warehouseId, Quantity quantity)
-    {
-        _allocations.Add(new SaleAllocation(allocationId, Id, warehouseId, quantity));
-    }
-
-    internal void AddAllocation(Guid allocationId, Guid warehouseId, Guid inventoryLotId, Guid? supplierId, Money unitCost, Quantity quantity)
+    internal void AddReservation(Guid allocationId, Guid warehouseId, Guid inventoryLotId, Guid? supplierId, Money unitCost, Quantity quantity)
     {
         _allocations.Add(new SaleAllocation(allocationId, Id, warehouseId, inventoryLotId, supplierId, unitCost, quantity));
-    }
-
-    internal void ClearAllocations()
-    {
-        _allocations.Clear();
     }
 }

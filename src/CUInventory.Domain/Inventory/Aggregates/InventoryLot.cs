@@ -16,9 +16,12 @@ public class InventoryLot : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public InventoryLotSource Source { get; private set; }
     public Quantity OriginalQuantity { get; private set; }
     public Quantity RemainingQuantity { get; private set; }
+    public Quantity ReservedQuantity { get; private set; }
     public Money UnitCost { get; private set; }
     public DateTime ReceivedAt { get; private set; }
     public Guid? TenantId { get; protected set; }
+
+    public decimal AvailableQuantity => RemainingQuantity.Value - ReservedQuantity.Value;
 
     protected InventoryLot()
     {
@@ -42,6 +45,7 @@ public class InventoryLot : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Source = source;
         OriginalQuantity = quantity;
         RemainingQuantity = quantity;
+        ReservedQuantity = Quantity.Zero;
         UnitCost = Guard.NotNull(unitCost, nameof(unitCost));
         ReceivedAt = receivedAt;
         SupplierId = supplierId;
@@ -52,11 +56,48 @@ public class InventoryLot : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
         Guard.Positive(quantity, nameof(quantity));
 
-        if (quantity.Value > RemainingQuantity.Value)
+        if (quantity.Value > AvailableQuantity)
         {
-            throw new InventoryLotInsufficientRemainingDomainException(Id, quantity.Value, RemainingQuantity.Value);
+            throw new InventoryLotInsufficientRemainingDomainException(Id, quantity.Value, AvailableQuantity);
         }
 
+        RemainingQuantity = RemainingQuantity.Subtract(quantity);
+    }
+
+    internal void Reserve(Quantity quantity)
+    {
+        Guard.Positive(quantity, nameof(quantity));
+
+        if (quantity.Value > AvailableQuantity)
+        {
+            throw new InventoryLotInsufficientAvailableDomainException(Id, quantity.Value, AvailableQuantity);
+        }
+
+        ReservedQuantity = ReservedQuantity.Add(quantity);
+    }
+
+    internal void ReleaseReservation(Quantity quantity)
+    {
+        Guard.Positive(quantity, nameof(quantity));
+
+        if (quantity.Value > ReservedQuantity.Value)
+        {
+            throw new InventoryLotInsufficientReservedDomainException(Id, quantity.Value, ReservedQuantity.Value);
+        }
+
+        ReservedQuantity = ReservedQuantity.Subtract(quantity);
+    }
+
+    internal void ConsumeReserved(Quantity quantity)
+    {
+        Guard.Positive(quantity, nameof(quantity));
+
+        if (quantity.Value > ReservedQuantity.Value)
+        {
+            throw new InventoryLotInsufficientReservedDomainException(Id, quantity.Value, ReservedQuantity.Value);
+        }
+
+        ReservedQuantity = ReservedQuantity.Subtract(quantity);
         RemainingQuantity = RemainingQuantity.Subtract(quantity);
     }
 

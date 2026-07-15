@@ -1,11 +1,11 @@
 using System;
 using CUInventory.Common;
 using CUInventory.ValueObjects;
-using Volo.Abp.Domain.Entities;
+using Volo.Abp.Domain.Entities.Auditing;
 
 namespace CUInventory.Warehousing.Entities;
 
-public class ShipmentLine : Entity<Guid>
+public class ShipmentLine : FullAuditedEntity<Guid>
 {
     public Guid ShipmentId { get; private set; }
     public Guid ProductId { get; private set; }

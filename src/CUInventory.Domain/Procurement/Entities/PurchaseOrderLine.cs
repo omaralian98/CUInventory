@@ -1,11 +1,11 @@
 using System;
 using CUInventory.Common;
 using CUInventory.ValueObjects;
-using Volo.Abp.Domain.Entities;
+using Volo.Abp.Domain.Entities.Auditing;
 
 namespace CUInventory.Procurement.Entities;
 
-public class PurchaseOrderLine : Entity<Guid>
+public class PurchaseOrderLine : FullAuditedEntity<Guid>
 {
     public Guid PurchaseOrderId { get; private set; }
     public Guid ProductId { get; private set; }

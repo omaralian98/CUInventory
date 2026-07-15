@@ -1,11 +1,11 @@
 using System;
 using CUInventory.Common;
 using CUInventory.ValueObjects;
-using Volo.Abp.Domain.Entities;
+using Volo.Abp.Domain.Entities.Auditing;
 
 namespace CUInventory.Inventory.Entities;
 
-public class TransferAllocation : Entity<Guid>
+public class TransferAllocation : FullAuditedEntity<Guid>
 {
     public Guid StockTransferId { get; private set; }
     public Guid SourceLotId { get; private set; }

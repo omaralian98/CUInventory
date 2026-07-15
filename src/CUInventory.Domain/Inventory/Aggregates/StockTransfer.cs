@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CUInventory.Common;
 using CUInventory.Inventory.Entities;
 using CUInventory.Inventory.Events;
@@ -17,6 +18,7 @@ public class StockTransfer : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public StockTransferStatus Status { get; private set; }
     public DateTime? DispatchedAt { get; private set; }
     public DateTime? ReceivedAt { get; private set; }
+    public int LinesCount { get; private set; }
     public IReadOnlyCollection<StockTransferLine> Lines => _lines;
     public IReadOnlyCollection<TransferAllocation> Allocations => _allocations;
     private readonly List<StockTransferLine> _lines = [];
@@ -39,10 +41,21 @@ public class StockTransfer : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Status = StockTransferStatus.Draft;
 
         Guard.NotNull(lines, nameof(lines));
+
+        var duplicatedProduct = lines
+            .GroupBy(line => line.ProductId)
+            .FirstOrDefault(group => group.Count() > 1);
+        if (duplicatedProduct is not null)
+        {
+            throw new StockTransferDuplicateProductLineDomainException(Id, duplicatedProduct.Key);
+        }
+
         foreach (var line in lines)
         {
             _lines.Add(new StockTransferLine(line.Id, Id, line.ProductId, line.Quantity));
         }
+
+        LinesCount = _lines.Count;
     }
 
     internal void AddAllocation(Guid allocationId, Guid sourceLotId, Guid productId, Guid? supplierId, Money unitCost, Quantity quantity)
