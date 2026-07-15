@@ -1,7 +1,7 @@
-<cu-page-shell title="Sales" subtitle="Create a sale to reserve stock, then confirm to commit — reservations prevent overselling">
+<cu-page-shell title="::Sales:Title" subtitle="::Sales:Subtitle">
   <ng-container slot="actions">
     <button type="button" class="btn btn-sm btn-primary" *abpPermission="'CUInventory.Sales.Create'" (click)="create()">
-      <i class="fas fa-plus"></i> New sale
+      <i class="fas fa-plus"></i> {{ '::Sales:New' | abpLocalization }}
     </button>
   </ng-container>
 
@@ -16,8 +16,8 @@
     (action)="onAction($event)">
     <ng-container slot="toolbar">
       <select class="form-select form-select-sm cu-inline-filter" [(ngModel)]="filterStatus" (ngModelChange)="applyFilter()">
-        <option [ngValue]="null">Any status</option>
-        @for (o of statusOptions; track o.value) { <option [ngValue]="o.value">{{ o.label }}</option> }
+        <option [ngValue]="null">{{ '::AnyStatus' | abpLocalization }}</option>
+        @for (o of statusOptions; track o.value) { <option [ngValue]="o.value">{{ o.label | abpLocalization }}</option> }
       </select>
     </ng-container>
 
@@ -26,46 +26,43 @@
 </cu-page-shell>
 
 <!-- Create sale -->
-<cu-modal [open]="createOpen()" title="New sale" size="xl" [busy]="saving()" (closed)="createOpen.set(false)">
-  <p class="cu-muted small">
-    Each line picks how its stock is sourced: <strong>FIFO</strong> (oldest lots first) or pinned to a specific
-    supplier, warehouse, or lot — this is how a sale traces back to the purchase it came from.
-  </p>
+<cu-modal [open]="createOpen()" title="::Sales:New" size="xl" [busy]="saving()" (closed)="createOpen.set(false)">
+  <p class="cu-muted small">{{ '::Sales:CreateHint' | abpLocalization }}</p>
   <form [formGroup]="form">
-    <cu-line-items [formArray]="lines" [headers]="['Product', 'Qty', 'Unit price', 'Source strategy', 'Pinned source']" [newRow]="newLine" addLabel="Add line">
+    <cu-line-items [formArray]="lines" [headers]="['::Product', '::Qty', '::UnitPrice', '::Sales:SourceStrategy', '::Sales:PinnedSource']" [newRow]="newLine" addLabel="::AddLine">
       <ng-template cuLineRow let-group>
-        <td style="min-width: 180px" [formGroup]="group"><cu-autocomplete formControlName="productId" kind="product" [search]="productSearch(group)" placeholder="Product" /></td>
-        <td style="width: 110px"><cu-form-field [formGroup]="group" controlName="quantity" label="Qty" type="number" [min]="0" /></td>
-        <td style="width: 130px"><cu-form-field [formGroup]="group" controlName="unitPrice" label="Unit price" type="number" [min]="0" [step]="0.01" /></td>
-        <td style="width: 170px"><cu-form-field [formGroup]="group" controlName="kind" label="Strategy" type="select" [options]="kindOptions" /></td>
+        <td style="min-width: 180px" [formGroup]="group"><cu-autocomplete formControlName="productId" kind="product" [search]="productSearch(group)" placeholder="::Product" /></td>
+        <td style="width: 110px"><cu-form-field [formGroup]="group" controlName="quantity" label="::Qty" type="number" [min]="0" /></td>
+        <td style="width: 130px"><cu-form-field [formGroup]="group" controlName="unitPrice" label="::UnitPrice" type="number" [min]="0" [step]="0.01" /></td>
+        <td style="width: 170px"><cu-form-field [formGroup]="group" controlName="kind" label="::Sales:Strategy" type="select" [options]="kindOptions" /></td>
         <td style="min-width: 170px" [formGroup]="group">
           @switch (group.get('kind')?.value) {
-            @case (Kind.SpecificWarehouse) { <cu-autocomplete formControlName="warehouseId" kind="warehouse" placeholder="Warehouse" /> }
-            @case (Kind.SpecificSupplier) { <cu-autocomplete formControlName="supplierId" kind="supplier" placeholder="Supplier" /> }
-            @case (Kind.SpecificLot) { <cu-autocomplete formControlName="lotId" [search]="lotSearch(group)" placeholder="Select lot" /> }
-            @default { <span class="cu-muted small">Oldest stock first</span> }
+            @case (Kind.SpecificWarehouse) { <cu-autocomplete formControlName="warehouseId" kind="warehouse" placeholder="::Warehouse" /> }
+            @case (Kind.SpecificSupplier) { <cu-autocomplete formControlName="supplierId" kind="supplier" placeholder="::Supplier" /> }
+            @case (Kind.SpecificLot) { <cu-autocomplete formControlName="lotId" [search]="lotSearch(group)" placeholder="::Sales:SelectLot" /> }
+            @default { <span class="cu-muted small">{{ '::Sales:OldestFirst' | abpLocalization }}</span> }
           }
         </td>
       </ng-template>
     </cu-line-items>
   </form>
   <ng-container slot="footer">
-    <span class="me-auto cu-muted">Total: <strong class="cu-mono">{{ formTotal() | number: '1.2-2' }}</strong></span>
-    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="createOpen.set(false)">Cancel</button>
+    <span class="me-auto cu-muted">{{ '::Total' | abpLocalization }}: <strong class="cu-mono">{{ formTotal() | number: '1.2-2' }}</strong></span>
+    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="createOpen.set(false)">{{ '::Cancel' | abpLocalization }}</button>
     <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">
-      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } Reserve stock
+      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } {{ '::Sales:ReserveStock' | abpLocalization }}
     </button>
   </ng-container>
 </cu-modal>
 
 <!-- Detail: reserved allocations -->
-<cu-modal [open]="detailOpen()" title="Sale details" size="xl" (closed)="detailOpen.set(false)">
+<cu-modal [open]="detailOpen()" title="::Sales:Details" size="xl" (closed)="detailOpen.set(false)">
   @if (detail(); as s) {
     <div class="d-flex align-items-center gap-3 mb-3">
       <cu-status-badge kind="sale-status" [value]="s.status" />
-      <span class="cu-muted">Created {{ s.creationTime | date: 'short' }}</span>
-      @if (s.confirmedAt) { <span class="cu-muted">· Confirmed {{ s.confirmedAt | date: 'short' }}</span> }
-      <span class="ms-auto">Total <strong class="cu-mono">{{ s.totalAmount | number: '1.2-2' }}</strong></span>
+      <span class="cu-muted">{{ '::Created' | abpLocalization }} {{ s.creationTime | date: 'short' }}</span>
+      @if (s.confirmedAt) { <span class="cu-muted">· {{ '::Confirmed' | abpLocalization }} {{ s.confirmedAt | date: 'short' }}</span> }
+      <span class="ms-auto">{{ '::Total' | abpLocalization }} <strong class="cu-mono">{{ s.totalAmount | number: '1.2-2' }}</strong></span>
     </div>
 
     @for (line of s.lines; track line.id) {
@@ -77,7 +74,16 @@
         </div>
         @if (line.allocations?.length) {
           <table class="cu-table">
-            <thead><tr><th>Warehouse</th><th>Supplier</th><th>Lot</th><th class="text-end">Qty</th><th class="text-end">Unit cost</th><th>State</th></tr></thead>
+            <thead>
+              <tr>
+                <th>{{ '::Warehouse' | abpLocalization }}</th>
+                <th>{{ '::Supplier' | abpLocalization }}</th>
+                <th>{{ '::Lot' | abpLocalization }}</th>
+                <th class="text-end">{{ '::Qty' | abpLocalization }}</th>
+                <th class="text-end">{{ '::UnitCost' | abpLocalization }}</th>
+                <th>{{ '::State' | abpLocalization }}</th>
+              </tr>
+            </thead>
             <tbody>
               @for (a of line.allocations; track a.id) {
                 <tr>
@@ -86,13 +92,13 @@
                   <td class="cu-mono small">{{ a.inventoryLotId ? (a.inventoryLotId | slice: 0 : 8) : '—' }}</td>
                   <td class="text-end cu-mono">{{ a.quantity | number: '1.0-2' }}</td>
                   <td class="text-end cu-mono">{{ a.unitCost | number: '1.2-2' }}</td>
-                  <td><span class="cu-chip" [class.cu-chip--warning]="a.isReserved" [class.cu-chip--success]="!a.isReserved">{{ a.isReserved ? 'Reserved' : 'Committed' }}</span></td>
+                  <td><span class="cu-chip" [class.cu-chip--warning]="a.isReserved" [class.cu-chip--success]="!a.isReserved">{{ (a.isReserved ? '::Reserved' : '::Committed') | abpLocalization }}</span></td>
                 </tr>
               }
             </tbody>
           </table>
         } @else {
-          <p class="cu-muted small mb-0">No allocations recorded.</p>
+          <p class="cu-muted small mb-0">{{ '::Sales:NoAllocations' | abpLocalization }}</p>
         }
       </div>
     }
@@ -100,6 +106,6 @@
     <cu-audit-info [entity]="s" />
   }
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">{{ '::Close' | abpLocalization }}</button>
   </ng-container>
 </cu-modal>

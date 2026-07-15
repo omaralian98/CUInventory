@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { LocalizationPipe, LocalizationService } from '@abp/ng.core';
 import { forkJoin } from 'rxjs';
 import { ReportsService } from '../../proxy/reporting/reports.service';
 import { StockTransferService } from '../../proxy/inventory/stock-transfer.service';
@@ -20,7 +21,7 @@ import { DonutDatum } from '../../shared/charts/donut-chart.component';
 @Component({
   selector: 'cu-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageShellComponent, StatTileComponent, DonutChartComponent, IdNamePipe],
+  imports: [CommonModule, RouterLink, LocalizationPipe, PageShellComponent, StatTileComponent, DonutChartComponent, IdNamePipe],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent {
@@ -28,6 +29,7 @@ export class DashboardComponent {
   private transfers = inject(StockTransferService);
   private sales = inject(SaleService);
   private lookup = inject(LookupService);
+  private localization = inject(LocalizationService);
   store = inject(StockNotificationStore);
 
   loading = signal(true);
@@ -67,7 +69,10 @@ export class DashboardComponent {
         }
         this.valueByCategory.set(
           [...map.entries()].map(([id, value]) => ({
-            label: id === 'uncategorized' ? 'Uncategorized' : this.lookup.nameOf('category', id),
+            label:
+              id === 'uncategorized'
+                ? this.localization.instant('::Uncategorized')
+                : this.lookup.nameOf('category', id),
             value,
           })),
         );

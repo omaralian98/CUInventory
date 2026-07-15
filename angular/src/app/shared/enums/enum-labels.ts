@@ -1,5 +1,6 @@
-// Central place mapping every backend enum (serialized as an integer) to a human
-// label and a visual tone. Consumed by cu-status-badge and the various selects.
+// Central place mapping every backend enum (serialized as an integer) to a
+// localization key and a visual tone. Labels are ABP keys ('::X'); rendering sites
+// pipe them through abpLocalization. Consumed by cu-status-badge and the selects.
 
 export type BadgeTone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
@@ -19,41 +20,41 @@ export type EnumKind =
 
 const MAPS: Record<EnumKind, Record<number, EnumEntry>> = {
   active: {
-    0: { label: 'Inactive', tone: 'neutral' },
-    1: { label: 'Active', tone: 'success' },
+    0: { label: '::Inactive', tone: 'neutral' },
+    1: { label: '::Active', tone: 'success' },
   },
   'sale-status': {
-    0: { label: 'Draft', tone: 'neutral' },
-    1: { label: 'Confirmed', tone: 'success' },
-    2: { label: 'Cancelled', tone: 'danger' },
+    0: { label: '::Draft', tone: 'neutral' },
+    1: { label: '::Confirmed', tone: 'success' },
+    2: { label: '::Cancelled', tone: 'danger' },
   },
   'transfer-status': {
-    0: { label: 'Draft', tone: 'neutral' },
-    1: { label: 'Dispatched', tone: 'info' },
-    2: { label: 'Received', tone: 'success' },
-    3: { label: 'Cancelled', tone: 'danger' },
+    0: { label: '::Draft', tone: 'neutral' },
+    1: { label: '::Dispatched', tone: 'info' },
+    2: { label: '::Received', tone: 'success' },
+    3: { label: '::Cancelled', tone: 'danger' },
   },
   'shipment-status': {
-    0: { label: 'Draft', tone: 'neutral' },
-    1: { label: 'Dispatched', tone: 'info' },
-    2: { label: 'Received', tone: 'success' },
+    0: { label: '::Draft', tone: 'neutral' },
+    1: { label: '::Dispatched', tone: 'info' },
+    2: { label: '::Received', tone: 'success' },
   },
   'po-status': {
-    0: { label: 'Draft', tone: 'neutral' },
-    1: { label: 'Confirmed', tone: 'info' },
-    2: { label: 'Partially Received', tone: 'warning' },
-    3: { label: 'Fully Received', tone: 'success' },
-    4: { label: 'Cancelled', tone: 'danger' },
+    0: { label: '::Draft', tone: 'neutral' },
+    1: { label: '::Confirmed', tone: 'info' },
+    2: { label: '::PartiallyReceived', tone: 'warning' },
+    3: { label: '::FullyReceived', tone: 'success' },
+    4: { label: '::Cancelled', tone: 'danger' },
   },
   'lot-source': {
-    0: { label: 'Purchase', tone: 'info' },
-    1: { label: 'Transfer In', tone: 'neutral' },
+    0: { label: '::Purchase', tone: 'info' },
+    1: { label: '::TransferIn', tone: 'neutral' },
   },
   'allocation-kind': {
-    0: { label: 'FIFO', tone: 'neutral' },
-    1: { label: 'Specific Lot', tone: 'info' },
-    2: { label: 'Specific Supplier', tone: 'info' },
-    3: { label: 'Specific Warehouse', tone: 'info' },
+    0: { label: '::Fifo', tone: 'neutral' },
+    1: { label: '::SpecificLot', tone: 'info' },
+    2: { label: '::SpecificSupplier', tone: 'info' },
+    3: { label: '::SpecificWarehouse', tone: 'info' },
   },
 };
 

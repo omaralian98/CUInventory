@@ -6,11 +6,11 @@
         class="form-check-input"
         [id]="controlName"
         [formControlName]="controlName" />
-      <label class="form-check-label" [for]="controlName">{{ label }}</label>
+      <label class="form-check-label" [for]="controlName">{{ label | abpLocalization }}</label>
     </div>
   } @else {
     <label class="form-label" [for]="controlName">
-      {{ label }} @if (required) { <span class="text-danger">*</span> }
+      {{ label | abpLocalization }} @if (required) { <span class="text-danger">*</span> }
     </label>
 
     @switch (type) {
@@ -19,7 +19,7 @@
           class="form-control"
           [id]="controlName"
           rows="3"
-          [placeholder]="placeholder"
+          [placeholder]="placeholder | abpLocalization"
           [formControlName]="controlName"
           [class.is-invalid]="invalid"></textarea>
       }
@@ -29,9 +29,9 @@
           [id]="controlName"
           [formControlName]="controlName"
           [class.is-invalid]="invalid">
-          <option [ngValue]="null" disabled>{{ placeholder || 'Select…' }}</option>
+          <option [ngValue]="null" disabled>{{ (placeholder || '::Select') | abpLocalization }}</option>
           @for (opt of options; track opt.value) {
-            <option [ngValue]="opt.value">{{ opt.label }}</option>
+            <option [ngValue]="opt.value">{{ opt.label | abpLocalization }}</option>
           }
         </select>
       }
@@ -40,7 +40,7 @@
           [type]="type"
           class="form-control"
           [id]="controlName"
-          [placeholder]="placeholder"
+          [placeholder]="placeholder | abpLocalization"
           [step]="step"
           [min]="min"
           [formControlName]="controlName"
@@ -50,16 +50,16 @@
   }
 
   @if (hint && !invalid) {
-    <div class="form-text">{{ hint }}</div>
+    <div class="form-text">{{ hint | abpLocalization }}</div>
   }
   @if (invalid) {
     <div class="invalid-feedback d-block">
-      @if (control?.errors?.['required']) { {{ label }} is required. }
-      @else if (control?.errors?.['min']) { Must be at least {{ control?.errors?.['min'].min }}. }
-      @else if (control?.errors?.['email']) { Enter a valid email address. }
-      @else if (control?.errors?.['phone']) { Enter a valid phone number. }
-      @else if (control?.errors?.['maxlength']) { Must be at most {{ control?.errors?.['maxlength'].requiredLength }} characters. }
-      @else { {{ label }} is invalid. }
+      @if (control?.errors?.['required']) { {{ '::Validation:Required' | abpLocalization: (label | abpLocalization) }} }
+      @else if (control?.errors?.['min']) { {{ '::Validation:Min' | abpLocalization: control?.errors?.['min'].min }} }
+      @else if (control?.errors?.['email']) { {{ '::Validation:Email' | abpLocalization }} }
+      @else if (control?.errors?.['phone']) { {{ '::Validation:Phone' | abpLocalization }} }
+      @else if (control?.errors?.['maxlength']) { {{ '::Validation:MaxLength' | abpLocalization: control?.errors?.['maxlength'].requiredLength }} }
+      @else { {{ '::Validation:Invalid' | abpLocalization: (label | abpLocalization) }} }
     </div>
   }
 </div>

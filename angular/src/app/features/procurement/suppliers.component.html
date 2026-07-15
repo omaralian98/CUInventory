@@ -1,7 +1,7 @@
-<cu-page-shell title="Suppliers" subtitle="Vendors that products are purchased from">
+<cu-page-shell title="::Suppliers:Title" subtitle="::Suppliers:Subtitle">
   <ng-container slot="actions">
     <button type="button" class="btn btn-sm btn-primary" *abpPermission="'CUInventory.Suppliers.Create'" (click)="create()">
-      <i class="fas fa-plus"></i> New supplier
+      <i class="fas fa-plus"></i> {{ '::Suppliers:New' | abpLocalization }}
     </button>
   </ng-container>
 
@@ -13,7 +13,7 @@
     [actions]="actions"
     [loading]="loading()"
     [showSearch]="true"
-    searchPlaceholder="Search suppliers…"
+    searchPlaceholder="::Suppliers:SearchPlaceholder"
     (searchChange)="onSearch($event)"
     (action)="onAction($event)">
   </cu-data-table>
@@ -21,54 +21,54 @@
 
 <cu-modal
   [open]="modalOpen()"
-  [title]="editing() ? 'Edit supplier' : 'New supplier'"
+  [title]="editing() ? '::Suppliers:Edit' : '::Suppliers:New'"
   size="lg"
   [busy]="saving()"
   (closed)="modalOpen.set(false)">
   <form [formGroup]="form">
-    <cu-form-field [formGroup]="form" controlName="name" label="Name" [required]="true" />
+    <cu-form-field [formGroup]="form" controlName="name" label="::Name" [required]="true" />
 
-    <h6 class="mt-2 mb-3">Contact</h6>
+    <h6 class="mt-2 mb-3">{{ '::Contact' | abpLocalization }}</h6>
     <div class="row">
       <div class="col-md-6">
-        <cu-form-field [formGroup]="contactGroup" controlName="email" label="Email" [required]="true" />
+        <cu-form-field [formGroup]="contactGroup" controlName="email" label="::Email" [required]="true" />
       </div>
       <div class="col-md-6">
-        <cu-form-field [formGroup]="contactGroup" controlName="phoneNumber" label="Phone" [required]="true" />
+        <cu-form-field [formGroup]="contactGroup" controlName="phoneNumber" label="::Phone" [required]="true" />
       </div>
     </div>
 
-    <h6 class="mt-2 mb-3">Address</h6>
+    <h6 class="mt-2 mb-3">{{ '::Address' | abpLocalization }}</h6>
     <div class="row">
       <div class="col-md-6">
-        <cu-form-field [formGroup]="contactAddressGroup" controlName="governorate" label="Governorate" [required]="true" />
+        <cu-form-field [formGroup]="contactAddressGroup" controlName="governorate" label="::Governorate" [required]="true" />
       </div>
       <div class="col-md-6">
-        <cu-form-field [formGroup]="contactAddressGroup" controlName="city" label="City" [required]="true" />
+        <cu-form-field [formGroup]="contactAddressGroup" controlName="city" label="::City" [required]="true" />
       </div>
     </div>
-    <cu-form-field [formGroup]="contactAddressGroup" controlName="street" label="Street" [required]="true" />
+    <cu-form-field [formGroup]="contactAddressGroup" controlName="street" label="::Street" [required]="true" />
   </form>
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="modalOpen.set(false)">Cancel</button>
+    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="modalOpen.set(false)">{{ '::Cancel' | abpLocalization }}</button>
     <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">
-      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } Save
+      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } {{ '::Save' | abpLocalization }}
     </button>
   </ng-container>
 </cu-modal>
 
 
-<cu-modal [open]="detailOpen()" title="Supplier details" (closed)="detailOpen.set(false)">
+<cu-modal [open]="detailOpen()" title="::Suppliers:Details" (closed)="detailOpen.set(false)">
   @if (detailRow(); as s) {
     <div class="d-flex flex-wrap gap-4 mb-2">
-      <div><span class="cu-muted d-block small">Name</span>{{ s.name }}</div>
-      <div><span class="cu-muted d-block small">Email</span>{{ s.contact?.email || '—' }}</div>
-      <div><span class="cu-muted d-block small">Phone</span>{{ s.contact?.phoneNumber || '—' }}</div>
-      <div><span class="cu-muted d-block small">City</span>{{ s.contact?.address?.city || '—' }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Name' | abpLocalization }}</span>{{ s.name }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Email' | abpLocalization }}</span>{{ s.contact?.email || '—' }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Phone' | abpLocalization }}</span>{{ s.contact?.phoneNumber || '—' }}</div>
+      <div><span class="cu-muted d-block small">{{ '::City' | abpLocalization }}</span>{{ s.contact?.address?.city || '—' }}</div>
     </div>
     <cu-audit-info [entity]="s" />
   }
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">{{ '::Close' | abpLocalization }}</button>
   </ng-container>
 </cu-modal>

@@ -1,5 +1,6 @@
 import { Component, Input, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocalizationPipe } from '@abp/ng.core';
 
 export interface BarDatum {
   label: string;
@@ -14,7 +15,7 @@ export interface BarDatum {
 @Component({
   selector: 'cu-bar-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LocalizationPipe],
   templateUrl: './bar-chart.component.html',
   styleUrls: ['./bar-chart.component.scss'],
 })
@@ -24,7 +25,7 @@ export class BarChartComponent {
     this._data.set(v ?? []);
   }
   @Input() unit = '';
-  @Input() emptyText = 'No data for the selected filters.';
+  @Input() emptyText = '::NoChartData';
 
   rows = computed(() => {
     const data = this._data();

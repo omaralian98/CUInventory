@@ -27,6 +27,9 @@ export const appConfig: ApplicationConfig = {
     provideAbpCore(
       withOptions({
         environment,
+        // Only the locales hard-coded in registerLocaleForEsBuild can be loaded; mapping
+        // a culture to anything else returns undefined and breaks bootstrap. Angular's
+        // 'ar' data already formats numbers with Latin digits and '.'/',' separators.
         registerLocaleFn: registerLocaleForEsBuild(),
       }),
     ),

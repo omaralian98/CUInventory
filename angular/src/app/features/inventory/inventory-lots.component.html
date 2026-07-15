@@ -1,6 +1,4 @@
-<cu-page-shell
-  title="Inventory Lots"
-  subtitle="Every unit of stock traces back to the shipment and supplier it came from — the basis of source tracking and cost reporting">
+<cu-page-shell title="::InventoryLots:Title" subtitle="::InventoryLots:Subtitle">
   <cu-data-table
     [columns]="columns"
     [rows]="rows()"
@@ -11,16 +9,16 @@
     [showToolbar]="true"
     (action)="onAction($event)">
     <ng-container slot="toolbar">
-      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="All warehouses" [(ngModel)]="warehouseId" (ngModelChange)="onFilter()" />
-      <cu-autocomplete class="cu-inline-filter" kind="product" [inline]="true" [small]="true" placeholder="All products" [(ngModel)]="productId" (ngModelChange)="onFilter()" />
-      <cu-autocomplete class="cu-inline-filter" kind="supplier" [inline]="true" [small]="true" placeholder="All suppliers" [(ngModel)]="supplierId" (ngModelChange)="onFilter()" />
+      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="::AllWarehouses" [(ngModel)]="warehouseId" (ngModelChange)="onFilter()" />
+      <cu-autocomplete class="cu-inline-filter" kind="product" [inline]="true" [small]="true" placeholder="::AllProducts" [(ngModel)]="productId" (ngModelChange)="onFilter()" />
+      <cu-autocomplete class="cu-inline-filter" kind="supplier" [inline]="true" [small]="true" placeholder="::AllSuppliers" [(ngModel)]="supplierId" (ngModelChange)="onFilter()" />
       <label class="cu-filter-toggle">
         <input type="checkbox" [(ngModel)]="hasRemaining" (ngModelChange)="onFilter()" />
-        Has remaining only
+        {{ '::HasRemainingOnly' | abpLocalization }}
       </label>
       @if (warehouseId || productId || supplierId || hasRemaining) {
         <button type="button" class="btn btn-sm btn-link cu-filter-clear" (click)="clearFilters()">
-          <i class="fas fa-xmark"></i> Clear
+          <i class="fas fa-xmark"></i> {{ '::Clear' | abpLocalization }}
         </button>
       }
     </ng-container>
@@ -33,19 +31,19 @@
   </cu-data-table>
 </cu-page-shell>
 
-<cu-modal [open]="detailOpen()" title="Lot details" (closed)="detailOpen.set(false)">
+<cu-modal [open]="detailOpen()" title="::InventoryLots:Details" (closed)="detailOpen.set(false)">
   @if (detailRow(); as l) {
     <div class="d-flex flex-wrap gap-4 mb-2">
-      <div><span class="cu-muted d-block small">Lot</span><span class="cu-mono">{{ l.id | slice: 0 : 8 }}</span></div>
-      <div><span class="cu-muted d-block small">Product</span>{{ l.productId | idName: 'product' }}</div>
-      <div><span class="cu-muted d-block small">Warehouse</span>{{ l.warehouseId | idName: 'warehouse' }}</div>
-      <div><span class="cu-muted d-block small">Supplier</span>{{ l.supplierId | idName: 'supplier' }}</div>
-      <div><span class="cu-muted d-block small">Remaining</span><span class="cu-mono">{{ l.remainingQuantity | number: '1.0-2' }}</span></div>
-      <div><span class="cu-muted d-block small">Received</span>{{ l.receivedAt | date: 'short' }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Lot' | abpLocalization }}</span><span class="cu-mono">{{ l.id | slice: 0 : 8 }}</span></div>
+      <div><span class="cu-muted d-block small">{{ '::Product' | abpLocalization }}</span>{{ l.productId | idName: 'product' }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Warehouse' | abpLocalization }}</span>{{ l.warehouseId | idName: 'warehouse' }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Supplier' | abpLocalization }}</span>{{ l.supplierId | idName: 'supplier' }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Remaining' | abpLocalization }}</span><span class="cu-mono">{{ l.remainingQuantity | number: '1.0-2' }}</span></div>
+      <div><span class="cu-muted d-block small">{{ '::Received' | abpLocalization }}</span>{{ l.receivedAt | date: 'short' }}</div>
     </div>
     <cu-audit-info [entity]="l" />
   }
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">{{ '::Close' | abpLocalization }}</button>
   </ng-container>
 </cu-modal>

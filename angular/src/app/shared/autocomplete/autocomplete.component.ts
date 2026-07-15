@@ -11,6 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocalizationPipe } from '@abp/ng.core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 import { Observable, Subject, Subscription, of } from 'rxjs';
 import { catchError, debounceTime, map, switchMap, tap } from 'rxjs/operators';
@@ -34,12 +35,12 @@ export interface AutocompleteOption {
 @Component({
   selector: 'cu-autocomplete',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LocalizationPipe],
   template: `
     <div [class.mb-3]="!inline">
       @if (label) {
         <label class="form-label">
-          {{ label }} @if (required) { <span class="text-danger">*</span> }
+          {{ label | abpLocalization }} @if (required) { <span class="text-danger">*</span> }
         </label>
       }
       <div class="position-relative">
@@ -48,7 +49,7 @@ export interface AutocompleteOption {
           class="form-control"
           [class.form-control-sm]="small"
           [class.is-invalid]="invalid"
-          [placeholder]="placeholder"
+          [placeholder]="placeholder | abpLocalization"
           [disabled]="disabled"
           [value]="display"
           autocomplete="off"
@@ -76,9 +77,9 @@ export interface AutocompleteOption {
             [style.maxHeight.px]="menuPos().maxHeight"
             (mousedown)="$event.preventDefault()">
             @if (loading()) {
-              <li class="dropdown-item disabled"><i class="fas fa-circle-notch fa-spin me-2"></i>Loading…</li>
+              <li class="dropdown-item disabled"><i class="fas fa-circle-notch fa-spin me-2"></i>{{ '::Loading' | abpLocalization }}</li>
             } @else if (!options().length) {
-              <li class="dropdown-item disabled">No results</li>
+              <li class="dropdown-item disabled">{{ '::NoResults' | abpLocalization }}</li>
             } @else {
               @for (opt of options(); track opt.id; let i = $index) {
                 <li>
@@ -96,7 +97,9 @@ export interface AutocompleteOption {
         }
       </div>
       @if (invalid) {
-        <div class="invalid-feedback d-block">{{ label || 'This field' }} is required.</div>
+        <div class="invalid-feedback d-block">
+          {{ '::Validation:Required' | abpLocalization: ((label || '::ThisField') | abpLocalization) }}
+        </div>
       }
     </div>
   `,
@@ -159,7 +162,7 @@ export class AutocompleteComponent implements ControlValueAccessor, OnInit, OnDe
   @Input() kind?: LookupKind;
   @Input() search?: (term: string) => Observable<AutocompleteOption[]>;
   @Input() label = '';
-  @Input() placeholder = 'Select…';
+  @Input() placeholder = '::Select';
   @Input() required = false;
   @Input() inline = false;
   @Input() small = false;

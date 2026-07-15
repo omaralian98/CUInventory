@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { enumEntry, enumLabel, enumOptions } from './enum-labels';
 
 describe('enum-labels', () => {
-  it('maps a known numeric value to its label and tone', () => {
-    expect(enumLabel('sale-status', 1)).toBe('Confirmed');
+  it('maps a known numeric value to its localization key and tone', () => {
+    expect(enumLabel('sale-status', 1)).toBe('::Confirmed');
     expect(enumEntry('sale-status', 1).tone).toBe('success');
-    expect(enumLabel('transfer-status', 2)).toBe('Received');
-    expect(enumLabel('po-status', 2)).toBe('Partially Received');
+    expect(enumLabel('transfer-status', 2)).toBe('::Received');
+    expect(enumLabel('po-status', 2)).toBe('::PartiallyReceived');
   });
 
   it('falls back to a neutral dash for null/undefined', () => {
@@ -21,7 +21,7 @@ describe('enum-labels', () => {
 
   it('produces select options preserving numeric values', () => {
     const opts = enumOptions('allocation-kind');
-    expect(opts).toContainEqual({ value: 0, label: 'FIFO' });
+    expect(opts).toContainEqual({ value: 0, label: '::Fifo' });
     expect(opts.every(o => typeof o.value === 'number')).toBe(true);
     expect(opts).toHaveLength(4);
   });

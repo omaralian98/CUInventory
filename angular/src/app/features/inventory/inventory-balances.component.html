@@ -1,10 +1,10 @@
-<cu-page-shell title="Inventory Balances" subtitle="On-hand, reserved and available stock per warehouse and product — updates live">
+<cu-page-shell title="::InventoryBalances:Title" subtitle="::InventoryBalances:Subtitle">
   <ng-container slot="actions">
     <span class="cu-chip" [class.cu-chip--success]="store.connected()" [class.cu-chip--neutral]="!store.connected()">
       <i class="fas fa-circle" style="font-size: 0.5rem"></i>
-      {{ store.connected() ? 'Live' : 'Offline' }}
+      {{ (store.connected() ? '::Live' : '::Offline') | abpLocalization }}
     </span>
-    <button type="button" class="btn btn-sm btn-outline-secondary" title="Reconnect" (click)="store.reconnect()">
+    <button type="button" class="btn btn-sm btn-outline-secondary" [title]="'::Reconnect' | abpLocalization" (click)="store.reconnect()">
       <i class="fas fa-rotate"></i>
     </button>
   </ng-container>
@@ -19,15 +19,15 @@
     [showToolbar]="true"
     (action)="onAction($event)">
     <ng-container slot="toolbar">
-      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="All warehouses" [(ngModel)]="warehouseId" (ngModelChange)="onFilter()" />
-      <cu-autocomplete class="cu-inline-filter" kind="product" [inline]="true" [small]="true" placeholder="All products" [(ngModel)]="productId" (ngModelChange)="onFilter()" />
+      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="::AllWarehouses" [(ngModel)]="warehouseId" (ngModelChange)="onFilter()" />
+      <cu-autocomplete class="cu-inline-filter" kind="product" [inline]="true" [small]="true" placeholder="::AllProducts" [(ngModel)]="productId" (ngModelChange)="onFilter()" />
       <label class="cu-filter-toggle">
         <input type="checkbox" [(ngModel)]="lowStockOnly" (ngModelChange)="onFilter()" />
-        Low stock only
+        {{ '::LowStockOnly' | abpLocalization }}
       </label>
       @if (warehouseId || productId || lowStockOnly) {
         <button type="button" class="btn btn-sm btn-link cu-filter-clear" (click)="clearFilters()">
-          <i class="fas fa-xmark"></i> Clear
+          <i class="fas fa-xmark"></i> {{ '::Clear' | abpLocalization }}
         </button>
       }
     </ng-container>
@@ -36,7 +36,7 @@
     <ng-template cuCol="available" let-row>
       <span class="cu-mono">{{ row.quantityAvailable | number: '1.0-2' }}</span>
       @if (isLow(row)) {
-        <span class="cu-chip cu-chip--danger ms-2"><i class="fas fa-triangle-exclamation"></i> Low</span>
+        <span class="cu-chip cu-chip--danger ms-2"><i class="fas fa-triangle-exclamation"></i> {{ '::InventoryBalances:Low' | abpLocalization }}</span>
       }
     </ng-template>
   </cu-data-table>
@@ -44,36 +44,34 @@
 
 <cu-modal
   [open]="thresholdModalOpen()"
-  title="Set low-stock threshold"
+  title="::InventoryBalances:SetThresholdTitle"
   [busy]="savingThreshold()"
   (closed)="thresholdModalOpen.set(false)">
-  <p class="cu-muted">
-    Alerts fire when available stock drops to or below this threshold. Leave empty to remove the threshold.
-  </p>
+  <p class="cu-muted">{{ '::InventoryBalances:ThresholdHint' | abpLocalization }}</p>
   <div class="mb-3">
-    <label class="form-label" for="threshold">Threshold</label>
+    <label class="form-label" for="threshold">{{ '::Threshold' | abpLocalization }}</label>
     <input type="number" class="form-control" id="threshold" min="0" [(ngModel)]="thresholdValue" />
   </div>
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" [disabled]="savingThreshold()" (click)="thresholdModalOpen.set(false)">Cancel</button>
+    <button type="button" class="btn btn-outline-secondary" [disabled]="savingThreshold()" (click)="thresholdModalOpen.set(false)">{{ '::Cancel' | abpLocalization }}</button>
     <button type="button" class="btn btn-primary" [disabled]="savingThreshold()" (click)="saveThreshold()">
-      @if (savingThreshold()) { <i class="fas fa-circle-notch fa-spin"></i> } Save
+      @if (savingThreshold()) { <i class="fas fa-circle-notch fa-spin"></i> } {{ '::Save' | abpLocalization }}
     </button>
   </ng-container>
 </cu-modal>
 
-<cu-modal [open]="detailOpen()" title="Balance details" (closed)="detailOpen.set(false)">
+<cu-modal [open]="detailOpen()" title="::InventoryBalances:Details" (closed)="detailOpen.set(false)">
   @if (detailRow(); as b) {
     <div class="d-flex flex-wrap gap-4 mb-2">
-      <div><span class="cu-muted d-block small">Warehouse</span>{{ b.warehouseId | idName: 'warehouse' }}</div>
-      <div><span class="cu-muted d-block small">Product</span>{{ b.productId | idName: 'product' }}</div>
-      <div><span class="cu-muted d-block small">On hand</span><span class="cu-mono">{{ b.quantityOnHand | number: '1.0-2' }}</span></div>
-      <div><span class="cu-muted d-block small">Reserved</span><span class="cu-mono">{{ b.quantityReserved | number: '1.0-2' }}</span></div>
-      <div><span class="cu-muted d-block small">Available</span><span class="cu-mono">{{ b.quantityAvailable | number: '1.0-2' }}</span></div>
+      <div><span class="cu-muted d-block small">{{ '::Warehouse' | abpLocalization }}</span>{{ b.warehouseId | idName: 'warehouse' }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Product' | abpLocalization }}</span>{{ b.productId | idName: 'product' }}</div>
+      <div><span class="cu-muted d-block small">{{ '::OnHand' | abpLocalization }}</span><span class="cu-mono">{{ b.quantityOnHand | number: '1.0-2' }}</span></div>
+      <div><span class="cu-muted d-block small">{{ '::Reserved' | abpLocalization }}</span><span class="cu-mono">{{ b.quantityReserved | number: '1.0-2' }}</span></div>
+      <div><span class="cu-muted d-block small">{{ '::Available' | abpLocalization }}</span><span class="cu-mono">{{ b.quantityAvailable | number: '1.0-2' }}</span></div>
     </div>
     <cu-audit-info [entity]="b" />
   }
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">{{ '::Close' | abpLocalization }}</button>
   </ng-container>
 </cu-modal>

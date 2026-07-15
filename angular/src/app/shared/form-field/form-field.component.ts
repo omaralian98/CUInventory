@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { LocalizationPipe } from '@abp/ng.core';
 import { getField } from '../util/form-extensions';
 import { SelectOption } from '../enums/enum-labels';
 
@@ -8,7 +9,7 @@ import { SelectOption } from '../enums/enum-labels';
 @Component({
   selector: 'cu-form-field',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LocalizationPipe],
   templateUrl: './form-field.component.html',
 })
 export class FormFieldComponent {

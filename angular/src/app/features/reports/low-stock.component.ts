@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocalizationPipe } from '@abp/ng.core';
 import { ReportsService } from '../../proxy/reporting/reports.service';
 import { LowStockItemDto } from '../../proxy/reporting/dtos/models';
 import { PageShellComponent, StatTileComponent, ReportFilterBarComponent, PagerComponent, IdNamePipe, LookupService } from '../../shared';
@@ -8,7 +9,7 @@ import { ReportFilterFields } from '../../shared/report-filter-bar/report-filter
 @Component({
   selector: 'cu-low-stock',
   standalone: true,
-  imports: [CommonModule, PageShellComponent, StatTileComponent, ReportFilterBarComponent, PagerComponent, IdNamePipe],
+  imports: [CommonModule, LocalizationPipe, PageShellComponent, StatTileComponent, ReportFilterBarComponent, PagerComponent, IdNamePipe],
   templateUrl: './low-stock.component.html',
 })
 export class LowStockComponent {

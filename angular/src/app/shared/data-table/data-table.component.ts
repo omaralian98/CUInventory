@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ListService } from '@abp/ng.core';
+import { ListService, LocalizationPipe } from '@abp/ng.core';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { ColumnDirective } from './column.directive';
@@ -23,7 +23,7 @@ import { ColumnConfig, RowAction } from './data-table.types';
 @Component({
   selector: 'cu-data-table',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LocalizationPipe],
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],
 })
@@ -37,8 +37,8 @@ export class DataTableComponent {
 
   @Input() showSearch = false;
   @Input() showToolbar = false;
-  @Input() searchPlaceholder = 'Search…';
-  @Input() emptyText = 'No records found.';
+  @Input() searchPlaceholder = '::Search';
+  @Input() emptyText = '::NoRecords';
   @Input() loading = false;
 
   @Output() searchChange = new EventEmitter<string>();

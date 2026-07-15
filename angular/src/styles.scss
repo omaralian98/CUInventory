@@ -98,7 +98,8 @@
 .cu-tile-link {
   text-decoration: none;
   color: inherit;
-  display: block;
+  flex: 1;
+  min-height: 140px;
 }
 
 .cu-feed {
@@ -124,10 +125,11 @@
 
 /* KPI tile row + report panels */
 .cu-tile-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
+  align-items: stretch;
   gap: var(--sp-4);
   margin-bottom: var(--sp-4);
+  justify-content: space-between;
 }
 
 .cu-panel {

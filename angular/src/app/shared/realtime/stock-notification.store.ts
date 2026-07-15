@@ -92,13 +92,21 @@ export class StockNotificationStore {
 
     if (name === 'LowStockReached' || payload.isBelowThreshold) {
       this.feed.set([payload, ...this.feed()].slice(0, FEED_CAP));
-      const product = this.lookup.nameOf('product', payload.productId);
-      const warehouse = this.lookup.nameOf('warehouse', payload.warehouseId);
+      const params = [
+        this.lookup.nameOf('product', payload.productId),
+        this.lookup.nameOf('warehouse', payload.warehouseId),
+        String(payload.quantityAvailable),
+      ];
+      const withThreshold = payload.lowStockThreshold != null;
       this.toaster.warn(
-        `${product} at ${warehouse} is low: ${payload.quantityAvailable} available` +
-          (payload.lowStockThreshold != null ? ` (threshold ${payload.lowStockThreshold})` : ''),
-        'Low stock',
-        { life: 6000 },
+        withThreshold ? '::LowStock:ToastWithThreshold' : '::LowStock:Toast',
+        '::LowStock:ToastTitle',
+        {
+          life: 6000,
+          messageLocalizationParams: withThreshold
+            ? [...params, String(payload.lowStockThreshold)]
+            : params,
+        },
       );
     }
   }

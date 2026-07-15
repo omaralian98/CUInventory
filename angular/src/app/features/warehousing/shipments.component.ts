@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ListService, PermissionDirective } from '@abp/ng.core';
+import { ListService, LocalizationPipe, PermissionDirective } from '@abp/ng.core';
 import { of } from 'rxjs';
 import { finalize, map } from 'rxjs/operators';
 import { ShipmentService } from '../../proxy/warehousing/shipment.service';
@@ -38,6 +38,7 @@ import { ListPageBase } from '../shared/list-page.base';
     FormsModule,
     ReactiveFormsModule,
     PermissionDirective,
+    LocalizationPipe,
     PageShellComponent,
     DataTableComponent,
     ColumnDirective,
@@ -85,19 +86,19 @@ export class ShipmentsComponent extends ListPageBase<ShipmentDto> {
   });
 
   columns: ColumnConfig[] = [
-    { prop: 'creationTime', header: 'Created', pipe: 'date', sortable: true },
-    { prop: 'supplierId', header: 'Supplier', cell: 'supplier' },
-    { prop: 'destinationWarehouseId', header: 'Warehouse', cell: 'warehouse' },
-    { prop: 'status', header: 'Status', cell: 'status' },
-    { prop: 'dispatchedAt', header: 'Dispatched', pipe: 'date' },
-    { prop: 'receivedAt', header: 'Received', pipe: 'date' },
+    { prop: 'creationTime', header: '::Created', pipe: 'date', sortable: true },
+    { prop: 'supplierId', header: '::Supplier', cell: 'supplier' },
+    { prop: 'destinationWarehouseId', header: '::Warehouse', cell: 'warehouse' },
+    { prop: 'status', header: '::Status', cell: 'status' },
+    { prop: 'dispatchedAt', header: '::Dispatched', pipe: 'date' },
+    { prop: 'receivedAt', header: '::Received', pipe: 'date' },
   ];
 
   actions: RowAction[] = [
-    { key: 'view', label: 'View', icon: 'fa-eye' },
-    { key: 'dispatch', label: 'Dispatch', icon: 'fa-truck-fast', visible: r => r.status === 0 },
-    { key: 'receive', label: 'Receive', icon: 'fa-box-open', visible: r => r.status === 1 },
-    { key: 'delete', label: 'Delete', icon: 'fa-trash-can', tone: 'danger', visible: r => r.status === 0 },
+    { key: 'view', label: '::View', icon: 'fa-eye' },
+    { key: 'dispatch', label: '::Dispatch', icon: 'fa-truck-fast', visible: r => r.status === 0 },
+    { key: 'receive', label: '::Receive', icon: 'fa-box-open', visible: r => r.status === 1 },
+    { key: 'delete', label: '::Delete', icon: 'fa-trash-can', tone: 'danger', visible: r => r.status === 0 },
   ];
 
   constructor() {
@@ -199,21 +200,21 @@ export class ShipmentsComponent extends ListPageBase<ShipmentDto> {
       case 'dispatch':
         this.runAction(
           () => this.service.dispatch(e.row.id!, { concurrencyStamp: e.row.concurrencyStamp }),
-          'Shipment dispatched.',
+          '::Shipments:Dispatched',
         );
         break;
       case 'receive':
         this.runAction(
           () => this.service.receive(e.row.id!, { concurrencyStamp: e.row.concurrencyStamp }),
-          'Shipment received — inventory lots created and stock updated.',
+          '::Shipments:Received',
         );
         break;
       case 'delete':
         this.confirmAction(
-          'Delete this draft shipment?',
-          'Delete shipment',
+          '::Shipments:ConfirmDelete',
+          '::Shipments:ConfirmDeleteTitle',
           () => this.service.delete(e.row.id!),
-          'Shipment deleted.',
+          '::Shipments:Deleted',
         );
         break;
     }
@@ -242,11 +243,11 @@ export class ShipmentsComponent extends ListPageBase<ShipmentDto> {
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => {
-          this.toaster.success('Shipment created.');
+          this.toaster.success('::Shipments:Created');
           this.modalOpen.set(false);
           this.reload();
         },
-        error: err => this.toaster.error(err?.error?.error?.message ?? 'Save failed.', 'Error'),
+        error: err => this.toaster.error(err?.error?.error?.message ?? '::SaveFailed', '::Error'),
       });
   }
 }

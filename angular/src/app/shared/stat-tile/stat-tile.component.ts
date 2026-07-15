@@ -1,18 +1,19 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocalizationPipe } from '@abp/ng.core';
 import { BadgeTone } from '../enums/enum-labels';
 
 /** KPI tile: label, big value, optional hint + icon. Used on the dashboard and report headers. */
 @Component({
   selector: 'cu-stat-tile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LocalizationPipe],
   template: `
     <div class="cu-tile" [class]="'cu-tile--' + tone">
       <div class="cu-tile-body">
-        <span class="cu-tile-label">{{ label }}</span>
+        <span class="cu-tile-label">{{ label | abpLocalization }}</span>
         <span class="cu-tile-value cu-mono">{{ value }}</span>
-        @if (hint) { <span class="cu-tile-hint">{{ hint }}</span> }
+        @if (hint) { <span class="cu-tile-hint">{{ hint | abpLocalization }}</span> }
       </div>
       @if (icon) {
         <span class="cu-tile-icon"><i class="fas {{ icon }}"></i></span>

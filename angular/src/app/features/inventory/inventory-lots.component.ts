@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ListService } from '@abp/ng.core';
+import { ListService, LocalizationPipe } from '@abp/ng.core';
 import { InventoryLotService } from '../../proxy/inventory/inventory-lot.service';
 import { InventoryLotDto } from '../../proxy/inventory/dtos/models';
 import {
@@ -25,6 +25,7 @@ import { ListPageBase } from '../shared/list-page.base';
   imports: [
     CommonModule,
     FormsModule,
+    LocalizationPipe,
     PageShellComponent,
     DataTableComponent,
     ColumnDirective,
@@ -49,17 +50,17 @@ export class InventoryLotsComponent extends ListPageBase<InventoryLotDto> {
   detailOpen = signal(false);
   detailRow = signal<InventoryLotDto | null>(null);
 
-  actions: RowAction[] = [{ key: 'details', label: 'Details', icon: 'fa-circle-info' }];
+  actions: RowAction[] = [{ key: 'details', label: '::Details', icon: 'fa-circle-info' }];
 
   columns: ColumnConfig[] = [
-    { prop: 'productId', header: 'Product', cell: 'product' },
-    { prop: 'warehouseId', header: 'Warehouse', cell: 'warehouse' },
-    { prop: 'supplierId', header: 'Supplier', cell: 'supplier' },
-    { prop: 'source', header: 'Source', cell: 'source' },
-    { prop: 'originalQuantity', header: 'Original', pipe: 'number', align: 'end' },
-    { prop: 'remainingQuantity', header: 'Remaining', pipe: 'number', align: 'end', sortable: true },
-    { prop: 'unitCost', header: 'Unit cost', pipe: 'money', align: 'end' },
-    { prop: 'receivedAt', header: 'Received', pipe: 'date', sortable: true },
+    { prop: 'productId', header: '::Product', cell: 'product' },
+    { prop: 'warehouseId', header: '::Warehouse', cell: 'warehouse' },
+    { prop: 'supplierId', header: '::Supplier', cell: 'supplier' },
+    { prop: 'source', header: '::Source', cell: 'source' },
+    { prop: 'originalQuantity', header: '::Original', pipe: 'number', align: 'end' },
+    { prop: 'remainingQuantity', header: '::Remaining', pipe: 'number', align: 'end', sortable: true },
+    { prop: 'unitCost', header: '::UnitCost', pipe: 'money', align: 'end' },
+    { prop: 'receivedAt', header: '::Received', pipe: 'date', sortable: true },
   ];
 
   constructor() {

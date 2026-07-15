@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocalizationPipe } from '@abp/ng.core';
 import { ReportsService } from '../../proxy/reporting/reports.service';
 import { SalesBySourceItemDto, SalesBySourceReportDto, SalesSourceDetailDto } from '../../proxy/reporting/dtos/models';
 import {
@@ -17,7 +18,7 @@ import { ReportFilterFields } from '../../shared/report-filter-bar/report-filter
 @Component({
   selector: 'cu-sales-by-source',
   standalone: true,
-  imports: [CommonModule, PageShellComponent, StatTileComponent, BarChartComponent, ReportFilterBarComponent, PagerComponent, IdNamePipe],
+  imports: [CommonModule, LocalizationPipe, PageShellComponent, StatTileComponent, BarChartComponent, ReportFilterBarComponent, PagerComponent, IdNamePipe],
   templateUrl: './sales-by-source.component.html',
 })
 export class SalesBySourceComponent {

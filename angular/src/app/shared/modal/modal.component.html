@@ -2,8 +2,8 @@
   <div class="cu-modal-backdrop" (click)="close()"></div>
   <div class="cu-modal" [class]="'cu-modal--' + size" role="dialog" aria-modal="true">
     <div class="cu-modal-header">
-      <h2 class="cu-modal-title">{{ title }}</h2>
-      <button type="button" class="btn-close" aria-label="Close" [disabled]="busy" (click)="close()"></button>
+      <h2 class="cu-modal-title">{{ title | abpLocalization }}</h2>
+      <button type="button" class="btn-close" [attr.aria-label]="'::Close' | abpLocalization" [disabled]="busy" (click)="close()"></button>
     </div>
     <div class="cu-modal-body">
       <ng-content></ng-content>

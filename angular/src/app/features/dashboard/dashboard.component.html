@@ -1,34 +1,36 @@
-<cu-page-shell title="Dashboard" subtitle="Live inventory overview">
+<cu-page-shell title="::Dashboard:Title" subtitle="::Dashboard:Subtitle">
   <ng-container slot="actions">
     <span class="cu-live" [class.cu-live--on]="store.connected()">
-      <span class="cu-live-dot"></span>{{ store.connected() ? 'Live' : 'Offline' }}
+      <span class="cu-live-dot"></span>{{ (store.connected() ? '::Live' : '::Offline') | abpLocalization }}
     </span>
-    <button type="button" class="btn btn-sm btn-outline-secondary" title="Reconnect" (click)="store.reconnect()">
+    <button type="button" class="btn btn-sm btn-outline-secondary" [title]="'::Reconnect' | abpLocalization" (click)="store.reconnect()">
       <i class="fas fa-rotate"></i>
     </button>
   </ng-container>
 
   <div class="cu-tile-row">
-    <cu-stat-tile label="Stock value on hand" [value]="totalValue() | number: '1.2-2'" icon="fa-scale-balanced" tone="success" />
+    <a class="cu-tile-link">
+      <cu-stat-tile label="::Dashboard:StockValue" [value]="totalValue() | number: '1.2-2'" icon="fa-scale-balanced" tone="success" />
+    </a>
     <a routerLink="/reports/low-stock" class="cu-tile-link">
-      <cu-stat-tile label="Low-stock items" [value]="liveLowStock()" hint="Updates in real time" icon="fa-triangle-exclamation" tone="warning" />
+      <cu-stat-tile label="::Dashboard:LowStockItems" [value]="liveLowStock()" hint="::Dashboard:LiveUpdates" icon="fa-triangle-exclamation" tone="warning" />
     </a>
     <a routerLink="/inventory/stock-transfers" class="cu-tile-link">
-      <cu-stat-tile label="Transfers in transit" [value]="pendingTransfers()" icon="fa-truck-fast" tone="info" />
+      <cu-stat-tile label="::Dashboard:TransfersInTransit" [value]="pendingTransfers()" icon="fa-truck-fast" tone="info" />
     </a>
     <a routerLink="/sales" class="cu-tile-link">
-      <cu-stat-tile label="Draft sales" [value]="draftSales()" hint="Stock reserved, awaiting confirm" icon="fa-file-invoice" tone="neutral" />
+      <cu-stat-tile label="::Dashboard:DraftSales" [value]="draftSales()" hint="::Dashboard:AwaitingConfirm" icon="fa-file-invoice" tone="neutral" />
     </a>
   </div>
 
   <div class="row g-4">
     <div class="col-lg-6">
       <div class="cu-panel h-100">
-        <h6>Stock value by category</h6>
+        <h6>{{ '::Dashboard:ValueByCategory' | abpLocalization }}</h6>
         @if (loading()) {
-          <p class="cu-muted"><i class="fas fa-circle-notch fa-spin"></i> Loading…</p>
+          <p class="cu-muted"><i class="fas fa-circle-notch fa-spin"></i> {{ '::Loading' | abpLocalization }}</p>
         } @else {
-          <cu-donut-chart [data]="valueByCategory()" centerLabel="Value" />
+          <cu-donut-chart [data]="valueByCategory()" centerLabel="::Value" />
         }
       </div>
     </div>
@@ -36,11 +38,11 @@
     <div class="col-lg-6">
       <div class="cu-panel h-100">
         <div class="cu-panel-head">
-          <h6>Live low-stock feed</h6>
-          <span class="cu-muted small">Pushed via SSE</span>
+          <h6>{{ '::Dashboard:LiveFeed' | abpLocalization }}</h6>
+          <span class="cu-muted small">{{ '::Dashboard:PushedViaSse' | abpLocalization }}</span>
         </div>
         @if (feed().length === 0) {
-          <p class="cu-muted mb-0"><i class="fas fa-wave-square"></i> Listening for stock changes… low-stock alerts will appear here as they happen.</p>
+          <p class="cu-muted mb-0"><i class="fas fa-wave-square"></i> {{ '::Dashboard:Listening' | abpLocalization }}</p>
         } @else {
           <ul class="cu-feed">
             @for (n of feed(); track n.occurredAt + n.inventoryBalanceId) {
@@ -48,10 +50,10 @@
                 <span class="cu-chip cu-chip--warning"><i class="fas fa-triangle-exclamation"></i></span>
                 <div class="cu-feed-body">
                   <strong>{{ n.productId | idName: 'product' }}</strong>
-                  <span class="cu-muted">at {{ n.warehouseId | idName: 'warehouse' }}</span>
+                  <span class="cu-muted">{{ '::Dashboard:FeedAt' | abpLocalization }} {{ n.warehouseId | idName: 'warehouse' }}</span>
                   <small class="cu-muted d-block">
-                    {{ n.quantityAvailable | number: '1.0-2' }} available
-                    @if (n.lowStockThreshold !== null && n.lowStockThreshold !== undefined) { · threshold {{ n.lowStockThreshold | number: '1.0-2' }} }
+                    {{ n.quantityAvailable | number: '1.0-2' }} {{ '::Dashboard:FeedAvailable' | abpLocalization }}
+                    @if (n.lowStockThreshold !== null && n.lowStockThreshold !== undefined) { · {{ '::Dashboard:FeedThreshold' | abpLocalization }} {{ n.lowStockThreshold | number: '1.0-2' }} }
                     · {{ n.occurredAt | date: 'shortTime' }}
                   </small>
                 </div>

@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { LocalizationPipe } from '@abp/ng.core';
 
 /**
  * Standard chrome for every feature page: a title bar with an actions slot and a
@@ -7,6 +8,7 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'cu-page-shell',
   standalone: true,
+  imports: [LocalizationPipe],
   templateUrl: './page-shell.component.html',
   styleUrls: ['./page-shell.component.scss'],
 })

@@ -1,29 +1,35 @@
-<cu-page-shell title="Remaining Stock" subtitle="On-hand stock by warehouse and originating supplier, valued at cost — trace what’s left from a shipment">
+<cu-page-shell title="::Reports:RemainingStock" subtitle="::Reports:RemainingStockSubtitle">
   <cu-report-filter-bar [show]="['warehouse', 'supplier', 'category', 'product', 'dates']" (apply)="onFilter($event)" />
 
   @if (report(); as r) {
     <div class="cu-tile-row">
-      <cu-stat-tile label="Remaining quantity" [value]="(r.totalRemainingQuantity || 0) | number: '1.0-2'" icon="fa-boxes-stacked" tone="info" />
-      <cu-stat-tile label="Value at cost" [value]="(r.totalValueAtCost || 0) | number: '1.2-2'" icon="fa-sack-dollar" tone="success" />
-      <cu-stat-tile label="Groups" [value]="r.totalCount || 0" icon="fa-layer-group" tone="neutral" />
+      <cu-stat-tile label="::Reports:RemainingQuantity" [value]="(r.totalRemainingQuantity || 0) | number: '1.0-2'" icon="fa-boxes-stacked" tone="info" />
+      <cu-stat-tile label="::Reports:ValueAtCost" [value]="(r.totalValueAtCost || 0) | number: '1.2-2'" icon="fa-sack-dollar" tone="success" />
+      <cu-stat-tile label="::Reports:Groups" [value]="r.totalCount || 0" icon="fa-layer-group" tone="neutral" />
     </div>
 
     <div class="cu-panel">
-      <h6>Top products by remaining value</h6>
-      <cu-bar-chart [data]="valueByProduct()" unit="value" />
+      <h6>{{ '::Reports:TopProductsByValue' | abpLocalization }}</h6>
+      <cu-bar-chart [data]="valueByProduct()" unit="::Value" />
     </div>
 
     <div class="cu-panel">
       <div class="cu-panel-head">
-        <h6>By warehouse, supplier &amp; product</h6>
+        <h6>{{ '::Reports:ByWarehouseSupplierProduct' | abpLocalization }}</h6>
         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="toggleDetail()">
-          {{ showDetail() ? 'Hide lot-level detail' : 'Show lot-level detail' }}
+          {{ (showDetail() ? '::Reports:HideLotDetail' : '::Reports:ShowLotDetail') | abpLocalization }}
         </button>
       </div>
       <div class="table-responsive">
         <table class="cu-table">
           <thead>
-            <tr><th>Warehouse</th><th>Supplier</th><th>Product</th><th class="text-end">Remaining</th><th class="text-end">Value at cost</th></tr>
+            <tr>
+              <th>{{ '::Warehouse' | abpLocalization }}</th>
+              <th>{{ '::Supplier' | abpLocalization }}</th>
+              <th>{{ '::Product' | abpLocalization }}</th>
+              <th class="text-end">{{ '::Remaining' | abpLocalization }}</th>
+              <th class="text-end">{{ '::Reports:ValueAtCost' | abpLocalization }}</th>
+            </tr>
           </thead>
           <tbody>
             @for (it of items(); track it.warehouseId + it.productId + (it.supplierId || '')) {
@@ -35,7 +41,7 @@
                 <td class="text-end cu-mono">{{ it.valueAtCost | number: '1.2-2' }}</td>
               </tr>
             } @empty {
-              <tr><td colspan="5" class="text-center cu-muted py-4">No stock matches these filters.</td></tr>
+              <tr><td colspan="5" class="text-center cu-muted py-4">{{ '::Reports:NoStockMatch' | abpLocalization }}</td></tr>
             }
           </tbody>
         </table>
@@ -45,11 +51,20 @@
 
     @if (showDetail()) {
       <div class="cu-panel">
-        <h6>Lot-level detail</h6>
+        <h6>{{ '::Reports:LotLevelDetail' | abpLocalization }}</h6>
         <div class="table-responsive">
           <table class="cu-table">
             <thead>
-              <tr><th>Received</th><th>Product</th><th>Warehouse</th><th>Supplier</th><th>Source</th><th class="text-end">Remaining</th><th class="text-end">Unit cost</th><th class="text-end">Value</th></tr>
+              <tr>
+                <th>{{ '::Received' | abpLocalization }}</th>
+                <th>{{ '::Product' | abpLocalization }}</th>
+                <th>{{ '::Warehouse' | abpLocalization }}</th>
+                <th>{{ '::Supplier' | abpLocalization }}</th>
+                <th>{{ '::Source' | abpLocalization }}</th>
+                <th class="text-end">{{ '::Remaining' | abpLocalization }}</th>
+                <th class="text-end">{{ '::UnitCost' | abpLocalization }}</th>
+                <th class="text-end">{{ '::Value' | abpLocalization }}</th>
+              </tr>
             </thead>
             <tbody>
               @for (d of detail(); track d.lotId) {
@@ -64,7 +79,7 @@
                   <td class="text-end cu-mono">{{ d.valueAtCost | number: '1.2-2' }}</td>
                 </tr>
               } @empty {
-                <tr><td colspan="8" class="text-center cu-muted py-4">No detail rows.</td></tr>
+                <tr><td colspan="8" class="text-center cu-muted py-4">{{ '::NoDetailRows' | abpLocalization }}</td></tr>
               }
             </tbody>
           </table>
@@ -73,6 +88,6 @@
       </div>
     }
   } @else if (loading()) {
-    <p class="cu-muted"><i class="fas fa-circle-notch fa-spin"></i> Loading report…</p>
+    <p class="cu-muted"><i class="fas fa-circle-notch fa-spin"></i> {{ '::LoadingReport' | abpLocalization }}</p>
   }
 </cu-page-shell>

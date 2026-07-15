@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LocalizationPipe } from '@abp/ng.core';
 import { AutocompleteComponent } from '../autocomplete/autocomplete.component';
 import { LookupService } from '../lookup/lookup.service';
 
@@ -19,7 +20,7 @@ export type ReportFilterKey = 'warehouse' | 'supplier' | 'category' | 'product' 
 @Component({
   selector: 'cu-report-filter-bar',
   standalone: true,
-  imports: [CommonModule, FormsModule, AutocompleteComponent],
+  imports: [CommonModule, FormsModule, AutocompleteComponent, LocalizationPipe],
   templateUrl: './report-filter-bar.component.html',
   styleUrls: ['./report-filter-bar.component.scss'],
 })

@@ -1,30 +1,37 @@
-<cu-page-shell title="Sales by Source" subtitle="Which supplier the sold stock originally came from — with revenue, cost and gross margin">
+<cu-page-shell title="::Reports:SalesBySource" subtitle="::Reports:SalesBySourceSubtitle">
   <cu-report-filter-bar [show]="['warehouse', 'supplier', 'category', 'product', 'dates']" (apply)="onFilter($event)" />
 
   @if (report(); as r) {
     <div class="cu-tile-row">
-      <cu-stat-tile label="Quantity sold" [value]="(r.totalQuantitySold || 0) | number: '1.0-2'" icon="fa-cubes" tone="info" />
-      <cu-stat-tile label="Revenue" [value]="(r.totalRevenue || 0) | number: '1.2-2'" icon="fa-sack-dollar" tone="success" />
-      <cu-stat-tile label="Cost" [value]="(r.totalCost || 0) | number: '1.2-2'" icon="fa-file-invoice-dollar" tone="neutral" />
-      <cu-stat-tile label="Gross margin" [value]="(r.totalGrossMargin || 0) | number: '1.2-2'" icon="fa-arrow-trend-up" tone="success" />
+      <cu-stat-tile label="::Reports:QuantitySold" [value]="(r.totalQuantitySold || 0) | number: '1.0-2'" icon="fa-cubes" tone="info" />
+      <cu-stat-tile label="::Revenue" [value]="(r.totalRevenue || 0) | number: '1.2-2'" icon="fa-sack-dollar" tone="success" />
+      <cu-stat-tile label="::Cost" [value]="(r.totalCost || 0) | number: '1.2-2'" icon="fa-file-invoice-dollar" tone="neutral" />
+      <cu-stat-tile label="::GrossMargin" [value]="(r.totalGrossMargin || 0) | number: '1.2-2'" icon="fa-arrow-trend-up" tone="success" />
     </div>
 
     <div class="cu-panel">
-      <h6>Top products by gross margin</h6>
-      <cu-bar-chart [data]="marginByProduct()" unit="margin" />
+      <h6>{{ '::Reports:TopProductsByMargin' | abpLocalization }}</h6>
+      <cu-bar-chart [data]="marginByProduct()" unit="::Margin" />
     </div>
 
     <div class="cu-panel">
       <div class="cu-panel-head">
-        <h6>Breakdown by supplier &amp; product</h6>
+        <h6>{{ '::Reports:BreakdownBySupplierProduct' | abpLocalization }}</h6>
         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="toggleDetail()">
-          {{ showDetail() ? 'Hide sale-level detail' : 'Show sale-level detail' }}
+          {{ (showDetail() ? '::Reports:HideSaleDetail' : '::Reports:ShowSaleDetail') | abpLocalization }}
         </button>
       </div>
       <div class="table-responsive">
         <table class="cu-table">
           <thead>
-            <tr><th>Supplier</th><th>Product</th><th class="text-end">Qty</th><th class="text-end">Revenue</th><th class="text-end">Cost</th><th class="text-end">Margin</th></tr>
+            <tr>
+              <th>{{ '::Supplier' | abpLocalization }}</th>
+              <th>{{ '::Product' | abpLocalization }}</th>
+              <th class="text-end">{{ '::Qty' | abpLocalization }}</th>
+              <th class="text-end">{{ '::Revenue' | abpLocalization }}</th>
+              <th class="text-end">{{ '::Cost' | abpLocalization }}</th>
+              <th class="text-end">{{ '::Margin' | abpLocalization }}</th>
+            </tr>
           </thead>
           <tbody>
             @for (it of items(); track it.productId + (it.supplierId || '')) {
@@ -37,7 +44,7 @@
                 <td class="text-end cu-mono">{{ it.grossMargin | number: '1.2-2' }}</td>
               </tr>
             } @empty {
-              <tr><td colspan="6" class="text-center cu-muted py-4">No confirmed sales match these filters.</td></tr>
+              <tr><td colspan="6" class="text-center cu-muted py-4">{{ '::Reports:NoSalesMatch' | abpLocalization }}</td></tr>
             }
           </tbody>
         </table>
@@ -47,11 +54,20 @@
 
     @if (showDetail()) {
       <div class="cu-panel">
-        <h6>Sale-level detail</h6>
+        <h6>{{ '::Reports:SaleLevelDetail' | abpLocalization }}</h6>
         <div class="table-responsive">
           <table class="cu-table">
             <thead>
-              <tr><th>Confirmed</th><th>Product</th><th>Supplier</th><th>Warehouse</th><th class="text-end">Qty</th><th class="text-end">Unit price</th><th class="text-end">Unit cost</th><th class="text-end">Margin</th></tr>
+              <tr>
+                <th>{{ '::Confirmed' | abpLocalization }}</th>
+                <th>{{ '::Product' | abpLocalization }}</th>
+                <th>{{ '::Supplier' | abpLocalization }}</th>
+                <th>{{ '::Warehouse' | abpLocalization }}</th>
+                <th class="text-end">{{ '::Qty' | abpLocalization }}</th>
+                <th class="text-end">{{ '::UnitPrice' | abpLocalization }}</th>
+                <th class="text-end">{{ '::UnitCost' | abpLocalization }}</th>
+                <th class="text-end">{{ '::Margin' | abpLocalization }}</th>
+              </tr>
             </thead>
             <tbody>
               @for (d of detail(); track d.saleLineId) {
@@ -66,7 +82,7 @@
                   <td class="text-end cu-mono">{{ d.grossMargin | number: '1.2-2' }}</td>
                 </tr>
               } @empty {
-                <tr><td colspan="8" class="text-center cu-muted py-4">No detail rows.</td></tr>
+                <tr><td colspan="8" class="text-center cu-muted py-4">{{ '::NoDetailRows' | abpLocalization }}</td></tr>
               }
             </tbody>
           </table>
@@ -75,6 +91,6 @@
       </div>
     }
   } @else if (loading()) {
-    <p class="cu-muted"><i class="fas fa-circle-notch fa-spin"></i> Loading report…</p>
+    <p class="cu-muted"><i class="fas fa-circle-notch fa-spin"></i> {{ '::LoadingReport' | abpLocalization }}</p>
   }
 </cu-page-shell>

@@ -1,7 +1,7 @@
-<cu-page-shell title="Stock Transfers" subtitle="Move stock between warehouses with a safe two-phase dispatch → receive flow">
+<cu-page-shell title="::StockTransfers:Title" subtitle="::StockTransfers:Subtitle">
   <ng-container slot="actions">
     <button type="button" class="btn btn-sm btn-primary" *abpPermission="'CUInventory.StockTransfers.Create'" (click)="create()">
-      <i class="fas fa-plus"></i> New transfer
+      <i class="fas fa-plus"></i> {{ '::StockTransfers:New' | abpLocalization }}
     </button>
   </ng-container>
 
@@ -15,15 +15,15 @@
     [showToolbar]="true"
     (action)="onAction($event)">
     <ng-container slot="toolbar">
-      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="Any source" [(ngModel)]="filter.sourceWarehouseId" (ngModelChange)="applyFilter()" />
-      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="Any destination" [(ngModel)]="filter.destinationWarehouseId" (ngModelChange)="applyFilter()" />
+      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="::AnySource" [(ngModel)]="filter.sourceWarehouseId" (ngModelChange)="applyFilter()" />
+      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="::AnyDestination" [(ngModel)]="filter.destinationWarehouseId" (ngModelChange)="applyFilter()" />
       <select class="form-select form-select-sm cu-inline-filter" [(ngModel)]="filter.status" (ngModelChange)="applyFilter()">
-        <option [ngValue]="null">Any status</option>
-        @for (o of statusOptions; track o.value) { <option [ngValue]="o.value">{{ o.label }}</option> }
+        <option [ngValue]="null">{{ '::AnyStatus' | abpLocalization }}</option>
+        @for (o of statusOptions; track o.value) { <option [ngValue]="o.value">{{ o.label | abpLocalization }}</option> }
       </select>
       @if (filter.sourceWarehouseId || filter.destinationWarehouseId || filter.status !== null) {
         <button type="button" class="btn btn-sm btn-link cu-filter-clear" (click)="clearFilters()">
-          <i class="fas fa-xmark"></i> Clear
+          <i class="fas fa-xmark"></i> {{ '::Clear' | abpLocalization }}
         </button>
       }
     </ng-container>
@@ -36,34 +36,34 @@
 </cu-page-shell>
 
 <!-- Create transfer -->
-<cu-modal [open]="createOpen()" title="New stock transfer" size="lg" [busy]="saving()" (closed)="createOpen.set(false)">
+<cu-modal [open]="createOpen()" title="::StockTransfers:NewTitle" size="lg" [busy]="saving()" (closed)="createOpen.set(false)">
   <form [formGroup]="form">
     <div class="row">
       <div class="col-md-6">
-        <cu-autocomplete formControlName="sourceWarehouseId" kind="warehouse" label="From warehouse" [required]="true" />
+        <cu-autocomplete formControlName="sourceWarehouseId" kind="warehouse" label="::StockTransfers:FromWarehouse" [required]="true" />
       </div>
       <div class="col-md-6">
-        <cu-autocomplete formControlName="destinationWarehouseId" kind="warehouse" label="To warehouse" [required]="true" />
+        <cu-autocomplete formControlName="destinationWarehouseId" kind="warehouse" label="::StockTransfers:ToWarehouse" [required]="true" />
       </div>
     </div>
-    <label class="form-label mt-2">Lines</label>
-    <cu-line-items [formArray]="lines" [headers]="['Product', 'Quantity']" [newRow]="newLine" addLabel="Add product">
+    <label class="form-label mt-2">{{ '::Lines' | abpLocalization }}</label>
+    <cu-line-items [formArray]="lines" [headers]="['::Product', '::Quantity']" [newRow]="newLine" addLabel="::AddProduct">
       <ng-template cuLineRow let-group>
-        <td [formGroup]="group"><cu-autocomplete formControlName="productId" kind="product" [search]="productSearch(group)" placeholder="Select product" /></td>
-        <td style="width: 160px"><cu-form-field [formGroup]="group" controlName="quantity" label="Quantity" type="number" [min]="0" [step]="1" /></td>
+        <td [formGroup]="group"><cu-autocomplete formControlName="productId" kind="product" [search]="productSearch(group)" placeholder="::Product" /></td>
+        <td style="width: 160px"><cu-form-field [formGroup]="group" controlName="quantity" label="::Quantity" type="number" [min]="0" [step]="1" /></td>
       </ng-template>
     </cu-line-items>
   </form>
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="createOpen.set(false)">Cancel</button>
+    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="createOpen.set(false)">{{ '::Cancel' | abpLocalization }}</button>
     <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">
-      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } Create draft
+      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } {{ '::CreateDraft' | abpLocalization }}
     </button>
   </ng-container>
 </cu-modal>
 
 <!-- Detail with two-phase timeline -->
-<cu-modal [open]="detailOpen()" title="Transfer details" size="lg" (closed)="detailOpen.set(false)">
+<cu-modal [open]="detailOpen()" title="::StockTransfers:Details" size="lg" (closed)="detailOpen.set(false)">
   @if (detail(); as t) {
     <div class="cu-transfer-route">
       <span>{{ t.sourceWarehouseId | idName: 'warehouse' }}</span>
@@ -74,17 +74,17 @@
 
     @if (t.status !== Status.Cancelled) {
       <ol class="cu-timeline" [attr.data-step]="timelineStep(t.status)">
-        <li [class.done]="timelineStep(t.status) >= 0"><span class="cu-dot"></span><div><strong>Draft</strong><small class="cu-muted d-block">{{ t.creationTime | date: 'short' }}</small></div></li>
-        <li [class.done]="timelineStep(t.status) >= 1"><span class="cu-dot"></span><div><strong>Dispatched</strong><small class="cu-muted d-block">{{ t.dispatchedAt ? (t.dispatchedAt | date: 'short') : 'Pending' }}</small></div></li>
-        <li [class.done]="timelineStep(t.status) >= 2"><span class="cu-dot"></span><div><strong>Received</strong><small class="cu-muted d-block">{{ t.receivedAt ? (t.receivedAt | date: 'short') : 'Pending' }}</small></div></li>
+        <li [class.done]="timelineStep(t.status) >= 0"><span class="cu-dot"></span><div><strong>{{ '::Draft' | abpLocalization }}</strong><small class="cu-muted d-block">{{ t.creationTime | date: 'short' }}</small></div></li>
+        <li [class.done]="timelineStep(t.status) >= 1"><span class="cu-dot"></span><div><strong>{{ '::Dispatched' | abpLocalization }}</strong><small class="cu-muted d-block">{{ t.dispatchedAt ? (t.dispatchedAt | date: 'short') : ('::Pending' | abpLocalization) }}</small></div></li>
+        <li [class.done]="timelineStep(t.status) >= 2"><span class="cu-dot"></span><div><strong>{{ '::Received' | abpLocalization }}</strong><small class="cu-muted d-block">{{ t.receivedAt ? (t.receivedAt | date: 'short') : ('::Pending' | abpLocalization) }}</small></div></li>
       </ol>
     } @else {
-      <div class="cu-chip cu-chip--danger my-2">Cancelled</div>
+      <div class="cu-chip cu-chip--danger my-2">{{ '::Cancelled' | abpLocalization }}</div>
     }
 
-    <h6 class="mt-3">Lines</h6>
+    <h6 class="mt-3">{{ '::Lines' | abpLocalization }}</h6>
     <table class="cu-table">
-      <thead><tr><th>Product</th><th class="text-end">Quantity</th></tr></thead>
+      <thead><tr><th>{{ '::Product' | abpLocalization }}</th><th class="text-end">{{ '::Quantity' | abpLocalization }}</th></tr></thead>
       <tbody>
         @for (l of t.lines; track l.id) {
           <tr><td>{{ l.productId | idName: 'product' }}</td><td class="text-end cu-mono">{{ l.quantity | number: '1.0-2' }}</td></tr>
@@ -93,10 +93,17 @@
     </table>
 
     @if (t.allocations?.length) {
-      <h6 class="mt-3">Source allocations</h6>
-      <p class="cu-muted small">Which lots (and their originating suppliers) the dispatched quantity was drawn from.</p>
+      <h6 class="mt-3">{{ '::StockTransfers:SourceAllocations' | abpLocalization }}</h6>
+      <p class="cu-muted small">{{ '::StockTransfers:AllocationsHint' | abpLocalization }}</p>
       <table class="cu-table">
-        <thead><tr><th>Product</th><th>Supplier</th><th class="text-end">Qty</th><th class="text-end">Unit cost</th></tr></thead>
+        <thead>
+          <tr>
+            <th>{{ '::Product' | abpLocalization }}</th>
+            <th>{{ '::Supplier' | abpLocalization }}</th>
+            <th class="text-end">{{ '::Qty' | abpLocalization }}</th>
+            <th class="text-end">{{ '::UnitCost' | abpLocalization }}</th>
+          </tr>
+        </thead>
         <tbody>
           @for (a of t.allocations; track a.id) {
             <tr>
@@ -113,6 +120,6 @@
     <cu-audit-info [entity]="t" />
   }
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">{{ '::Close' | abpLocalization }}</button>
   </ng-container>
 </cu-modal>

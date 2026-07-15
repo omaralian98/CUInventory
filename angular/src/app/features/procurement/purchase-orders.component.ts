@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ListService, PermissionDirective } from '@abp/ng.core';
+import { ListService, LocalizationPipe, PermissionDirective } from '@abp/ng.core';
 import { finalize } from 'rxjs/operators';
 import { PurchaseOrderService } from '../../proxy/procurement/purchase-order.service';
 import { PurchaseOrderDto } from '../../proxy/procurement/dtos/models';
@@ -34,6 +34,7 @@ import { ListPageBase } from '../shared/list-page.base';
     FormsModule,
     ReactiveFormsModule,
     PermissionDirective,
+    LocalizationPipe,
     PageShellComponent,
     DataTableComponent,
     ColumnDirective,
@@ -82,18 +83,18 @@ export class PurchaseOrdersComponent extends ListPageBase<PurchaseOrderDto> {
   });
 
   columns: ColumnConfig[] = [
-    { prop: 'creationTime', header: 'Created', pipe: 'date', sortable: true },
-    { prop: 'supplierId', header: 'Supplier', cell: 'supplier' },
-    { prop: 'destinationWarehouseId', header: 'Warehouse', cell: 'warehouse' },
-    { prop: 'linesCount', header: 'Lines', cell: 'lines', align: 'end' },
-    { prop: 'status', header: 'Status', cell: 'status' },
+    { prop: 'creationTime', header: '::Created', pipe: 'date', sortable: true },
+    { prop: 'supplierId', header: '::Supplier', cell: 'supplier' },
+    { prop: 'destinationWarehouseId', header: '::Warehouse', cell: 'warehouse' },
+    { prop: 'linesCount', header: '::Lines', cell: 'lines', align: 'end' },
+    { prop: 'status', header: '::Status', cell: 'status' },
   ];
 
   actions: RowAction[] = [
-    { key: 'view', label: 'View', icon: 'fa-eye' },
-    { key: 'confirm', label: 'Confirm', icon: 'fa-check', visible: r => r.status === 0 },
-    { key: 'cancel', label: 'Cancel', icon: 'fa-ban', tone: 'danger', visible: r => r.status === 0 || r.status === 1 },
-    { key: 'delete', label: 'Delete', icon: 'fa-trash-can', tone: 'danger', visible: r => r.status === 0 },
+    { key: 'view', label: '::View', icon: 'fa-eye' },
+    { key: 'confirm', label: '::Confirm', icon: 'fa-check', visible: r => r.status === 0 },
+    { key: 'cancel', label: '::Cancel', icon: 'fa-ban', tone: 'danger', visible: r => r.status === 0 || r.status === 1 },
+    { key: 'delete', label: '::Delete', icon: 'fa-trash-can', tone: 'danger', visible: r => r.status === 0 },
   ];
 
   constructor() {
@@ -140,23 +141,23 @@ export class PurchaseOrdersComponent extends ListPageBase<PurchaseOrderDto> {
       case 'confirm':
         this.runAction(
           () => this.service.confirm(e.row.id!, { concurrencyStamp: e.row.concurrencyStamp }),
-          'Purchase order confirmed.',
+          '::PurchaseOrders:Confirmed',
         );
         break;
       case 'cancel':
         this.confirmAction(
-          'Cancel this purchase order?',
-          'Cancel purchase order',
+          '::PurchaseOrders:ConfirmCancel',
+          '::PurchaseOrders:ConfirmCancelTitle',
           () => this.service.cancel(e.row.id!, { concurrencyStamp: e.row.concurrencyStamp }),
-          'Purchase order cancelled.',
+          '::PurchaseOrders:Cancelled',
         );
         break;
       case 'delete':
         this.confirmAction(
-          'Delete this draft purchase order?',
-          'Delete purchase order',
+          '::PurchaseOrders:ConfirmDelete',
+          '::PurchaseOrders:ConfirmDeleteTitle',
           () => this.service.delete(e.row.id!),
-          'Purchase order deleted.',
+          '::PurchaseOrders:Deleted',
         );
         break;
     }
@@ -188,11 +189,11 @@ export class PurchaseOrdersComponent extends ListPageBase<PurchaseOrderDto> {
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => {
-          this.toaster.success('Purchase order created.');
+          this.toaster.success('::PurchaseOrders:Created');
           this.modalOpen.set(false);
           this.reload();
         },
-        error: err => this.toaster.error(err?.error?.error?.message ?? 'Save failed.', 'Error'),
+        error: err => this.toaster.error(err?.error?.error?.message ?? '::SaveFailed', '::Error'),
       });
   }
 }

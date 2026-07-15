@@ -1,7 +1,7 @@
 import { Component, effect, inject, signal, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ListService } from '@abp/ng.core';
+import { ListService, LocalizationPipe } from '@abp/ng.core';
 import { finalize } from 'rxjs/operators';
 import { InventoryBalanceService } from '../../proxy/inventory/inventory-balance.service';
 import { InventoryBalanceDto } from '../../proxy/inventory/dtos/models';
@@ -26,6 +26,7 @@ import { ListPageBase } from '../shared/list-page.base';
   imports: [
     CommonModule,
     FormsModule,
+    LocalizationPipe,
     PageShellComponent,
     DataTableComponent,
     ColumnDirective,
@@ -54,17 +55,17 @@ export class InventoryBalancesComponent extends ListPageBase<InventoryBalanceDto
   detailRow = signal<InventoryBalanceDto | null>(null);
 
   columns: ColumnConfig[] = [
-    { prop: 'warehouseId', header: 'Warehouse', cell: 'warehouse' },
-    { prop: 'productId', header: 'Product', cell: 'product' },
-    { prop: 'quantityOnHand', header: 'On hand', pipe: 'number', align: 'end', sortable: true },
-    { prop: 'quantityReserved', header: 'Reserved', pipe: 'number', align: 'end' },
-    { prop: 'quantityAvailable', header: 'Available', cell: 'available', align: 'end' },
-    { prop: 'lowStockThreshold', header: 'Threshold', pipe: 'number', align: 'end' },
+    { prop: 'warehouseId', header: '::Warehouse', cell: 'warehouse' },
+    { prop: 'productId', header: '::Product', cell: 'product' },
+    { prop: 'quantityOnHand', header: '::OnHand', pipe: 'number', align: 'end', sortable: true },
+    { prop: 'quantityReserved', header: '::Reserved', pipe: 'number', align: 'end' },
+    { prop: 'quantityAvailable', header: '::Available', cell: 'available', align: 'end' },
+    { prop: 'lowStockThreshold', header: '::Threshold', pipe: 'number', align: 'end' },
   ];
 
   actions: RowAction[] = [
-    { key: 'details', label: 'Details', icon: 'fa-circle-info' },
-    { key: 'threshold', label: 'Set threshold', icon: 'fa-bell' },
+    { key: 'details', label: '::Details', icon: 'fa-circle-info' },
+    { key: 'threshold', label: '::InventoryBalances:SetThreshold', icon: 'fa-bell' },
   ];
 
   // Live: when the SSE store reports a new snapshot for a balance we're showing,
@@ -146,11 +147,11 @@ export class InventoryBalancesComponent extends ListPageBase<InventoryBalanceDto
       .pipe(finalize(() => this.savingThreshold.set(false)))
       .subscribe({
         next: () => {
-          this.toaster.success('Threshold updated.');
+          this.toaster.success('::InventoryBalances:ThresholdUpdated');
           this.thresholdModalOpen.set(false);
           this.reload();
         },
-        error: err => this.toaster.error(err?.error?.error?.message ?? 'Update failed.', 'Error'),
+        error: err => this.toaster.error(err?.error?.error?.message ?? '::InventoryBalances:UpdateFailed', '::Error'),
       });
   }
 }

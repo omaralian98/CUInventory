@@ -120,8 +120,8 @@ public class CUInventoryHttpApiHostModule : AbpModule
 
             Configure<AbpExceptionHandlingOptions>(options =>
             {
-                options.SendExceptionsDetailsToClients = true;
-                options.SendStackTraceToClients = true;
+                options.SendExceptionsDetailsToClients = false;
+                options.SendStackTraceToClients = false;
             });
         }
 

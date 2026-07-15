@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ListService, PermissionDirective } from '@abp/ng.core';
+import { ListService, LocalizationPipe, PermissionDirective } from '@abp/ng.core';
 import { finalize } from 'rxjs/operators';
 import { StockTransferService } from '../../proxy/inventory/stock-transfer.service';
 import { StockTransferDto } from '../../proxy/inventory/dtos/models';
@@ -35,6 +35,7 @@ import { ListPageBase } from '../shared/list-page.base';
     FormsModule,
     ReactiveFormsModule,
     PermissionDirective,
+    LocalizationPipe,
     PageShellComponent,
     DataTableComponent,
     ColumnDirective,
@@ -81,19 +82,19 @@ export class StockTransfersComponent extends ListPageBase<StockTransferDto> {
   });
 
   columns: ColumnConfig[] = [
-    { prop: 'creationTime', header: 'Created', pipe: 'date', sortable: true },
-    { prop: 'sourceWarehouseId', header: 'From', cell: 'from' },
-    { prop: 'destinationWarehouseId', header: 'To', cell: 'to' },
-    { prop: 'linesCount', header: 'Lines', cell: 'lines', align: 'end' },
-    { prop: 'status', header: 'Status', cell: 'status' },
+    { prop: 'creationTime', header: '::Created', pipe: 'date', sortable: true },
+    { prop: 'sourceWarehouseId', header: '::From', cell: 'from' },
+    { prop: 'destinationWarehouseId', header: '::To', cell: 'to' },
+    { prop: 'linesCount', header: '::Lines', cell: 'lines', align: 'end' },
+    { prop: 'status', header: '::Status', cell: 'status' },
   ];
 
   actions: RowAction[] = [
-    { key: 'view', label: 'View', icon: 'fa-eye' },
-    { key: 'dispatch', label: 'Dispatch', icon: 'fa-truck-fast', visible: r => r.status === StockTransferStatus.Draft },
-    { key: 'receive', label: 'Receive', icon: 'fa-box-open', visible: r => r.status === StockTransferStatus.Dispatched },
-    { key: 'cancel', label: 'Cancel', icon: 'fa-ban', tone: 'danger', visible: r => r.status === StockTransferStatus.Draft || r.status === StockTransferStatus.Dispatched },
-    { key: 'delete', label: 'Delete', icon: 'fa-trash-can', tone: 'danger', visible: r => r.status === StockTransferStatus.Draft },
+    { key: 'view', label: '::View', icon: 'fa-eye' },
+    { key: 'dispatch', label: '::Dispatch', icon: 'fa-truck-fast', visible: r => r.status === StockTransferStatus.Draft },
+    { key: 'receive', label: '::Receive', icon: 'fa-box-open', visible: r => r.status === StockTransferStatus.Dispatched },
+    { key: 'cancel', label: '::Cancel', icon: 'fa-ban', tone: 'danger', visible: r => r.status === StockTransferStatus.Draft || r.status === StockTransferStatus.Dispatched },
+    { key: 'delete', label: '::Delete', icon: 'fa-trash-can', tone: 'danger', visible: r => r.status === StockTransferStatus.Draft },
   ];
 
   constructor() {
@@ -137,7 +138,7 @@ export class StockTransfersComponent extends ListPageBase<StockTransferDto> {
     }
     const v = this.form.getRawValue();
     if (v.sourceWarehouseId === v.destinationWarehouseId) {
-      this.toaster.error('Source and destination warehouses must differ.', 'Invalid transfer');
+      this.toaster.error('::StockTransfers:SameWarehouseError', '::StockTransfers:InvalidTransfer');
       return;
     }
     this.saving.set(true);
@@ -150,11 +151,11 @@ export class StockTransfersComponent extends ListPageBase<StockTransferDto> {
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => {
-          this.toaster.success('Transfer created as draft.');
+          this.toaster.success('::StockTransfers:Created');
           this.createOpen.set(false);
           this.reload();
         },
-        error: err => this.toaster.error(err?.error?.error?.message ?? 'Create failed.', 'Error'),
+        error: err => this.toaster.error(err?.error?.error?.message ?? '::SaveFailed', '::Error'),
       });
   }
 
@@ -166,16 +167,16 @@ export class StockTransfersComponent extends ListPageBase<StockTransferDto> {
         this.openDetail(row);
         break;
       case 'dispatch':
-        this.runAction(() => this.service.dispatch(row.id!, stamp), 'Transfer dispatched — stock reserved at source.');
+        this.runAction(() => this.service.dispatch(row.id!, stamp), '::StockTransfers:Dispatched');
         break;
       case 'receive':
-        this.runAction(() => this.service.receive(row.id!, stamp), 'Transfer received — stock added at destination.');
+        this.runAction(() => this.service.receive(row.id!, stamp), '::StockTransfers:Received');
         break;
       case 'cancel':
-        this.confirmAction('Cancel this transfer? Reserved stock returns to source.', 'Cancel transfer', () => this.service.cancel(row.id!, stamp), 'Transfer cancelled.');
+        this.confirmAction('::StockTransfers:ConfirmCancel', '::StockTransfers:ConfirmCancelTitle', () => this.service.cancel(row.id!, stamp), '::StockTransfers:Cancelled');
         break;
       case 'delete':
-        this.confirmAction('Delete this draft transfer?', 'Delete transfer', () => this.service.delete(row.id!), 'Transfer deleted.');
+        this.confirmAction('::StockTransfers:ConfirmDelete', '::StockTransfers:ConfirmDeleteTitle', () => this.service.delete(row.id!), '::StockTransfers:Deleted');
         break;
     }
   }

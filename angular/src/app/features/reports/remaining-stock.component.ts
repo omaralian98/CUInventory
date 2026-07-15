@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocalizationPipe } from '@abp/ng.core';
 import { ReportsService } from '../../proxy/reporting/reports.service';
 import { RemainingStockItemDto, RemainingStockReportDto, RemainingStockDetailDto } from '../../proxy/reporting/dtos/models';
 import {
@@ -18,7 +19,7 @@ import { ReportFilterFields } from '../../shared/report-filter-bar/report-filter
 @Component({
   selector: 'cu-remaining-stock',
   standalone: true,
-  imports: [CommonModule, PageShellComponent, StatTileComponent, BarChartComponent, StatusBadgeComponent, ReportFilterBarComponent, PagerComponent, IdNamePipe],
+  imports: [CommonModule, LocalizationPipe, PageShellComponent, StatTileComponent, BarChartComponent, StatusBadgeComponent, ReportFilterBarComponent, PagerComponent, IdNamePipe],
   templateUrl: './remaining-stock.component.html',
 })
 export class RemainingStockComponent {

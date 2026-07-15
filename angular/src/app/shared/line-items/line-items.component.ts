@@ -1,5 +1,6 @@
 import { Component, ContentChild, Input, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocalizationPipe } from '@abp/ng.core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 /** Directive marking the row-cell template: <ng-template cuLineRow let-group let-i="index">…<td>…</td> */
@@ -18,7 +19,7 @@ export class LineRowDirective {
 @Component({
   selector: 'cu-line-items',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LocalizationPipe],
   templateUrl: './line-items.component.html',
   styleUrls: ['./line-items.component.scss'],
 })
@@ -26,7 +27,7 @@ export class LineItemsComponent {
   @Input({ required: true }) formArray!: FormArray;
   @Input({ required: true }) headers: string[] = [];
   @Input({ required: true }) newRow!: () => FormGroup;
-  @Input() addLabel = 'Add line';
+  @Input() addLabel = '::AddLine';
   @Input() minRows = 1;
 
   @ContentChild(LineRowDirective) rowTemplate!: LineRowDirective;

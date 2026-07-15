@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ListService, PermissionDirective } from '@abp/ng.core';
+import { ListService, LocalizationPipe, PermissionDirective } from '@abp/ng.core';
 import { finalize } from 'rxjs/operators';
 import { WarehouseService } from '../../proxy/warehousing/warehouse.service';
 import { WarehouseDto } from '../../proxy/warehousing/dtos/models';
@@ -26,6 +26,7 @@ import { ListPageBase } from '../shared/list-page.base';
     CommonModule,
     ReactiveFormsModule,
     PermissionDirective,
+    LocalizationPipe,
     PageShellComponent,
     DataTableComponent,
     ColumnDirective,
@@ -68,17 +69,17 @@ export class WarehousesComponent extends ListPageBase<WarehouseDto> {
   }
 
   columns: ColumnConfig[] = [
-    { prop: 'name', header: 'Name', sortable: true },
-    { prop: 'code', header: 'Code', sortable: true },
-    { prop: 'address.city', header: 'City' },
-    { prop: 'isActive', header: 'Status', cell: 'status' },
-    { prop: 'creationTime', header: 'Created', pipe: 'date', sortable: true },
+    { prop: 'name', header: '::Name', sortable: true },
+    { prop: 'code', header: '::Code', sortable: true },
+    { prop: 'address.city', header: '::City' },
+    { prop: 'isActive', header: '::Status', cell: 'status' },
+    { prop: 'creationTime', header: '::Created', pipe: 'date', sortable: true },
   ];
 
   actions: RowAction[] = [
-    { key: 'details', label: 'Details', icon: 'fa-circle-info' },
-    { key: 'edit', label: 'Edit', icon: 'fa-pen' },
-    { key: 'delete', label: 'Delete', icon: 'fa-trash-can', tone: 'danger' },
+    { key: 'details', label: '::Details', icon: 'fa-circle-info' },
+    { key: 'edit', label: '::Edit', icon: 'fa-pen' },
+    { key: 'delete', label: '::Delete', icon: 'fa-trash-can', tone: 'danger' },
   ];
 
   constructor() {
@@ -172,21 +173,22 @@ export class WarehousesComponent extends ListPageBase<WarehouseDto> {
 
     request.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: () => {
-        this.toaster.success(current ? 'Warehouse updated.' : 'Warehouse created.');
+        this.toaster.success(current ? '::Warehouses:Updated' : '::Warehouses:Created');
         this.modalOpen.set(false);
         this.lookup.refresh();
         this.reload();
       },
-      error: err => this.toaster.error(err?.error?.error?.message ?? 'Save failed.', 'Error'),
+      error: err => this.toaster.error(err?.error?.error?.message ?? '::SaveFailed', '::Error'),
     });
   }
 
   private remove(row: WarehouseDto): void {
     this.confirmAction(
-      `Delete warehouse "${row.name}"?`,
-      'Delete warehouse',
+      '::Warehouses:ConfirmDelete',
+      '::Warehouses:ConfirmDeleteTitle',
       () => this.service.delete(row.id!),
-      'Warehouse deleted.',
+      '::Warehouses:Deleted',
+      [row.name ?? ''],
     );
   }
 }

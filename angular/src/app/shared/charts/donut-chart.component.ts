@@ -1,5 +1,6 @@
-import { Component, Input, computed, signal } from '@angular/core';
+import { Component, Input, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocalizationPipe, LocalizationService } from '@abp/ng.core';
 
 export interface DonutDatum {
   label: string;
@@ -32,17 +33,18 @@ const SERIES = [
 @Component({
   selector: 'cu-donut-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LocalizationPipe],
   templateUrl: './donut-chart.component.html',
   styleUrls: ['./donut-chart.component.scss'],
 })
 export class DonutChartComponent {
+  private localization = inject(LocalizationService);
   private _data = signal<DonutDatum[]>([]);
   @Input({ required: true }) set data(v: DonutDatum[]) {
     this._data.set(v ?? []);
   }
-  @Input() centerLabel = 'Total';
-  @Input() emptyText = 'No data for the selected filters.';
+  @Input() centerLabel = '::Total';
+  @Input() emptyText = '::NoChartData';
 
   readonly radius = 60;
   readonly circumference = 2 * Math.PI * this.radius;
@@ -54,7 +56,7 @@ export class DonutChartComponent {
     const head = raw.slice(0, SERIES.length - 1);
     const tail = raw.slice(SERIES.length - 1);
     const other = tail.reduce((sum, d) => sum + d.value, 0);
-    return [...head, { label: 'Other', value: other }];
+    return [...head, { label: this.localization.instant('::Other'), value: other }];
   });
 
   total = computed(() => this.prepared().reduce((sum, d) => sum + d.value, 0));

@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocalizationPipe, LocalizationService } from '@abp/ng.core';
 import { ReportsService } from '../../proxy/reporting/reports.service';
 import { InventoryValuationItemDto, InventoryValuationReportDto } from '../../proxy/reporting/dtos/models';
 import {
@@ -17,12 +18,13 @@ import { ReportFilterFields } from '../../shared/report-filter-bar/report-filter
 @Component({
   selector: 'cu-inventory-valuation',
   standalone: true,
-  imports: [CommonModule, PageShellComponent, StatTileComponent, DonutChartComponent, ReportFilterBarComponent, PagerComponent, IdNamePipe],
+  imports: [CommonModule, LocalizationPipe, PageShellComponent, StatTileComponent, DonutChartComponent, ReportFilterBarComponent, PagerComponent, IdNamePipe],
   templateUrl: './inventory-valuation.component.html',
 })
 export class InventoryValuationComponent {
   private service = inject(ReportsService);
   private lookup = inject(LookupService);
+  private localization = inject(LocalizationService);
 
   loading = signal(false);
   report = signal<InventoryValuationReportDto | null>(null);
@@ -40,7 +42,10 @@ export class InventoryValuationComponent {
       map.set(key, (map.get(key) ?? 0) + (it.totalValue ?? 0));
     }
     return [...map.entries()].map(([id, value]) => ({
-      label: id === 'uncategorized' ? 'Uncategorized' : this.lookup.nameOf('category', id),
+      label:
+        id === 'uncategorized'
+          ? this.localization.instant('::Uncategorized')
+          : this.lookup.nameOf('category', id),
       value,
     }));
   });

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ListService, PermissionDirective } from '@abp/ng.core';
+import { ListService, LocalizationPipe, PermissionDirective } from '@abp/ng.core';
 import { finalize } from 'rxjs/operators';
 import { SupplierService } from '../../proxy/procurement/supplier.service';
 import { SupplierDto } from '../../proxy/procurement/dtos/models';
@@ -25,6 +25,7 @@ import { ListPageBase } from '../shared/list-page.base';
     CommonModule,
     ReactiveFormsModule,
     PermissionDirective,
+    LocalizationPipe,
     PageShellComponent,
     DataTableComponent,
     FormFieldComponent,
@@ -69,16 +70,16 @@ export class SuppliersComponent extends ListPageBase<SupplierDto> {
   }
 
   columns: ColumnConfig[] = [
-    { prop: 'name', header: 'Name', sortable: true },
-    { prop: 'contact.email', header: 'Email' },
-    { prop: 'contact.phoneNumber', header: 'Phone' },
-    { prop: 'contact.address.city', header: 'City' },
+    { prop: 'name', header: '::Name', sortable: true },
+    { prop: 'contact.email', header: '::Email' },
+    { prop: 'contact.phoneNumber', header: '::Phone' },
+    { prop: 'contact.address.city', header: '::City' },
   ];
 
   actions: RowAction[] = [
-    { key: 'details', label: 'Details', icon: 'fa-circle-info' },
-    { key: 'edit', label: 'Edit', icon: 'fa-pen' },
-    { key: 'delete', label: 'Delete', icon: 'fa-trash-can', tone: 'danger' },
+    { key: 'details', label: '::Details', icon: 'fa-circle-info' },
+    { key: 'edit', label: '::Edit', icon: 'fa-pen' },
+    { key: 'delete', label: '::Delete', icon: 'fa-trash-can', tone: 'danger' },
   ];
 
   constructor() {
@@ -157,21 +158,22 @@ export class SuppliersComponent extends ListPageBase<SupplierDto> {
 
     request.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: () => {
-        this.toaster.success(current ? 'Supplier updated.' : 'Supplier created.');
+        this.toaster.success(current ? '::Suppliers:Updated' : '::Suppliers:Created');
         this.modalOpen.set(false);
         this.lookup.refresh();
         this.reload();
       },
-      error: err => this.toaster.error(err?.error?.error?.message ?? 'Save failed.', 'Error'),
+      error: err => this.toaster.error(err?.error?.error?.message ?? '::SaveFailed', '::Error'),
     });
   }
 
   private remove(row: SupplierDto): void {
     this.confirmAction(
-      `Delete supplier "${row.name}"?`,
-      'Delete supplier',
+      '::Suppliers:ConfirmDelete',
+      '::Suppliers:ConfirmDeleteTitle',
       () => this.service.delete(row.id!),
-      'Supplier deleted.',
+      '::Suppliers:Deleted',
+      [row.name ?? ''],
     );
   }
 }

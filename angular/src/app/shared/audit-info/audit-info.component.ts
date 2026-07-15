@@ -1,5 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocalizationPipe } from '@abp/ng.core';
 import { UserLookupService } from '../lookup/user-lookup.service';
 
 export interface AuditedEntity {
@@ -13,14 +14,14 @@ export interface AuditedEntity {
 @Component({
   selector: 'cu-audit-info',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LocalizationPipe],
   template: `
     @if (entity) {
       <div class="cu-audit">
         <div class="cu-audit-item">
           <span class="cu-audit-icon"><i class="fas fa-circle-plus"></i></span>
           <div>
-            <span class="cu-audit-label">Created</span>
+            <span class="cu-audit-label">{{ '::Created' | abpLocalization }}</span>
             <span class="cu-audit-value">
               {{ users.nameOf(entity.creatorId) }} · {{ entity.creationTime | date: 'short' }}
             </span>
@@ -30,7 +31,7 @@ export interface AuditedEntity {
           <div class="cu-audit-item">
             <span class="cu-audit-icon"><i class="fas fa-pen"></i></span>
             <div>
-              <span class="cu-audit-label">Last modified</span>
+              <span class="cu-audit-label">{{ '::LastModified' | abpLocalization }}</span>
               <span class="cu-audit-value">
                 {{ users.nameOf(entity.lastModifierId) }} · {{ entity.lastModificationTime | date: 'short' }}
               </span>

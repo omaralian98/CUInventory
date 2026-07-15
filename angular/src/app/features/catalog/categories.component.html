@@ -1,11 +1,11 @@
-<cu-page-shell title="Categories" subtitle="Product categories used for grouping and reporting">
+<cu-page-shell title="::Categories:Title" subtitle="::Categories:Subtitle">
   <ng-container slot="actions">
     <button type="button" class="btn btn-sm btn-outline-secondary" (click)="onToggleInactive()">
       <i class="fas" [class.fa-eye]="!includeInactive" [class.fa-eye-slash]="includeInactive"></i>
-      {{ includeInactive ? 'Hide inactive' : 'Show inactive' }}
+      {{ (includeInactive ? '::HideInactive' : '::ShowInactive') | abpLocalization }}
     </button>
     <button type="button" class="btn btn-sm btn-primary" *abpPermission="'CUInventory.Categories.Create'" (click)="create()">
-      <i class="fas fa-plus"></i> New category
+      <i class="fas fa-plus"></i> {{ '::Categories:New' | abpLocalization }}
     </button>
   </ng-container>
 
@@ -17,7 +17,7 @@
     [actions]="actions"
     [loading]="loading()"
     [showSearch]="true"
-    searchPlaceholder="Search categories…"
+    searchPlaceholder="::Categories:SearchPlaceholder"
     (searchChange)="onSearch($event)"
     (action)="onAction($event)">
     <ng-template cuCol="status" let-row>
@@ -28,33 +28,33 @@
 
 <cu-modal
   [open]="modalOpen()"
-  [title]="editing() ? 'Edit category' : 'New category'"
+  [title]="editing() ? '::Categories:Edit' : '::Categories:New'"
   [busy]="saving()"
   (closed)="modalOpen.set(false)">
   <form [formGroup]="form">
-    <cu-form-field [formGroup]="form" controlName="name" label="Name" [required]="true" />
-    <cu-form-field [formGroup]="form" controlName="orderIndex" label="Order" type="number" />
-    <cu-form-field [formGroup]="form" controlName="isActive" label="Active" type="checkbox" />
+    <cu-form-field [formGroup]="form" controlName="name" label="::Name" [required]="true" />
+    <cu-form-field [formGroup]="form" controlName="orderIndex" label="::Order" type="number" />
+    <cu-form-field [formGroup]="form" controlName="isActive" label="::Active" type="checkbox" />
   </form>
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="modalOpen.set(false)">Cancel</button>
+    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="modalOpen.set(false)">{{ '::Cancel' | abpLocalization }}</button>
     <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">
-      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } Save
+      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } {{ '::Save' | abpLocalization }}
     </button>
   </ng-container>
 </cu-modal>
 
 
-<cu-modal [open]="detailOpen()" title="Category details" (closed)="detailOpen.set(false)">
+<cu-modal [open]="detailOpen()" title="::Categories:Details" (closed)="detailOpen.set(false)">
   @if (detailRow(); as c) {
     <div class="d-flex flex-wrap gap-4 mb-2">
-      <div><span class="cu-muted d-block small">Name</span>{{ c.name }}</div>
-      <div><span class="cu-muted d-block small">Order</span>{{ c.orderIndex }}</div>
-      <div><span class="cu-muted d-block small">Status</span><cu-status-badge kind="active" [value]="c.isActive ? 1 : 0" /></div>
+      <div><span class="cu-muted d-block small">{{ '::Name' | abpLocalization }}</span>{{ c.name }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Order' | abpLocalization }}</span>{{ c.orderIndex }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Status' | abpLocalization }}</span><cu-status-badge kind="active" [value]="c.isActive ? 1 : 0" /></div>
     </div>
     <cu-audit-info [entity]="c" />
   }
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">{{ '::Close' | abpLocalization }}</button>
   </ng-container>
 </cu-modal>

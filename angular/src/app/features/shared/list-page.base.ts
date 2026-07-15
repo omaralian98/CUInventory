@@ -33,17 +33,23 @@ export abstract class ListPageBase<T> {
     this.list.get();
   }
 
-  /** Confirm, then run an action; toast on success/failure and reload the list. */
+  /**
+   * Confirm, then run an action; toast on success/failure and reload the list.
+   * Messages are localization keys; `messageParams` fills their {0}, {1}… placeholders.
+   */
   protected confirmAction(
     message: string,
     title: string,
     run: () => Observable<unknown>,
     successMessage: string,
+    messageParams?: string[],
   ): void {
-    this.confirmation.warn(message, title).subscribe(status => {
-      if (status !== Confirmation.Status.confirm) return;
-      this.runAction(run, successMessage);
-    });
+    this.confirmation
+      .warn(message, title, { messageLocalizationParams: messageParams })
+      .subscribe(status => {
+        if (status !== Confirmation.Status.confirm) return;
+        this.runAction(run, successMessage);
+      });
   }
 
   protected runAction(run: () => Observable<unknown>, successMessage: string): void {
@@ -56,7 +62,7 @@ export abstract class ListPageBase<T> {
           this.reload();
         },
         error: err => {
-          this.toaster.error(err?.error?.error?.message ?? 'The operation failed.', 'Error');
+          this.toaster.error(err?.error?.error?.message ?? '::OperationFailed', '::Error');
         },
       });
   }

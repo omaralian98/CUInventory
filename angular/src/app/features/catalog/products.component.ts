@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ListService, PermissionDirective } from '@abp/ng.core';
+import { ListService, LocalizationPipe, PermissionDirective } from '@abp/ng.core';
 import { finalize } from 'rxjs/operators';
 import { ProductService } from '../../proxy/catalog/product.service';
 import { ProductDto } from '../../proxy/catalog/dtos/models';
@@ -28,6 +28,7 @@ import { ListPageBase } from '../shared/list-page.base';
     CommonModule,
     ReactiveFormsModule,
     PermissionDirective,
+    LocalizationPipe,
     PageShellComponent,
     DataTableComponent,
     ColumnDirective,
@@ -66,17 +67,17 @@ export class ProductsComponent extends ListPageBase<ProductDto> {
   });
 
   columns: ColumnConfig[] = [
-    { prop: 'name', header: 'Name', sortable: true },
-    { prop: 'sku', header: 'SKU', sortable: true },
-    { prop: 'categoryId', header: 'Category', cell: 'category' },
-    { prop: 'isService', header: 'Type', cell: 'type' },
-    { prop: 'isActive', header: 'Status', cell: 'status' },
+    { prop: 'name', header: '::Name', sortable: true },
+    { prop: 'sku', header: '::Sku', sortable: true },
+    { prop: 'categoryId', header: '::Category', cell: 'category' },
+    { prop: 'isService', header: '::Type', cell: 'type' },
+    { prop: 'isActive', header: '::Status', cell: 'status' },
   ];
 
   actions: RowAction[] = [
-    { key: 'details', label: 'Details', icon: 'fa-circle-info' },
-    { key: 'edit', label: 'Edit', icon: 'fa-pen' },
-    { key: 'delete', label: 'Delete', icon: 'fa-trash-can', tone: 'danger' },
+    { key: 'details', label: '::Details', icon: 'fa-circle-info' },
+    { key: 'edit', label: '::Edit', icon: 'fa-pen' },
+    { key: 'delete', label: '::Delete', icon: 'fa-trash-can', tone: 'danger' },
   ];
 
   constructor() {
@@ -145,21 +146,22 @@ export class ProductsComponent extends ListPageBase<ProductDto> {
 
     request.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: () => {
-        this.toaster.success(current ? 'Product updated.' : 'Product created.');
+        this.toaster.success(current ? '::Products:Updated' : '::Products:Created');
         this.modalOpen.set(false);
         this.lookup.refresh();
         this.reload();
       },
-      error: err => this.toaster.error(err?.error?.error?.message ?? 'Save failed.', 'Error'),
+      error: err => this.toaster.error(err?.error?.error?.message ?? '::SaveFailed', '::Error'),
     });
   }
 
   private remove(row: ProductDto): void {
     this.confirmAction(
-      `Delete product "${row.name}"?`,
-      'Delete product',
+      '::Products:ConfirmDelete',
+      '::Products:ConfirmDeleteTitle',
       () => this.service.delete(row.id!),
-      'Product deleted.',
+      '::Products:Deleted',
+      [row.name ?? ''],
     );
   }
 }

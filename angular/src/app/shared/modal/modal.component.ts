@@ -1,11 +1,12 @@
 import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LocalizationPipe } from '@abp/ng.core';
 
 /** Lightweight Bootstrap-styled modal driven by an `open` flag. Hosts every form + detail drawer. */
 @Component({
   selector: 'cu-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LocalizationPipe],
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.scss'],
 })

@@ -1,8 +1,8 @@
 @if (segments().length === 0) {
-  <p class="cu-chart-empty cu-muted">{{ emptyText }}</p>
+  <p class="cu-chart-empty cu-muted">{{ emptyText | abpLocalization }}</p>
 } @else {
   <div class="cu-donut">
-    <svg viewBox="0 0 160 160" class="cu-donut-svg" role="img" aria-label="Share by category">
+    <svg viewBox="0 0 160 160" class="cu-donut-svg" role="img" [attr.aria-label]="'::ShareByCategory' | abpLocalization">
       <g transform="rotate(-90 80 80)">
         @for (seg of segments(); track seg.label) {
           <circle
@@ -19,7 +19,7 @@
         }
       </g>
       <text x="80" y="74" text-anchor="middle" class="cu-donut-total">{{ formatTotal() }}</text>
-      <text x="80" y="92" text-anchor="middle" class="cu-donut-caption">{{ centerLabel }}</text>
+      <text x="80" y="92" text-anchor="middle" class="cu-donut-caption">{{ centerLabel | abpLocalization }}</text>
     </svg>
 
     <ul class="cu-donut-legend">

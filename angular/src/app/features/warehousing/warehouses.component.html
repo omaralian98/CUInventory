@@ -1,11 +1,11 @@
-<cu-page-shell title="Warehouses" subtitle="Storage locations across the branches">
+<cu-page-shell title="::Warehouses:Title" subtitle="::Warehouses:Subtitle">
   <ng-container slot="actions">
     <button type="button" class="btn btn-sm btn-outline-secondary" (click)="onToggleInactive()">
       <i class="fas" [class.fa-eye]="!includeInactive" [class.fa-eye-slash]="includeInactive"></i>
-      {{ includeInactive ? 'Hide inactive' : 'Show inactive' }}
+      {{ (includeInactive ? '::HideInactive' : '::ShowInactive') | abpLocalization }}
     </button>
     <button type="button" class="btn btn-sm btn-primary" *abpPermission="'CUInventory.Warehouses.Create'" (click)="create()">
-      <i class="fas fa-plus"></i> New warehouse
+      <i class="fas fa-plus"></i> {{ '::Warehouses:New' | abpLocalization }}
     </button>
   </ng-container>
 
@@ -17,7 +17,7 @@
     [actions]="actions"
     [loading]="loading()"
     [showSearch]="true"
-    searchPlaceholder="Search warehouses…"
+    searchPlaceholder="::Warehouses:SearchPlaceholder"
     (searchChange)="onSearch($event)"
     (action)="onAction($event)">
     <ng-template cuCol="status" let-row>
@@ -28,54 +28,54 @@
 
 <cu-modal
   [open]="modalOpen()"
-  [title]="editing() ? 'Edit warehouse' : 'New warehouse'"
+  [title]="editing() ? '::Warehouses:Edit' : '::Warehouses:New'"
   size="lg"
   [busy]="saving()"
   (closed)="modalOpen.set(false)">
   <form [formGroup]="form">
     <div class="row">
       <div class="col-md-8">
-        <cu-form-field [formGroup]="form" controlName="name" label="Name" [required]="true" />
+        <cu-form-field [formGroup]="form" controlName="name" label="::Name" [required]="true" />
       </div>
       <div class="col-md-4">
-        <cu-form-field [formGroup]="form" controlName="code" label="Code" [required]="true" />
+        <cu-form-field [formGroup]="form" controlName="code" label="::Code" [required]="true" />
       </div>
     </div>
 
-    <h6 class="mt-2 mb-3">Address</h6>
+    <h6 class="mt-2 mb-3">{{ '::Address' | abpLocalization }}</h6>
     <div class="row">
       <div class="col-md-6">
-        <cu-form-field [formGroup]="addressGroup" controlName="governorate" label="Governorate" [required]="true" />
+        <cu-form-field [formGroup]="addressGroup" controlName="governorate" label="::Governorate" [required]="true" />
       </div>
       <div class="col-md-6">
-        <cu-form-field [formGroup]="addressGroup" controlName="city" label="City" [required]="true" />
+        <cu-form-field [formGroup]="addressGroup" controlName="city" label="::City" [required]="true" />
       </div>
     </div>
-    <cu-form-field [formGroup]="addressGroup" controlName="street" label="Street" [required]="true" />
+    <cu-form-field [formGroup]="addressGroup" controlName="street" label="::Street" [required]="true" />
 
-    <cu-form-field [formGroup]="form" controlName="orderIndex" label="Order" type="number" />
-    <cu-form-field [formGroup]="form" controlName="isActive" label="Active" type="checkbox" />
+    <cu-form-field [formGroup]="form" controlName="orderIndex" label="::Order" type="number" />
+    <cu-form-field [formGroup]="form" controlName="isActive" label="::Active" type="checkbox" />
   </form>
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="modalOpen.set(false)">Cancel</button>
+    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="modalOpen.set(false)">{{ '::Cancel' | abpLocalization }}</button>
     <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">
-      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } Save
+      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } {{ '::Save' | abpLocalization }}
     </button>
   </ng-container>
 </cu-modal>
 
 
-<cu-modal [open]="detailOpen()" title="Warehouse details" (closed)="detailOpen.set(false)">
+<cu-modal [open]="detailOpen()" title="::Warehouses:Details" (closed)="detailOpen.set(false)">
   @if (detailRow(); as w) {
     <div class="d-flex flex-wrap gap-4 mb-2">
-      <div><span class="cu-muted d-block small">Name</span>{{ w.name }}</div>
-      <div><span class="cu-muted d-block small">Code</span>{{ w.code }}</div>
-      <div><span class="cu-muted d-block small">City</span>{{ w.address?.city || '—' }}</div>
-      <div><span class="cu-muted d-block small">Status</span><cu-status-badge kind="active" [value]="w.isActive ? 1 : 0" /></div>
+      <div><span class="cu-muted d-block small">{{ '::Name' | abpLocalization }}</span>{{ w.name }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Code' | abpLocalization }}</span>{{ w.code }}</div>
+      <div><span class="cu-muted d-block small">{{ '::City' | abpLocalization }}</span>{{ w.address?.city || '—' }}</div>
+      <div><span class="cu-muted d-block small">{{ '::Status' | abpLocalization }}</span><cu-status-badge kind="active" [value]="w.isActive ? 1 : 0" /></div>
     </div>
     <cu-audit-info [entity]="w" />
   }
   <ng-container slot="footer">
-    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">{{ '::Close' | abpLocalization }}</button>
   </ng-container>
 </cu-modal>

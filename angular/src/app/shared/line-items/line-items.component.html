@@ -3,7 +3,7 @@
     <thead>
       <tr>
         @for (h of headers; track h) {
-          <th>{{ h }}</th>
+          <th>{{ h | abpLocalization }}</th>
         }
         <th class="cu-lines-remove"></th>
       </tr>
@@ -19,7 +19,7 @@
               type="button"
               class="btn btn-sm text-danger"
               [disabled]="!canRemove"
-              title="Remove line"
+              [title]="'::RemoveLine' | abpLocalization"
               (click)="removeRow(i)">
               <i class="fas fa-trash-can"></i>
             </button>
@@ -30,6 +30,6 @@
   </table>
 
   <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addRow()">
-    <i class="fas fa-plus"></i> {{ addLabel }}
+    <i class="fas fa-plus"></i> {{ addLabel | abpLocalization }}
   </button>
 </div>

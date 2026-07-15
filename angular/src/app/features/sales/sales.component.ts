@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ListService, PermissionDirective } from '@abp/ng.core';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ListService, LocalizationPipe, LocalizationService, PermissionDirective } from '@abp/ng.core';
 import { of } from 'rxjs';
 import { finalize, map } from 'rxjs/operators';
 import { SaleService } from '../../proxy/sales/sale.service';
@@ -38,6 +39,7 @@ import { ListPageBase } from '../shared/list-page.base';
     FormsModule,
     ReactiveFormsModule,
     PermissionDirective,
+    LocalizationPipe,
     PageShellComponent,
     DataTableComponent,
     ColumnDirective,
@@ -58,6 +60,8 @@ export class SalesComponent extends ListPageBase<SaleDto> {
   private products = inject(ProductService);
   private lots = inject(InventoryLotService);
   private fb = inject(FormBuilder);
+  private localization = inject(LocalizationService);
+  private destroyRef = inject(DestroyRef);
   lookup = inject(LookupService);
 
   productSearch = productLineSearch(this.products, () => this.lines);
@@ -74,8 +78,15 @@ export class SalesComponent extends ListPageBase<SaleDto> {
   saving = signal(false);
   detail = signal<SaleDto | null>(null);
 
-  newLine = (): FormGroup =>
-    this.fb.group({
+  /** Each strategy pins its source to exactly one of these controls; the rest stay empty. */
+  private static readonly pinnedControls = [
+    { name: 'warehouseId', kind: AllocationStrategyKind.SpecificWarehouse },
+    { name: 'supplierId', kind: AllocationStrategyKind.SpecificSupplier },
+    { name: 'lotId', kind: AllocationStrategyKind.SpecificLot },
+  ];
+
+  newLine = (): FormGroup => {
+    const group = this.fb.group({
       productId: [null as string | null, Validators.required],
       quantity: [1, [Validators.required, Validators.min(0.0001)]],
       unitPrice: [0, [Validators.required, Validators.min(0)]],
@@ -85,23 +96,56 @@ export class SalesComponent extends ListPageBase<SaleDto> {
       lotId: [null as string | null],
     });
 
+    this.applyStrategyValidators(group, AllocationStrategyKind.Fifo);
+
+    group
+      .get('kind')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(kind => this.applyStrategyValidators(group, kind));
+
+    group
+      .get('productId')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.clear(group.get('lotId')!));
+
+    return group;
+  };
+
+  private applyStrategyValidators(group: FormGroup, kind: AllocationStrategyKind | null): void {
+    for (const pinned of SalesComponent.pinnedControls) {
+      const control = group.get(pinned.name)!;
+      if (pinned.kind === kind) {
+        control.setValidators(Validators.required);
+        control.updateValueAndValidity({ emitEvent: false });
+      } else {
+        control.clearValidators();
+        this.clear(control);
+      }
+    }
+  }
+
+  private clear(control: AbstractControl): void {
+    control.setValue(null, { emitEvent: false });
+    control.updateValueAndValidity({ emitEvent: false });
+  }
+
   form = this.fb.group({
     lines: this.fb.array([this.newLine()]),
   });
 
   columns: ColumnConfig[] = [
-    { prop: 'creationTime', header: 'Created', pipe: 'date', sortable: true },
-    { prop: 'linesCount', header: 'Items', pipe: 'number', align: 'end' },
-    { prop: 'totalAmount', header: 'Total', pipe: 'money', align: 'end' },
-    { prop: 'status', header: 'Status', cell: 'status' },
-    { prop: 'confirmedAt', header: 'Confirmed', pipe: 'datetime' },
+    { prop: 'creationTime', header: '::Created', pipe: 'date', sortable: true },
+    { prop: 'linesCount', header: '::Items', pipe: 'number', align: 'end' },
+    { prop: 'totalAmount', header: '::Total', pipe: 'money', align: 'end' },
+    { prop: 'status', header: '::Status', cell: 'status' },
+    { prop: 'confirmedAt', header: '::Confirmed', pipe: 'datetime' },
   ];
 
   actions: RowAction[] = [
-    { key: 'view', label: 'View', icon: 'fa-eye' },
-    { key: 'confirm', label: 'Confirm', icon: 'fa-check', visible: r => r.status === SaleStatus.Draft },
-    { key: 'cancel', label: 'Cancel', icon: 'fa-ban', tone: 'danger', visible: r => r.status === SaleStatus.Draft },
-    { key: 'delete', label: 'Delete', icon: 'fa-trash-can', tone: 'danger', visible: r => r.status === SaleStatus.Draft },
+    { key: 'view', label: '::View', icon: 'fa-eye' },
+    { key: 'confirm', label: '::Confirm', icon: 'fa-check', visible: r => r.status === SaleStatus.Draft },
+    { key: 'cancel', label: '::Cancel', icon: 'fa-ban', tone: 'danger', visible: r => r.status === SaleStatus.Draft },
+    { key: 'delete', label: '::Delete', icon: 'fa-trash-can', tone: 'danger', visible: r => r.status === SaleStatus.Draft },
   ];
 
   constructor() {
@@ -140,7 +184,7 @@ export class SalesComponent extends ListPageBase<SaleDto> {
           (res.items ?? [])
             .map(l => ({
               id: l.id!,
-              name: `${l.id!.slice(0, 8)} · avail ${l.availableQuantity ?? 0} · ${l.receivedAt ? new Date(l.receivedAt).toLocaleDateString() : ''}`,
+              name: `${l.id!.slice(0, 8)} · ${this.localization.instant('::Sales:Avail')} ${l.availableQuantity ?? 0} · ${l.receivedAt ? new Date(l.receivedAt).toLocaleDateString() : ''}`,
             }))
             .filter(o => !needle || o.name.toLowerCase().includes(needle)),
         ),
@@ -172,11 +216,11 @@ export class SalesComponent extends ListPageBase<SaleDto> {
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => {
-          this.toaster.success('Sale created — stock reserved.');
+          this.toaster.success('::Sales:Created');
           this.createOpen.set(false);
           this.reload();
         },
-        error: err => this.toaster.error(err?.error?.error?.message ?? 'Stock could not be reserved.', 'Sale failed'),
+        error: err => this.toaster.error(err?.error?.error?.message ?? '::Sales:CreateFailed', '::Sales:CreateFailedTitle'),
       });
   }
 
@@ -188,13 +232,13 @@ export class SalesComponent extends ListPageBase<SaleDto> {
         this.openDetail(row);
         break;
       case 'confirm':
-        this.runAction(() => this.service.confirm(row.id!, stamp), 'Sale confirmed — reservations committed.');
+        this.runAction(() => this.service.confirm(row.id!, stamp), '::Sales:Confirmed');
         break;
       case 'cancel':
-        this.confirmAction('Cancel this sale? Reserved stock will be released.', 'Cancel sale', () => this.service.cancel(row.id!, stamp), 'Sale cancelled — stock released.');
+        this.confirmAction('::Sales:ConfirmCancel', '::Sales:ConfirmCancelTitle', () => this.service.cancel(row.id!, stamp), '::Sales:Cancelled');
         break;
       case 'delete':
-        this.confirmAction('Delete this draft sale?', 'Delete sale', () => this.service.delete(row.id!), 'Sale deleted.');
+        this.confirmAction('::Sales:ConfirmDelete', '::Sales:ConfirmDeleteTitle', () => this.service.delete(row.id!), '::Sales:Deleted');
         break;
     }
   }
