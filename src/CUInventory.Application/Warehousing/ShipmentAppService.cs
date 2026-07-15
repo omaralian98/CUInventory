@@ -7,6 +7,7 @@ using CUInventory.Inventory.Interfaces;
 using CUInventory.Inventory.Repositories;
 using CUInventory.Permissions;
 using CUInventory.Procurement.Repositories;
+using CUInventory.Shared.Dtos;
 using CUInventory.ValueObjects;
 using CUInventory.Warehousing.Aggregates;
 using CUInventory.Warehousing.Dtos;
@@ -66,22 +67,24 @@ public class ShipmentAppService :
         return await MapToGetOutputDtoAsync(shipment);
     }
 
-    public virtual async Task<ShipmentDto> DispatchAsync(Guid id)
+    public virtual async Task<ShipmentDto> DispatchAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.Shipments.Dispatch);
 
         var shipment = await _repository.GetAsync(id);
+        shipment.ConcurrencyStamp = input.ConcurrencyStamp;
         shipment.Dispatch(Clock.Now);
 
-        await _repository.UpdateAsync(shipment);
+        await _repository.UpdateAsync(shipment, autoSave: true);
         return await MapToGetOutputDtoAsync(shipment);
     }
 
-    public virtual async Task<ShipmentDto> ReceiveAsync(Guid id)
+    public virtual async Task<ShipmentDto> ReceiveAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.Shipments.Receive);
 
         var shipment = await _repository.GetAsync(id);
+        shipment.ConcurrencyStamp = input.ConcurrencyStamp;
         var purchaseOrder = await _purchaseOrderRepository.GetAsync(shipment.PurchaseOrderId);
 
         var balances = new List<InventoryBalance>();
@@ -92,7 +95,7 @@ public class ShipmentAppService :
 
         var createdLots = await _shipmentManager.ReceiveAsync(shipment, purchaseOrder, balances);
 
-        await _repository.UpdateAsync(shipment);
+        await _repository.UpdateAsync(shipment, autoSave: true);
         await _purchaseOrderRepository.UpdateAsync(purchaseOrder);
         foreach (var balance in balances)
         {

@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using CUInventory.Shared.Dtos;
+using Volo.Abp.Domain.Entities;
 
 namespace CUInventory.Warehousing.Dtos;
 
-public class UpdateWarehouseDto
+public class UpdateWarehouseDto : IHasConcurrencyStamp
 {
     [Required]
     [StringLength(256)]
@@ -19,4 +20,6 @@ public class UpdateWarehouseDto
     public bool IsActive { get; set; }
 
     public int OrderIndex { get; set; }
+
+    public string ConcurrencyStamp { get; set; } = string.Empty;
 }

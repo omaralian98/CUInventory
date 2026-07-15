@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.Domain.Entities;
 
 namespace CUInventory.Warehousing.Dtos;
 
-public class ShipmentDto : FullAuditedEntityDto<Guid>
+public class ShipmentDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
 {
     public Guid PurchaseOrderId { get; set; }
     public Guid SupplierId { get; set; }
@@ -13,6 +14,7 @@ public class ShipmentDto : FullAuditedEntityDto<Guid>
     public DateTime? DispatchedAt { get; set; }
     public DateTime? ReceivedAt { get; set; }
     public List<ShipmentLineDto> Lines { get; set; } = [];
+    public string ConcurrencyStamp { get; set; } = string.Empty;
 }
 
 public class ShipmentLineDto

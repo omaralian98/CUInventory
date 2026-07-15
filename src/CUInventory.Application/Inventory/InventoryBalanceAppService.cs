@@ -30,9 +30,10 @@ public class InventoryBalanceAppService :
         await CheckPolicyAsync(CUInventoryPermissions.InventoryBalances.SetThreshold);
 
         var balance = await _repository.GetAsync(id);
+        balance.ConcurrencyStamp = input.ConcurrencyStamp;
         balance.SetLowStockThreshold(input.Threshold);
 
-        await _repository.UpdateAsync(balance);
+        await _repository.UpdateAsync(balance, autoSave: true);
         return await MapToGetOutputDtoAsync(balance);
     }
 

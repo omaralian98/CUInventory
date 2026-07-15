@@ -48,12 +48,13 @@ public class ProductAppService :
         await CheckUpdatePolicyAsync();
 
         var product = await Repository.GetAsync(id);
+        product.ConcurrencyStamp = input.ConcurrencyStamp;
         var sku = string.IsNullOrWhiteSpace(input.Sku) ? null : new Sku(input.Sku);
         await _productManager.UpdateAsync(product, input.Name, input.Description, sku, input.IsService, input.CategoryId);
         product.OrderIndex = input.OrderIndex;
         product.SetIsActive(input.IsActive);
 
-        await Repository.UpdateAsync(product);
+        await Repository.UpdateAsync(product, autoSave: true);
         return await MapToGetOutputDtoAsync(product);
     }
 

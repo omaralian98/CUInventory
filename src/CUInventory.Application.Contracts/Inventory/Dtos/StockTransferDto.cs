@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.Domain.Entities;
 
 namespace CUInventory.Inventory.Dtos;
 
-public class StockTransferDto : FullAuditedEntityDto<Guid>
+public class StockTransferDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
 {
     public Guid SourceWarehouseId { get; set; }
     public Guid DestinationWarehouseId { get; set; }
@@ -13,6 +14,7 @@ public class StockTransferDto : FullAuditedEntityDto<Guid>
     public DateTime? ReceivedAt { get; set; }
     public List<StockTransferLineDto> Lines { get; set; } = [];
     public List<TransferAllocationDto> Allocations { get; set; } = [];
+    public string ConcurrencyStamp { get; set; } = string.Empty;
 }
 
 public class StockTransferLineDto

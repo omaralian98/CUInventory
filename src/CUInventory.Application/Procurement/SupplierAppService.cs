@@ -45,9 +45,10 @@ public class SupplierAppService :
         await CheckUpdatePolicyAsync();
 
         var supplier = await Repository.GetAsync(id);
+        supplier.ConcurrencyStamp = input.ConcurrencyStamp;
         await _supplierManager.UpdateAsync(supplier, input.Name, ToContactInfo(input.Contact));
 
-        await Repository.UpdateAsync(supplier);
+        await Repository.UpdateAsync(supplier, autoSave: true);
         return await MapToGetOutputDtoAsync(supplier);
     }
 

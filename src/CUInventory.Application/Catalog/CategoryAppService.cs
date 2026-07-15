@@ -46,9 +46,10 @@ public class CategoryAppService :
         await CheckUpdatePolicyAsync();
 
         var category = await Repository.GetAsync(id);
+        category.ConcurrencyStamp = input.ConcurrencyStamp;
         await _categoryManager.UpdateAsync(category, input.Name, input.OrderIndex, input.IsActive);
 
-        await Repository.UpdateAsync(category);
+        await Repository.UpdateAsync(category, autoSave: true);
         return await MapToGetOutputDtoAsync(category);
     }
 

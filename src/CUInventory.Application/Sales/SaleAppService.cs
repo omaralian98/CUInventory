@@ -9,6 +9,7 @@ using CUInventory.Sales.Aggregates;
 using CUInventory.Sales.Dtos;
 using CUInventory.Sales.Interfaces;
 using CUInventory.Sales.Repositories;
+using CUInventory.Shared.Dtos;
 using Microsoft.AspNetCore.Authorization;
 
 namespace CUInventory.Sales;
@@ -65,35 +66,37 @@ public class SaleAppService :
         await _repository.DeleteAsync(id);
     }
 
-    public virtual async Task<SaleDto> ConfirmAsync(Guid id)
+    public virtual async Task<SaleDto> ConfirmAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.Sales.Confirm);
 
         var sale = await _repository.GetAsync(id);
+        sale.ConcurrencyStamp = input.ConcurrencyStamp;
         var productIds = sale.Lines.Select(l => l.ProductId).Distinct().ToList();
         var balances = await GetBalancesForProductsAsync(productIds);
         var candidateLots = await GetLotsForProductsAsync(productIds);
 
         await _saleManager.ConfirmAsync(sale, balances, candidateLots);
 
-        await _repository.UpdateAsync(sale);
+        await _repository.UpdateAsync(sale, autoSave: true);
         await UpdateBalancesAsync(balances);
         await UpdateLotsAsync(candidateLots);
 
         return await MapToGetOutputDtoAsync(sale);
     }
 
-    public virtual async Task<SaleDto> CancelAsync(Guid id)
+    public virtual async Task<SaleDto> CancelAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.Sales.Cancel);
 
         var sale = await _repository.GetAsync(id);
+        sale.ConcurrencyStamp = input.ConcurrencyStamp;
         var productIds = sale.Lines.Select(l => l.ProductId).Distinct().ToList();
         var balances = await GetBalancesForProductsAsync(productIds);
 
         await _saleManager.CancelAsync(sale, balances);
 
-        await _repository.UpdateAsync(sale);
+        await _repository.UpdateAsync(sale, autoSave: true);
         await UpdateBalancesAsync(balances);
 
         return await MapToGetOutputDtoAsync(sale);

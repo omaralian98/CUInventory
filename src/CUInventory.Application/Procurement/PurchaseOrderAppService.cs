@@ -5,6 +5,7 @@ using CUInventory.Permissions;
 using CUInventory.Procurement.Aggregates;
 using CUInventory.Procurement.Dtos;
 using CUInventory.Procurement.Repositories;
+using CUInventory.Shared.Dtos;
 using CUInventory.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 
@@ -44,25 +45,27 @@ public class PurchaseOrderAppService :
         return await MapToGetOutputDtoAsync(purchaseOrder);
     }
 
-    public virtual async Task<PurchaseOrderDto> ConfirmAsync(Guid id)
+    public virtual async Task<PurchaseOrderDto> ConfirmAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.PurchaseOrders.Confirm);
 
         var purchaseOrder = await _repository.GetAsync(id);
+        purchaseOrder.ConcurrencyStamp = input.ConcurrencyStamp;
         purchaseOrder.Confirm(Clock.Now);
 
-        await _repository.UpdateAsync(purchaseOrder);
+        await _repository.UpdateAsync(purchaseOrder, autoSave: true);
         return await MapToGetOutputDtoAsync(purchaseOrder);
     }
 
-    public virtual async Task<PurchaseOrderDto> CancelAsync(Guid id)
+    public virtual async Task<PurchaseOrderDto> CancelAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.PurchaseOrders.Cancel);
 
         var purchaseOrder = await _repository.GetAsync(id);
+        purchaseOrder.ConcurrencyStamp = input.ConcurrencyStamp;
         purchaseOrder.Cancel();
 
-        await _repository.UpdateAsync(purchaseOrder);
+        await _repository.UpdateAsync(purchaseOrder, autoSave: true);
         return await MapToGetOutputDtoAsync(purchaseOrder);
     }
 }

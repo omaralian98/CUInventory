@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using CUInventory.Shared.Dtos;
 using CUInventory.Warehousing.Dtos;
 using Volo.Abp.Application.Services;
 
@@ -10,6 +11,6 @@ public interface IShipmentAppService :
 {
     Task<ShipmentDto> CreateAsync(CreateShipmentDto input);
     Task DeleteAsync(Guid id);
-    Task<ShipmentDto> DispatchAsync(Guid id);
-    Task<ShipmentDto> ReceiveAsync(Guid id);
+    Task<ShipmentDto> DispatchAsync(Guid id, ConcurrencyStampDto input);
+    Task<ShipmentDto> ReceiveAsync(Guid id, ConcurrencyStampDto input);
 }

@@ -2,14 +2,16 @@ using System;
 using System.Collections.Generic;
 using CUInventory.Inventory;
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.Domain.Entities;
 
 namespace CUInventory.Sales.Dtos;
 
-public class SaleDto : FullAuditedEntityDto<Guid>
+public class SaleDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
 {
     public SaleStatus Status { get; set; }
     public DateTime? ConfirmedAt { get; set; }
     public List<SaleLineDto> Lines { get; set; } = [];
+    public string ConcurrencyStamp { get; set; } = string.Empty;
 }
 
 public class SaleLineDto

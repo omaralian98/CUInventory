@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.Domain.Entities;
 
 namespace CUInventory.Procurement.Dtos;
 
-public class PurchaseOrderDto : FullAuditedEntityDto<Guid>
+public class PurchaseOrderDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
 {
     public Guid SupplierId { get; set; }
     public Guid DestinationWarehouseId { get; set; }
     public PurchaseOrderStatus Status { get; set; }
     public List<PurchaseOrderLineDto> Lines { get; set; } = [];
+    public string ConcurrencyStamp { get; set; } = string.Empty;
 }
 
 public class PurchaseOrderLineDto

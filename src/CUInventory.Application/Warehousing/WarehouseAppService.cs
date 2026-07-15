@@ -48,12 +48,13 @@ public class WarehouseAppService :
         await CheckUpdatePolicyAsync();
 
         var warehouse = await Repository.GetAsync(id);
+        warehouse.ConcurrencyStamp = input.ConcurrencyStamp;
         await _warehouseManager.UpdateAsync(
             warehouse, input.Name, input.Code,
             new Address(input.Address.Governorate, input.Address.City, input.Address.Street), input.IsActive);
         warehouse.OrderIndex = input.OrderIndex;
 
-        await Repository.UpdateAsync(warehouse);
+        await Repository.UpdateAsync(warehouse, autoSave: true);
         return await MapToGetOutputDtoAsync(warehouse);
     }
 

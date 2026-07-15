@@ -7,6 +7,7 @@ using CUInventory.Inventory.Dtos;
 using CUInventory.Inventory.Interfaces;
 using CUInventory.Inventory.Repositories;
 using CUInventory.Permissions;
+using CUInventory.Shared.Dtos;
 using CUInventory.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 
@@ -58,35 +59,37 @@ public class StockTransferAppService :
         return await MapToGetOutputDtoAsync(transfer);
     }
 
-    public virtual async Task<StockTransferDto> DispatchAsync(Guid id)
+    public virtual async Task<StockTransferDto> DispatchAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.StockTransfers.Dispatch);
 
         var transfer = await _repository.GetAsync(id);
+        transfer.ConcurrencyStamp = input.ConcurrencyStamp;
         var productIds = transfer.Lines.Select(l => l.ProductId).Distinct().ToList();
         var sourceBalances = await GetBalancesAsync(transfer.SourceWarehouseId, productIds);
         var candidateLots = await GetLotsByWarehouseAndProductsAsync(transfer.SourceWarehouseId, productIds);
 
         await _stockTransferManager.DispatchAsync(transfer, sourceBalances, candidateLots);
 
-        await _repository.UpdateAsync(transfer);
+        await _repository.UpdateAsync(transfer, autoSave: true);
         await UpdateBalancesAsync(sourceBalances);
         await UpdateLotsAsync(candidateLots);
 
         return await MapToGetOutputDtoAsync(transfer);
     }
 
-    public virtual async Task<StockTransferDto> ReceiveAsync(Guid id)
+    public virtual async Task<StockTransferDto> ReceiveAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.StockTransfers.Receive);
 
         var transfer = await _repository.GetAsync(id);
+        transfer.ConcurrencyStamp = input.ConcurrencyStamp;
         var productIds = transfer.Allocations.Select(a => a.ProductId).Distinct().ToList();
         var destinationBalances = await GetBalancesAsync(transfer.DestinationWarehouseId, productIds);
 
         var createdLots = await _stockTransferManager.ReceiveAsync(transfer, destinationBalances);
 
-        await _repository.UpdateAsync(transfer);
+        await _repository.UpdateAsync(transfer, autoSave: true);
         await UpdateBalancesAsync(destinationBalances);
         foreach (var lot in createdLots)
         {
@@ -96,11 +99,12 @@ public class StockTransferAppService :
         return await MapToGetOutputDtoAsync(transfer);
     }
 
-    public virtual async Task<StockTransferDto> CancelAsync(Guid id)
+    public virtual async Task<StockTransferDto> CancelAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.StockTransfers.Cancel);
 
         var transfer = await _repository.GetAsync(id);
+        transfer.ConcurrencyStamp = input.ConcurrencyStamp;
 
         var sourceBalances = new List<InventoryBalance>();
         var sourceLots = new List<InventoryLot>();
@@ -114,7 +118,7 @@ public class StockTransferAppService :
 
         await _stockTransferManager.CancelAsync(transfer, sourceBalances, sourceLots);
 
-        await _repository.UpdateAsync(transfer);
+        await _repository.UpdateAsync(transfer, autoSave: true);
         await UpdateBalancesAsync(sourceBalances);
         await UpdateLotsAsync(sourceLots);
 
