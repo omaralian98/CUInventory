@@ -21,6 +21,7 @@ using Volo.Abp;
 using Volo.Abp.Studio;
 using Volo.Abp.Account;
 using Volo.Abp.Account.Web;
+using Volo.Abp.AspNetCore.ExceptionHandling;
 using Volo.Abp.AspNetCore.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.Autofac;
@@ -116,6 +117,12 @@ public class CUInventoryHttpApiHostModule : AbpModule
         {
             context.Services.AddRazorPages()
                 .AddRazorRuntimeCompilation();
+
+            Configure<AbpExceptionHandlingOptions>(options =>
+            {
+                options.SendExceptionsDetailsToClients = true;
+                options.SendStackTraceToClients = true;
+            });
         }
 
         ConfigureStudio(hostingEnvironment);
