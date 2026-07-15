@@ -16,7 +16,6 @@ public class Category : FullAuditedWithIsActiveAndOrderAggregateRoot<Guid>
     internal Category(Guid id, string name) : base(id)
     {
         SetName(name);
-        Activate();
     }
 
     internal void SetName(string name)

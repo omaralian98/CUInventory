@@ -68,4 +68,13 @@ public class PurchaseOrderAppService :
         await _repository.UpdateAsync(purchaseOrder, autoSave: true);
         return await MapToGetOutputDtoAsync(purchaseOrder);
     }
+
+    protected override async Task<IQueryable<PurchaseOrder>> CreateFilteredQueryAsync(GetPurchaseOrderListDto input)
+    {
+        var query = await _repository.GetQueryableAsync();
+        return query
+            .WhereIf(input.SupplierId.HasValue, po => po.SupplierId == input.SupplierId!.Value)
+            .WhereIf(input.DestinationWarehouseId.HasValue, po => po.DestinationWarehouseId == input.DestinationWarehouseId!.Value)
+            .WhereIf(input.Status.HasValue, po => po.Status == input.Status!.Value);
+    }
 }

@@ -125,6 +125,15 @@ public class StockTransferAppService :
         return await MapToGetOutputDtoAsync(transfer);
     }
 
+    protected override async Task<IQueryable<StockTransfer>> CreateFilteredQueryAsync(GetStockTransferListDto input)
+    {
+        var query = await _repository.GetQueryableAsync();
+        return query
+            .WhereIf(input.SourceWarehouseId.HasValue, t => t.SourceWarehouseId == input.SourceWarehouseId!.Value)
+            .WhereIf(input.DestinationWarehouseId.HasValue, t => t.DestinationWarehouseId == input.DestinationWarehouseId!.Value)
+            .WhereIf(input.Status.HasValue, t => t.Status == input.Status!.Value);
+    }
+
     private async Task<List<InventoryBalance>> GetBalancesAsync(Guid warehouseId, IEnumerable<Guid> productIds)
     {
         var balances = new List<InventoryBalance>();

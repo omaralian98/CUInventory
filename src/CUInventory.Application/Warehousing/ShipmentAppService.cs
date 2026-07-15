@@ -109,4 +109,13 @@ public class ShipmentAppService :
 
         return await MapToGetOutputDtoAsync(shipment);
     }
+
+    protected override async Task<IQueryable<Shipment>> CreateFilteredQueryAsync(GetShipmentListDto input)
+    {
+        var query = await _repository.GetQueryableAsync();
+        return query
+            .WhereIf(input.PurchaseOrderId.HasValue, s => s.PurchaseOrderId == input.PurchaseOrderId!.Value)
+            .WhereIf(input.DestinationWarehouseId.HasValue, s => s.DestinationWarehouseId == input.DestinationWarehouseId!.Value)
+            .WhereIf(input.Status.HasValue, s => s.Status == input.Status!.Value);
+    }
 }

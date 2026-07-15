@@ -102,6 +102,13 @@ public class SaleAppService :
         return await MapToGetOutputDtoAsync(sale);
     }
 
+    protected override async Task<IQueryable<Sale>> CreateFilteredQueryAsync(GetSaleListDto input)
+    {
+        var query = await _repository.GetQueryableAsync();
+        return query
+            .WhereIf(input.Status.HasValue, s => s.Status == input.Status!.Value);
+    }
+
     private async Task<List<InventoryBalance>> GetBalancesForProductsAsync(List<Guid> productIds)
     {
         var query = (await _inventoryBalanceRepository.GetQueryableAsync())

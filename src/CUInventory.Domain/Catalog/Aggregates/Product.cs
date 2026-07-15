@@ -32,7 +32,6 @@ public class Product : FullAuditedWithIsActiveAndOrderAggregateRoot<Guid>
         SetSku(sku);
         SetIsService(isService);
         SetCategory(categoryId);
-        Activate();
     }
 
 
