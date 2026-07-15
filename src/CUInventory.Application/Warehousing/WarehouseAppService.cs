@@ -39,7 +39,7 @@ public class WarehouseAppService :
         warehouse.OrderIndex = input.OrderIndex;
         warehouse.SetIsActive(input.IsActive);
 
-        await Repository.InsertAsync(warehouse);
+        await Repository.InsertAsync(warehouse, autoSave: true);
         return await MapToGetOutputDtoAsync(warehouse);
     }
 

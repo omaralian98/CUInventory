@@ -12,6 +12,7 @@ public class ContactInfoDto
 
     [Required]
     [StringLength(32)]
+    [RegularExpression(@"^\+?(?:[\s\-()]*\d){7,15}[\s\-()]*$", ErrorMessage = "The phone number format is invalid.")]
     public string PhoneNumber { get; set; } = string.Empty;
 
     [Required]

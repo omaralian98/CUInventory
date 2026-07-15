@@ -7,6 +7,7 @@ using CUInventory.Inventory.Repositories;
 using CUInventory.Permissions;
 using CUInventory.Sales.Aggregates;
 using CUInventory.Sales.Dtos;
+using CUInventory.Sales.Exceptions;
 using CUInventory.Sales.Interfaces;
 using CUInventory.Sales.Repositories;
 using CUInventory.Shared.Dtos;
@@ -40,7 +41,12 @@ public class SaleAppService :
         GetListPolicyName = CUInventoryPermissions.Sales.Default;
     }
 
-    public virtual async Task<SaleDto> CreateAsync(CreateSaleDto input)
+    public virtual Task<SaleDto> CreateAsync(CreateSaleDto input)
+    {
+        return CreateCoreAsync(input);
+    }
+
+    private async Task<SaleDto> CreateCoreAsync(CreateSaleDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.Sales.Create);
 
@@ -48,56 +54,84 @@ public class SaleAppService :
             .Select(l => new SaleLineRequest(l.ProductId, l.Quantity, l.UnitPrice, l.Kind, l.WarehouseId, l.SupplierId, l.LotId))
             .ToList();
 
-        var productIds = requests.Select(r => r.ProductId).Distinct().ToList();
-        var balances = await GetBalancesForProductsAsync(productIds);
-        var candidateLots = await GetLotsForProductsAsync(productIds);
+        var balances = await GetBalancesForRequestsAsync(requests);
+        var candidateLots = await GetOpenLotsForRequestsAsync(requests);
 
         var sale = await _saleManager.CreateAsync(requests, balances, candidateLots);
 
-        await _repository.InsertAsync(sale);
-        await UpdateBalancesAsync(balances);
+        await _repository.InsertAsync(sale, autoSave: true);
+        await UpdateTouchedAsync(sale, balances, candidateLots);
 
         return await MapToGetOutputDtoAsync(sale);
     }
 
-    public virtual async Task DeleteAsync(Guid id)
+    public virtual Task DeleteAsync(Guid id)
     {
-        await CheckPolicyAsync(CUInventoryPermissions.Sales.Delete);
-        await _repository.DeleteAsync(id);
+        return DeleteCoreAsync(id);
     }
 
-    public virtual async Task<SaleDto> ConfirmAsync(Guid id, ConcurrencyStampDto input)
+    private async Task DeleteCoreAsync(Guid id)
+    {
+        await CheckPolicyAsync(CUInventoryPermissions.Sales.Delete);
+
+        var sale = await _repository.GetAsync(id);
+        if (sale.Status == SaleStatus.Confirmed)
+        {
+            throw new SaleCannotBeDeletedDomainException(sale.Id, sale.Status);
+        }
+
+        if (sale.Status == SaleStatus.Draft)
+        {
+            var pinnedLots = await GetLotsByIdsAsync(ReservedLotIds(sale));
+            var balances = await GetBalancesForAllocationsAsync(sale);
+
+            await _saleManager.CancelAsync(sale, balances, pinnedLots);
+            await UpdateTouchedAsync(sale, balances, pinnedLots);
+        }
+
+        await _repository.DeleteAsync(sale);
+    }
+
+    public virtual Task<SaleDto> ConfirmAsync(Guid id, ConcurrencyStampDto input)
+    {
+        return ConfirmCoreAsync(id, input);
+    }
+
+    private async Task<SaleDto> ConfirmCoreAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.Sales.Confirm);
 
         var sale = await _repository.GetAsync(id);
         sale.ConcurrencyStamp = input.ConcurrencyStamp;
-        var productIds = sale.Lines.Select(l => l.ProductId).Distinct().ToList();
-        var balances = await GetBalancesForProductsAsync(productIds);
-        var candidateLots = await GetLotsForProductsAsync(productIds);
+        var pinnedLots = await GetLotsByIdsAsync(ReservedLotIds(sale));
+        var balances = await GetBalancesForAllocationsAsync(sale);
 
-        await _saleManager.ConfirmAsync(sale, balances, candidateLots);
+        await _saleManager.ConfirmAsync(sale, balances, pinnedLots);
 
         await _repository.UpdateAsync(sale, autoSave: true);
-        await UpdateBalancesAsync(balances);
-        await UpdateLotsAsync(candidateLots);
+        await UpdateTouchedAsync(sale, balances, pinnedLots);
 
         return await MapToGetOutputDtoAsync(sale);
     }
 
-    public virtual async Task<SaleDto> CancelAsync(Guid id, ConcurrencyStampDto input)
+    public virtual Task<SaleDto> CancelAsync(Guid id, ConcurrencyStampDto input)
+    {
+        return CancelCoreAsync(id, input);
+    }
+
+    private async Task<SaleDto> CancelCoreAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.Sales.Cancel);
 
         var sale = await _repository.GetAsync(id);
         sale.ConcurrencyStamp = input.ConcurrencyStamp;
-        var productIds = sale.Lines.Select(l => l.ProductId).Distinct().ToList();
-        var balances = await GetBalancesForProductsAsync(productIds);
+        var pinnedLots = await GetLotsByIdsAsync(ReservedLotIds(sale));
+        var balances = await GetBalancesForAllocationsAsync(sale);
 
-        await _saleManager.CancelAsync(sale, balances);
+        await _saleManager.CancelAsync(sale, balances, pinnedLots);
 
         await _repository.UpdateAsync(sale, autoSave: true);
-        await UpdateBalancesAsync(balances);
+        await UpdateTouchedAsync(sale, balances, pinnedLots);
 
         return await MapToGetOutputDtoAsync(sale);
     }
@@ -109,33 +143,84 @@ public class SaleAppService :
             .WhereIf(input.Status.HasValue, s => s.Status == input.Status!.Value);
     }
 
-    private async Task<List<InventoryBalance>> GetBalancesForProductsAsync(List<Guid> productIds)
+    private async Task<List<InventoryBalance>> GetBalancesForRequestsAsync(List<SaleLineRequest> requests)
     {
+        var openProductIds = ProductsWithoutWarehouse(requests);
+        var scopedProductIds = ProductsWithWarehouse(requests);
+        var scopedWarehouseIds = RequestedWarehouseIds(requests);
+
         var query = (await _inventoryBalanceRepository.GetQueryableAsync())
-            .Where(b => productIds.Contains(b.ProductId));
+            .Where(b => openProductIds.Contains(b.ProductId) ||
+                        (scopedProductIds.Contains(b.ProductId) && scopedWarehouseIds.Contains(b.WarehouseId)));
         return await AsyncExecuter.ToListAsync(query);
     }
 
-    private async Task<List<InventoryLot>> GetLotsForProductsAsync(List<Guid> productIds)
+    private async Task<List<InventoryLot>> GetOpenLotsForRequestsAsync(List<SaleLineRequest> requests)
+    {
+        var openProductIds = ProductsWithoutWarehouse(requests);
+        var scopedProductIds = ProductsWithWarehouse(requests);
+        var scopedWarehouseIds = RequestedWarehouseIds(requests);
+
+        var query = (await _inventoryLotRepository.GetQueryableAsync())
+            .Where(l => (openProductIds.Contains(l.ProductId) ||
+                         (scopedProductIds.Contains(l.ProductId) && scopedWarehouseIds.Contains(l.WarehouseId))) &&
+                        (l.RemainingQuantity.Value - l.ReservedQuantity.Value) > 0);
+        return await AsyncExecuter.ToListAsync(query);
+    }
+
+    private static List<Guid> ProductsWithoutWarehouse(List<SaleLineRequest> requests) =>
+        requests.Where(r => r.WarehouseId is null).Select(r => r.ProductId).Distinct().ToList();
+
+    private static List<Guid> ProductsWithWarehouse(List<SaleLineRequest> requests) =>
+        requests.Where(r => r.WarehouseId is not null).Select(r => r.ProductId).Distinct().ToList();
+
+    private static List<Guid> RequestedWarehouseIds(List<SaleLineRequest> requests) =>
+        requests.Where(r => r.WarehouseId is not null).Select(r => r.WarehouseId!.Value).Distinct().ToList();
+
+    private static List<Guid> ReservedLotIds(Sale sale) =>
+        sale.Lines
+            .SelectMany(l => l.Allocations)
+            .Where(a => a.IsReserved && a.InventoryLotId.HasValue)
+            .Select(a => a.InventoryLotId!.Value)
+            .Distinct()
+            .ToList();
+
+    private async Task<List<InventoryLot>> GetLotsByIdsAsync(List<Guid> lotIds)
     {
         var query = (await _inventoryLotRepository.GetQueryableAsync())
-            .Where(l => productIds.Contains(l.ProductId) && l.RemainingQuantity.Value > 0);
+            .Where(l => lotIds.Contains(l.Id));
         return await AsyncExecuter.ToListAsync(query);
     }
 
-    private async Task UpdateBalancesAsync(List<InventoryBalance> balances)
+    private async Task<List<InventoryBalance>> GetBalancesForAllocationsAsync(Sale sale)
     {
-        foreach (var balance in balances)
-        {
-            await _inventoryBalanceRepository.UpdateAsync(balance);
-        }
+        var warehouseIds = sale.Lines.SelectMany(l => l.Allocations).Select(a => a.WarehouseId).Distinct().ToList();
+        var productIds = sale.Lines.Select(l => l.ProductId).Distinct().ToList();
+
+        var query = (await _inventoryBalanceRepository.GetQueryableAsync())
+            .Where(b => warehouseIds.Contains(b.WarehouseId) && productIds.Contains(b.ProductId));
+        return await AsyncExecuter.ToListAsync(query);
     }
 
-    private async Task UpdateLotsAsync(List<InventoryLot> lots)
+    private async Task UpdateTouchedAsync(Sale sale, List<InventoryBalance> balances, List<InventoryLot> lots)
     {
-        foreach (var lot in lots)
+        var touchedLotIds = sale.Lines
+            .SelectMany(l => l.Allocations)
+            .Where(a => a.InventoryLotId.HasValue)
+            .Select(a => a.InventoryLotId!.Value)
+            .ToHashSet();
+        var touchedBalanceKeys = sale.Lines
+            .SelectMany(l => l.Allocations.Select(a => (a.WarehouseId, l.ProductId)))
+            .ToHashSet();
+
+        foreach (var lot in lots.Where(l => touchedLotIds.Contains(l.Id)))
         {
             await _inventoryLotRepository.UpdateAsync(lot);
+        }
+
+        foreach (var balance in balances.Where(b => touchedBalanceKeys.Contains((b.WarehouseId, b.ProductId))))
+        {
+            await _inventoryBalanceRepository.UpdateAsync(balance);
         }
     }
 }

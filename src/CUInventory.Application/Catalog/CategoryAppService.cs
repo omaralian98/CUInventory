@@ -37,7 +37,7 @@ public class CategoryAppService :
         category.OrderIndex = input.OrderIndex;
         category.SetIsActive(input.IsActive);
 
-        await Repository.InsertAsync(category);
+        await Repository.InsertAsync(category, autoSave: true);
         return await MapToGetOutputDtoAsync(category);
     }
 

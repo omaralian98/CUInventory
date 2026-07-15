@@ -12,6 +12,7 @@ public class StockTransferDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
     public StockTransferStatus Status { get; set; }
     public DateTime? DispatchedAt { get; set; }
     public DateTime? ReceivedAt { get; set; }
+    public int LinesCount { get; set; }
     public List<StockTransferLineDto> Lines { get; set; } = [];
     public List<TransferAllocationDto> Allocations { get; set; } = [];
     public string ConcurrencyStamp { get; set; } = string.Empty;

@@ -10,6 +10,8 @@ public class SaleDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
 {
     public SaleStatus Status { get; set; }
     public DateTime? ConfirmedAt { get; set; }
+    public int LinesCount { get; set; }
+    public decimal TotalAmount { get; set; }
     public List<SaleLineDto> Lines { get; set; } = [];
     public string ConcurrencyStamp { get; set; } = string.Empty;
 }

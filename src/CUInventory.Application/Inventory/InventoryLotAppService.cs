@@ -32,6 +32,7 @@ public class InventoryLotAppService :
             .WhereIf(input.WarehouseId.HasValue, l => l.WarehouseId == input.WarehouseId!.Value)
             .WhereIf(input.ProductId.HasValue, l => l.ProductId == input.ProductId!.Value)
             .WhereIf(input.SupplierId.HasValue, l => l.SupplierId == input.SupplierId!.Value)
-            .WhereIf(input.HasRemaining == true, l => l.RemainingQuantity.Value > 0);
+            .WhereIf(input.HasRemaining == true, l => l.RemainingQuantity.Value > 0)
+            .WhereIf(input.AvailableOnly == true, l => l.RemainingQuantity.Value - l.ReservedQuantity.Value > 0);
     }
 }

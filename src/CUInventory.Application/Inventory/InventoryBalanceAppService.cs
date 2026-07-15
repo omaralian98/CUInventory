@@ -25,7 +25,12 @@ public class InventoryBalanceAppService :
         GetListPolicyName = CUInventoryPermissions.InventoryBalances.Default;
     }
 
-    public virtual async Task<InventoryBalanceDto> SetLowStockThresholdAsync(Guid id, SetLowStockThresholdDto input)
+    public virtual Task<InventoryBalanceDto> SetLowStockThresholdAsync(Guid id, SetLowStockThresholdDto input)
+    {
+        return SetLowStockThresholdCoreAsync(id, input);
+    }
+
+    private async Task<InventoryBalanceDto> SetLowStockThresholdCoreAsync(Guid id, SetLowStockThresholdDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.InventoryBalances.SetThreshold);
 
@@ -43,8 +48,6 @@ public class InventoryBalanceAppService :
         return query
             .WhereIf(input.WarehouseId.HasValue, b => b.WarehouseId == input.WarehouseId!.Value)
             .WhereIf(input.ProductId.HasValue, b => b.ProductId == input.ProductId!.Value)
-            .WhereIf(
-                input.LowStockOnly == true,
-                b => b.LowStockThreshold != null && (b.QuantityOnHand - b.QuantityReserved) < b.LowStockThreshold);
+            .WhereIf(input.LowStockOnly == true, LowStockRule.BelowThreshold);
     }
 }

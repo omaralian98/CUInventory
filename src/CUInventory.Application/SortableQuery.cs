@@ -18,7 +18,6 @@ internal static class SortableQuery
         {
             return null;
         }
-// Order by OrderIndex, then by the single-key Id so paging stays stable when OrderIndex ties.
         var ordering = typeof(TEntity).GetProperty("Id") != null
             ? $"{nameof(ISortable.OrderIndex)}, Id"
             : nameof(ISortable.OrderIndex);

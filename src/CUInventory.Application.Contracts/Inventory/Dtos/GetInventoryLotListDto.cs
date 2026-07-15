@@ -9,4 +9,5 @@ public class GetInventoryLotListDto : PagedAndSortedResultRequestDto
     public Guid? ProductId { get; set; }
     public Guid? SupplierId { get; set; }
     public bool? HasRemaining { get; set; }
+    public bool? AvailableOnly { get; set; }
 }

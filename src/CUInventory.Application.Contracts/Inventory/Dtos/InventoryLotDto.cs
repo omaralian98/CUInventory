@@ -12,6 +12,8 @@ public class InventoryLotDto : FullAuditedEntityDto<Guid>
     public InventoryLotSource Source { get; set; }
     public decimal OriginalQuantity { get; set; }
     public decimal RemainingQuantity { get; set; }
+    public decimal ReservedQuantity { get; set; }
+    public decimal AvailableQuantity { get; set; }
     public decimal UnitCost { get; set; }
     public DateTime ReceivedAt { get; set; }
 }

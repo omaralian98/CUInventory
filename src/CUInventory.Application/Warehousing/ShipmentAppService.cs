@@ -51,7 +51,12 @@ public class ShipmentAppService :
         DeletePolicyName = CUInventoryPermissions.Shipments.Delete;
     }
 
-    public override async Task<ShipmentDto> CreateAsync(CreateShipmentDto input)
+    public override Task<ShipmentDto> CreateAsync(CreateShipmentDto input)
+    {
+        return CreateCoreAsync(input);
+    }
+
+    private async Task<ShipmentDto> CreateCoreAsync(CreateShipmentDto input)
     {
         await CheckCreatePolicyAsync();
 
@@ -60,14 +65,20 @@ public class ShipmentAppService :
                 GuidGenerator.Create(), l.ProductId, new Quantity(l.Quantity), new Money(l.UnitCost)))
             .ToList();
 
-        var shipment = new Shipment(
-            GuidGenerator.Create(), input.PurchaseOrderId, input.SupplierId, input.DestinationWarehouseId, lines);
+        var purchaseOrder = await _purchaseOrderRepository.GetAsync(input.PurchaseOrderId);
+        var shipment = await _shipmentManager.CreateAsync(
+            purchaseOrder, input.SupplierId, input.DestinationWarehouseId, lines);
 
-        await _repository.InsertAsync(shipment);
+        await _repository.InsertAsync(shipment, autoSave: true);
         return await MapToGetOutputDtoAsync(shipment);
     }
 
-    public virtual async Task<ShipmentDto> DispatchAsync(Guid id, ConcurrencyStampDto input)
+    public virtual Task<ShipmentDto> DispatchAsync(Guid id, ConcurrencyStampDto input)
+    {
+        return DispatchCoreAsync(id, input);
+    }
+
+    private async Task<ShipmentDto> DispatchCoreAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.Shipments.Dispatch);
 
@@ -79,7 +90,12 @@ public class ShipmentAppService :
         return await MapToGetOutputDtoAsync(shipment);
     }
 
-    public virtual async Task<ShipmentDto> ReceiveAsync(Guid id, ConcurrencyStampDto input)
+    public virtual Task<ShipmentDto> ReceiveAsync(Guid id, ConcurrencyStampDto input)
+    {
+        return ReceiveCoreAsync(id, input);
+    }
+
+    private async Task<ShipmentDto> ReceiveCoreAsync(Guid id, ConcurrencyStampDto input)
     {
         await CheckPolicyAsync(CUInventoryPermissions.Shipments.Receive);
 

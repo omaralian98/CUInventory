@@ -39,7 +39,7 @@ public class ProductAppService :
         product.OrderIndex = input.OrderIndex;
         product.SetIsActive(input.IsActive);
 
-        await Repository.InsertAsync(product);
+        await Repository.InsertAsync(product, autoSave: true);
         return await MapToGetOutputDtoAsync(product);
     }
 

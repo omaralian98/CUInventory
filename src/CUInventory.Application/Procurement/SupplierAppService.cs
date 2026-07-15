@@ -36,7 +36,7 @@ public class SupplierAppService :
 
         var supplier = await _supplierManager.CreateAsync(input.Name, ToContactInfo(input.Contact));
 
-        await Repository.InsertAsync(supplier);
+        await Repository.InsertAsync(supplier, autoSave: true);
         return await MapToGetOutputDtoAsync(supplier);
     }
 

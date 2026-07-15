@@ -37,11 +37,11 @@ public class StockNotificationEventHandler(
             InventoryBalanceId = balance.Id,
             WarehouseId = balance.WarehouseId,
             ProductId = balance.ProductId,
-            QuantityOnHand = balance.QuantityOnHand,
-            QuantityReserved = balance.QuantityReserved,
+            QuantityOnHand = balance.QuantityOnHand.Value,
+            QuantityReserved = balance.QuantityReserved.Value,
             QuantityAvailable = balance.QuantityAvailable,
             LowStockThreshold = balance.LowStockThreshold,
-            IsBelowThreshold = balance.LowStockThreshold is { } threshold && balance.QuantityAvailable < threshold,
+            IsBelowThreshold = LowStockRule.IsBelowThreshold(balance.LowStockThreshold, balance.QuantityAvailable),
             OccurredAt = occurredAt,
             TenantId = balance.TenantId
         };
