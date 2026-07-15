@@ -1,0 +1,40 @@
+.cu-lines-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+
+  th {
+    text-align: start;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--cu-text-muted);
+    padding-block: 0.35rem;
+    padding-inline: 0 1rem;
+  }
+
+  td {
+    padding-block: 0.35rem;
+    padding-inline: 0 1rem;
+    vertical-align: top;
+  }
+
+  th:last-child,
+  td:last-child {
+    padding-inline-end: 0;
+  }
+
+  // Forms inside line rows are dense — kill the default field margin.
+  ::ng-deep .mb-3 {
+    margin-bottom: 0 !important;
+  }
+  ::ng-deep .form-label {
+    display: none;
+  }
+}
+
+.cu-lines-remove {
+  width: 1%;
+  white-space: nowrap;
+  text-align: end;
+}

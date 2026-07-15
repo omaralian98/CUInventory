@@ -1,0 +1,58 @@
+<cu-page-shell title="Suppliers" subtitle="Vendors that products are purchased from">
+  <ng-container slot="actions">
+    <button type="button" class="btn btn-sm btn-primary" *abpPermission="'CUInventory.Suppliers.Create'" (click)="create()">
+      <i class="fas fa-plus"></i> New supplier
+    </button>
+  </ng-container>
+
+  <cu-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [count]="count()"
+    [list]="list"
+    [actions]="actions"
+    [loading]="loading()"
+    [showSearch]="true"
+    searchPlaceholder="Search suppliers…"
+    (searchChange)="onSearch($event)"
+    (action)="onAction($event)">
+  </cu-data-table>
+</cu-page-shell>
+
+<cu-modal
+  [open]="modalOpen()"
+  [title]="editing() ? 'Edit supplier' : 'New supplier'"
+  size="lg"
+  [busy]="saving()"
+  (closed)="modalOpen.set(false)">
+  <form [formGroup]="form">
+    <cu-form-field [formGroup]="form" controlName="name" label="Name" [required]="true" />
+
+    <h6 class="mt-2 mb-3">Contact</h6>
+    <div class="row">
+      <div class="col-md-6">
+        <cu-form-field [formGroup]="contactGroup" controlName="email" label="Email" [required]="true" />
+      </div>
+      <div class="col-md-6">
+        <cu-form-field [formGroup]="contactGroup" controlName="phoneNumber" label="Phone" [required]="true" />
+      </div>
+    </div>
+
+    <h6 class="mt-2 mb-3">Address</h6>
+    <div class="row">
+      <div class="col-md-6">
+        <cu-form-field [formGroup]="contactAddressGroup" controlName="governorate" label="Governorate" [required]="true" />
+      </div>
+      <div class="col-md-6">
+        <cu-form-field [formGroup]="contactAddressGroup" controlName="city" label="City" [required]="true" />
+      </div>
+    </div>
+    <cu-form-field [formGroup]="contactAddressGroup" controlName="street" label="Street" [required]="true" />
+  </form>
+  <ng-container slot="footer">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="modalOpen.set(false)">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">
+      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } Save
+    </button>
+  </ng-container>
+</cu-modal>

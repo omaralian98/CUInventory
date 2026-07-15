@@ -1,0 +1,116 @@
+<cu-page-shell title="Stock Transfers" subtitle="Move stock between warehouses with a safe two-phase dispatch → receive flow">
+  <ng-container slot="actions">
+    <button type="button" class="btn btn-sm btn-primary" *abpPermission="'CUInventory.StockTransfers.Create'" (click)="create()">
+      <i class="fas fa-plus"></i> New transfer
+    </button>
+  </ng-container>
+
+  <cu-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [count]="count()"
+    [list]="list"
+    [actions]="actions"
+    [loading]="loading()"
+    [showToolbar]="true"
+    (action)="onAction($event)">
+    <ng-container slot="toolbar">
+      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="Any source" [(ngModel)]="filter.sourceWarehouseId" (ngModelChange)="applyFilter()" />
+      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="Any destination" [(ngModel)]="filter.destinationWarehouseId" (ngModelChange)="applyFilter()" />
+      <select class="form-select form-select-sm cu-inline-filter" [(ngModel)]="filter.status" (ngModelChange)="applyFilter()">
+        <option [ngValue]="null">Any status</option>
+        @for (o of statusOptions; track o.value) { <option [ngValue]="o.value">{{ o.label }}</option> }
+      </select>
+      @if (filter.sourceWarehouseId || filter.destinationWarehouseId || filter.status !== null) {
+        <button type="button" class="btn btn-sm btn-link cu-filter-clear" (click)="clearFilters()">
+          <i class="fas fa-xmark"></i> Clear
+        </button>
+      }
+    </ng-container>
+
+    <ng-template cuCol="from" let-row>{{ row.sourceWarehouseId | idName: 'warehouse' }}</ng-template>
+    <ng-template cuCol="to" let-row>{{ row.destinationWarehouseId | idName: 'warehouse' }}</ng-template>
+    <ng-template cuCol="lines" let-row><span class="cu-mono">{{ row.linesCount ?? 0 }}</span></ng-template>
+    <ng-template cuCol="status" let-row><cu-status-badge kind="transfer-status" [value]="row.status" /></ng-template>
+  </cu-data-table>
+</cu-page-shell>
+
+<!-- Create transfer -->
+<cu-modal [open]="createOpen()" title="New stock transfer" size="lg" [busy]="saving()" (closed)="createOpen.set(false)">
+  <form [formGroup]="form">
+    <div class="row">
+      <div class="col-md-6">
+        <cu-autocomplete formControlName="sourceWarehouseId" kind="warehouse" label="From warehouse" [required]="true" />
+      </div>
+      <div class="col-md-6">
+        <cu-autocomplete formControlName="destinationWarehouseId" kind="warehouse" label="To warehouse" [required]="true" />
+      </div>
+    </div>
+    <label class="form-label mt-2">Lines</label>
+    <cu-line-items [formArray]="lines" [headers]="['Product', 'Quantity']" [newRow]="newLine" addLabel="Add product">
+      <ng-template cuLineRow let-group>
+        <td [formGroup]="group"><cu-autocomplete formControlName="productId" kind="product" [search]="productSearch(group)" placeholder="Select product" /></td>
+        <td style="width: 160px"><cu-form-field [formGroup]="group" controlName="quantity" label="Quantity" type="number" [min]="0" [step]="1" /></td>
+      </ng-template>
+    </cu-line-items>
+  </form>
+  <ng-container slot="footer">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="createOpen.set(false)">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">
+      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } Create draft
+    </button>
+  </ng-container>
+</cu-modal>
+
+<!-- Detail with two-phase timeline -->
+<cu-modal [open]="detailOpen()" title="Transfer details" size="lg" (closed)="detailOpen.set(false)">
+  @if (detail(); as t) {
+    <div class="cu-transfer-route">
+      <span>{{ t.sourceWarehouseId | idName: 'warehouse' }}</span>
+      <i class="fas fa-arrow-right-long cu-muted"></i>
+      <span>{{ t.destinationWarehouseId | idName: 'warehouse' }}</span>
+      <cu-status-badge kind="transfer-status" [value]="t.status" />
+    </div>
+
+    @if (t.status !== Status.Cancelled) {
+      <ol class="cu-timeline" [attr.data-step]="timelineStep(t.status)">
+        <li [class.done]="timelineStep(t.status) >= 0"><span class="cu-dot"></span><div><strong>Draft</strong><small class="cu-muted d-block">{{ t.creationTime | date: 'short' }}</small></div></li>
+        <li [class.done]="timelineStep(t.status) >= 1"><span class="cu-dot"></span><div><strong>Dispatched</strong><small class="cu-muted d-block">{{ t.dispatchedAt ? (t.dispatchedAt | date: 'short') : 'Pending' }}</small></div></li>
+        <li [class.done]="timelineStep(t.status) >= 2"><span class="cu-dot"></span><div><strong>Received</strong><small class="cu-muted d-block">{{ t.receivedAt ? (t.receivedAt | date: 'short') : 'Pending' }}</small></div></li>
+      </ol>
+    } @else {
+      <div class="cu-chip cu-chip--danger my-2">Cancelled</div>
+    }
+
+    <h6 class="mt-3">Lines</h6>
+    <table class="cu-table">
+      <thead><tr><th>Product</th><th class="text-end">Quantity</th></tr></thead>
+      <tbody>
+        @for (l of t.lines; track l.id) {
+          <tr><td>{{ l.productId | idName: 'product' }}</td><td class="text-end cu-mono">{{ l.quantity | number: '1.0-2' }}</td></tr>
+        }
+      </tbody>
+    </table>
+
+    @if (t.allocations?.length) {
+      <h6 class="mt-3">Source allocations</h6>
+      <p class="cu-muted small">Which lots (and their originating suppliers) the dispatched quantity was drawn from.</p>
+      <table class="cu-table">
+        <thead><tr><th>Product</th><th>Supplier</th><th class="text-end">Qty</th><th class="text-end">Unit cost</th></tr></thead>
+        <tbody>
+          @for (a of t.allocations; track a.id) {
+            <tr>
+              <td>{{ a.productId | idName: 'product' }}</td>
+              <td>{{ a.supplierId | idName: 'supplier' }}</td>
+              <td class="text-end cu-mono">{{ a.quantity | number: '1.0-2' }}</td>
+              <td class="text-end cu-mono">{{ a.unitCost | number: '1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+  <ng-container slot="footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
+  </ng-container>
+</cu-modal>

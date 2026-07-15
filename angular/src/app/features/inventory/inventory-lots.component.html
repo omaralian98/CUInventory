@@ -1,0 +1,32 @@
+<cu-page-shell
+  title="Inventory Lots"
+  subtitle="Every unit of stock traces back to the shipment and supplier it came from — the basis of source tracking and cost reporting">
+  <cu-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [count]="count()"
+    [list]="list"
+    [loading]="loading()"
+    [showToolbar]="true">
+    <ng-container slot="toolbar">
+      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="All warehouses" [(ngModel)]="warehouseId" (ngModelChange)="onFilter()" />
+      <cu-autocomplete class="cu-inline-filter" kind="product" [inline]="true" [small]="true" placeholder="All products" [(ngModel)]="productId" (ngModelChange)="onFilter()" />
+      <cu-autocomplete class="cu-inline-filter" kind="supplier" [inline]="true" [small]="true" placeholder="All suppliers" [(ngModel)]="supplierId" (ngModelChange)="onFilter()" />
+      <label class="cu-filter-toggle">
+        <input type="checkbox" [(ngModel)]="hasRemaining" (ngModelChange)="onFilter()" />
+        Has remaining only
+      </label>
+      @if (warehouseId || productId || supplierId || hasRemaining) {
+        <button type="button" class="btn btn-sm btn-link cu-filter-clear" (click)="clearFilters()">
+          <i class="fas fa-xmark"></i> Clear
+        </button>
+      }
+    </ng-container>
+    <ng-template cuCol="product" let-row>{{ row.productId | idName: 'product' }}</ng-template>
+    <ng-template cuCol="warehouse" let-row>{{ row.warehouseId | idName: 'warehouse' }}</ng-template>
+    <ng-template cuCol="supplier" let-row>{{ row.supplierId | idName: 'supplier' }}</ng-template>
+    <ng-template cuCol="source" let-row>
+      <cu-status-badge kind="lot-source" [value]="row.source" />
+    </ng-template>
+  </cu-data-table>
+</cu-page-shell>

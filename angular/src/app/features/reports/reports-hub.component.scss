@@ -1,0 +1,50 @@
+.cu-report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--sp-4);
+}
+
+.cu-report-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  background: var(--cu-surface);
+  border: 1px solid var(--cu-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--cu-shadow-card);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--cu-shadow-pop);
+  }
+}
+
+.cu-report-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-md);
+  font-size: 1.15rem;
+
+  &.cu-tile--info { color: var(--cu-info); background: var(--cu-info-bg); }
+  &.cu-tile--success { color: var(--cu-success); background: var(--cu-success-bg); }
+  &.cu-tile--warning { color: var(--cu-warning); background: var(--cu-warning-bg); }
+  &.cu-tile--neutral { color: var(--cu-neutral); background: var(--cu-neutral-bg); }
+}
+
+.cu-report-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--cu-text);
+}
+
+.cu-report-desc {
+  font-size: 0.85rem;
+  color: var(--cu-text-muted);
+}

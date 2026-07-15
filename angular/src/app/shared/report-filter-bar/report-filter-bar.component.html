@@ -1,0 +1,43 @@
+<div class="cu-filter-bar">
+  @if (has('warehouse')) {
+    <div class="cu-filter">
+      <label class="form-label">Warehouse</label>
+      <cu-autocomplete kind="warehouse" [inline]="true" [small]="true" placeholder="All warehouses" [(ngModel)]="model.warehouseId" />
+    </div>
+  }
+  @if (has('supplier')) {
+    <div class="cu-filter">
+      <label class="form-label">Supplier</label>
+      <cu-autocomplete kind="supplier" [inline]="true" [small]="true" placeholder="All suppliers" [(ngModel)]="model.supplierId" />
+    </div>
+  }
+  @if (has('category')) {
+    <div class="cu-filter">
+      <label class="form-label">Category</label>
+      <cu-autocomplete kind="category" [inline]="true" [small]="true" placeholder="All categories" [(ngModel)]="model.categoryId" />
+    </div>
+  }
+  @if (has('product')) {
+    <div class="cu-filter">
+      <label class="form-label">Product</label>
+      <cu-autocomplete kind="product" [inline]="true" [small]="true" placeholder="All products" [(ngModel)]="model.productId" />
+    </div>
+  }
+  @if (has('dates')) {
+    <div class="cu-filter">
+      <label class="form-label">From</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="model.fromDate" />
+    </div>
+    <div class="cu-filter">
+      <label class="form-label">To</label>
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="model.toDate" />
+    </div>
+  }
+
+  <div class="cu-filter-actions">
+    <button type="button" class="btn btn-sm btn-primary" (click)="emit()">
+      <i class="fas fa-filter"></i> Apply
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clear()">Clear</button>
+  </div>
+</div>

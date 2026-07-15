@@ -1,0 +1,35 @@
+<div class="cu-lines">
+  <table class="cu-lines-table">
+    <thead>
+      <tr>
+        @for (h of headers; track h) {
+          <th>{{ h }}</th>
+        }
+        <th class="cu-lines-remove"></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (group of groups; track group; let i = $index) {
+        <tr>
+          <ng-container
+            *ngTemplateOutlet="rowTemplate.template; context: { $implicit: group, index: i }">
+          </ng-container>
+          <td class="cu-lines-remove">
+            <button
+              type="button"
+              class="btn btn-sm text-danger"
+              [disabled]="!canRemove"
+              title="Remove line"
+              (click)="removeRow(i)">
+              <i class="fas fa-trash-can"></i>
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addRow()">
+    <i class="fas fa-plus"></i> {{ addLabel }}
+  </button>
+</div>

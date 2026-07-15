@@ -1,0 +1,123 @@
+<div class="cu-table-card">
+  @if (showSearch || showToolbar) {
+    <div class="cu-table-toolbar">
+      @if (showSearch) {
+        <div class="cu-search">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            [placeholder]="searchPlaceholder"
+            (input)="onSearchInput($any($event.target).value)" />
+        </div>
+      }
+      <ng-content select="[slot=toolbar]"></ng-content>
+    </div>
+  }
+
+  <div class="cu-table-scroll">
+    <table class="cu-table">
+      <thead>
+        <tr>
+          @for (col of columns; track col.prop) {
+            <th
+              [class.cu-sortable]="col.sortable"
+              [style.width]="col.width"
+              [style.text-align]="col.align || 'start'"
+              (click)="toggleSort(col)">
+              {{ col.header }}
+              @if (col.sortable) {
+                <i class="fas {{ sortIcon(col) }} cu-sort-icon"></i>
+              }
+            </th>
+          }
+          @if (actions.length) {
+            <th style="width: 1%; text-align: end">Actions</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading) {
+          <tr>
+            <td [attr.colspan]="columns.length + (actions.length ? 1 : 0)" class="cu-table-state">
+              <i class="fas fa-circle-notch fa-spin"></i> Loading…
+            </td>
+          </tr>
+        } @else if (!rows || rows.length === 0) {
+          <tr>
+            <td [attr.colspan]="columns.length + (actions.length ? 1 : 0)" class="cu-table-state cu-muted">
+              {{ emptyText }}
+            </td>
+          </tr>
+        } @else {
+          @for (row of rows; track trackRow($index, row)) {
+            <tr>
+              @for (col of columns; track col.prop) {
+                <td [style.text-align]="col.align || 'start'">
+                  @if (templateFor(col.cell); as tpl) {
+                    <ng-container
+                      *ngTemplateOutlet="tpl; context: { $implicit: row, value: valueOf(row, col.prop) }">
+                    </ng-container>
+                  } @else {
+                    @switch (col.pipe) {
+                      @case ('date') { {{ valueOf(row, col.prop) | date: 'mediumDate' }} }
+                      @case ('datetime') { {{ valueOf(row, col.prop) | date: 'short' }} }
+                      @case ('money') { <span class="cu-mono">{{ valueOf(row, col.prop) | number: '1.2-2' }}</span> }
+                      @case ('number') { <span class="cu-mono">{{ valueOf(row, col.prop) | number: '1.0-2' }}</span> }
+                      @default { {{ valueOf(row, col.prop) }} }
+                    }
+                  }
+                </td>
+              }
+              @if (actions.length) {
+                <td class="cu-row-actions">
+                  @for (a of visibleActions(row); track a.key) {
+                    <button
+                      type="button"
+                      class="btn btn-sm cu-action-btn"
+                      [class.text-danger]="a.tone === 'danger'"
+                      [title]="a.label"
+                      (click)="action.emit({ key: a.key, row })">
+                      @if (a.icon) { <i class="fas {{ a.icon }}"></i> }
+                      <span class="cu-action-label">{{ a.label }}</span>
+                    </button>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cu-table-footer">
+    <div class="cu-page-size">
+      <span class="cu-muted">Rows</span>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="pageSize"
+        (ngModelChange)="changePageSize($event)">
+        @for (size of pageSizes; track size) {
+          <option [value]="size">{{ size }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="cu-pager">
+      <span class="cu-muted cu-range">{{ firstRow }}–{{ lastRow }} of {{ totalCount }}</span>
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="currentPage <= 0" (click)="goTo(0)">
+        <i class="fas fa-angles-left"></i>
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="currentPage <= 0" (click)="goTo(currentPage - 1)">
+        <i class="fas fa-angle-left"></i>
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="currentPage >= lastPage" (click)="goTo(currentPage + 1)">
+        <i class="fas fa-angle-right"></i>
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="currentPage >= lastPage" (click)="goTo(lastPage)">
+        <i class="fas fa-angles-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

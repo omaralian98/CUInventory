@@ -1,0 +1,37 @@
+<cu-page-shell title="Low Stock" subtitle="Balances at or below their configured low-stock threshold">
+  <cu-report-filter-bar [show]="['warehouse', 'product']" (apply)="onFilter($event)" />
+
+  <div class="cu-tile-row">
+    <cu-stat-tile label="Items below threshold" [value]="count()" icon="fa-triangle-exclamation" tone="warning" />
+  </div>
+
+  <div class="cu-panel">
+    <div class="table-responsive">
+      <table class="cu-table">
+        <thead>
+          <tr><th>Warehouse</th><th>Product</th><th class="text-end">On hand</th><th class="text-end">Reserved</th><th class="text-end">Available</th><th class="text-end">Threshold</th></tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.warehouseId + row.productId) {
+            <tr>
+              <td>{{ row.warehouseId | idName: 'warehouse' }}</td>
+              <td>{{ row.productId | idName: 'product' }}</td>
+              <td class="text-end cu-mono">{{ row.quantityOnHand | number: '1.0-2' }}</td>
+              <td class="text-end cu-mono">{{ row.quantityReserved | number: '1.0-2' }}</td>
+              <td class="text-end cu-mono">
+                <span class="cu-chip cu-chip--danger">{{ row.quantityAvailable | number: '1.0-2' }}</span>
+              </td>
+              <td class="text-end cu-mono">{{ row.lowStockThreshold | number: '1.0-2' }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="text-center cu-muted py-4">
+              @if (loading()) { <i class="fas fa-circle-notch fa-spin"></i> Loading… } @else { No items are below threshold. }
+            </td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <cu-pager [page]="page()" [count]="count()" [pageSize]="pageSize" (pageChange)="goTo($event)" />
+  </div>
+</cu-page-shell>

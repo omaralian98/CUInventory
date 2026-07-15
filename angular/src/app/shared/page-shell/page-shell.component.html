@@ -1,0 +1,19 @@
+<section class="page-shell" [attr.aria-label]="title">
+  @if (title) {
+    <header class="page-shell-header">
+      <div class="page-shell-heading">
+        <h1 class="page-shell-title">{{ title }}</h1>
+        @if (subtitle) {
+          <p class="page-shell-subtitle">{{ subtitle }}</p>
+        }
+      </div>
+      <div class="page-shell-actions">
+        <ng-content select="[slot=actions]"></ng-content>
+      </div>
+    </header>
+  }
+
+  <main class="page-shell-body" tabindex="-1">
+    <ng-content></ng-content>
+  </main>
+</section>

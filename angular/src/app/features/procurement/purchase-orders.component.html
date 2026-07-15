@@ -1,0 +1,90 @@
+<cu-page-shell title="Purchase Orders" subtitle="Orders placed with suppliers; confirm to lock, then receive via shipments">
+  <ng-container slot="actions">
+    <button type="button" class="btn btn-sm btn-primary" *abpPermission="'CUInventory.PurchaseOrders.Create'" (click)="create()">
+      <i class="fas fa-plus"></i> New purchase order
+    </button>
+  </ng-container>
+
+  <cu-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [count]="count()"
+    [list]="list"
+    [actions]="actions"
+    [loading]="loading()"
+    [showToolbar]="true"
+    (action)="onAction($event)">
+    <ng-container slot="toolbar">
+      <cu-autocomplete class="cu-inline-filter" kind="supplier" [inline]="true" [small]="true" placeholder="All suppliers" [(ngModel)]="supplierFilter" (ngModelChange)="applyFilters()" />
+      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="All warehouses" [(ngModel)]="warehouseFilter" (ngModelChange)="applyFilters()" />
+      <select class="form-select form-select-sm cu-inline-filter" [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
+        <option [ngValue]="null">All statuses</option>
+        @for (o of statusOptions; track o.value) { <option [ngValue]="o.value">{{ o.label }}</option> }
+      </select>
+      @if (supplierFilter || warehouseFilter || statusFilter !== null) {
+        <button type="button" class="btn btn-sm btn-link cu-filter-clear" (click)="clearFilters()">
+          <i class="fas fa-xmark"></i> Clear
+        </button>
+      }
+    </ng-container>
+    <ng-template cuCol="supplier" let-row>{{ row.supplierId | idName: 'supplier' }}</ng-template>
+    <ng-template cuCol="warehouse" let-row>{{ row.destinationWarehouseId | idName: 'warehouse' }}</ng-template>
+    <ng-template cuCol="lines" let-row><span class="cu-mono">{{ row.linesCount ?? 0 }}</span></ng-template>
+    <ng-template cuCol="status" let-row><cu-status-badge kind="po-status" [value]="row.status" /></ng-template>
+  </cu-data-table>
+</cu-page-shell>
+
+<cu-modal [open]="modalOpen()" title="New purchase order" size="lg" [busy]="saving()" (closed)="modalOpen.set(false)">
+  <form [formGroup]="form">
+    <div class="row">
+      <div class="col-md-6">
+        <cu-autocomplete formControlName="supplierId" kind="supplier" label="Supplier" [required]="true" />
+      </div>
+      <div class="col-md-6">
+        <cu-autocomplete formControlName="destinationWarehouseId" kind="warehouse" label="Destination warehouse" [required]="true" />
+      </div>
+    </div>
+
+    <label class="form-label mt-2">Lines</label>
+    <cu-line-items [formArray]="lines" [headers]="['Product', 'Ordered Qty', 'Unit Cost']" [newRow]="newLine" addLabel="Add line">
+      <ng-template cuLineRow let-group>
+        <td style="min-width: 220px" [formGroup]="group"><cu-autocomplete formControlName="productId" kind="product" [search]="productSearch(group)" [required]="true" /></td>
+        <td style="width: 140px"><cu-form-field [formGroup]="group" controlName="orderedQuantity" label="" type="number" [min]="0" [step]="1" /></td>
+        <td style="width: 140px"><cu-form-field [formGroup]="group" controlName="unitCost" label="" type="number" [min]="0" [step]="0.01" /></td>
+      </ng-template>
+    </cu-line-items>
+  </form>
+  <ng-container slot="footer">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="modalOpen.set(false)">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">
+      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } Create
+    </button>
+  </ng-container>
+</cu-modal>
+
+<cu-modal [open]="detailOpen()" title="Purchase order" size="lg" (closed)="detailOpen.set(false)">
+  @if (detail(); as po) {
+    <div class="d-flex flex-wrap gap-4 mb-3">
+      <div><span class="cu-muted d-block small">Supplier</span>{{ po.supplierId | idName: 'supplier' }}</div>
+      <div><span class="cu-muted d-block small">Warehouse</span>{{ po.destinationWarehouseId | idName: 'warehouse' }}</div>
+      <div><span class="cu-muted d-block small">Status</span><cu-status-badge kind="po-status" [value]="po.status" /></div>
+    </div>
+    <table class="cu-table">
+      <thead>
+        <tr><th>Product</th><th class="text-end">Ordered</th><th class="text-end">Received</th><th class="text-end">Outstanding</th><th class="text-end">Unit Cost</th><th>Received?</th></tr>
+      </thead>
+      <tbody>
+        @for (l of po.lines; track l.id) {
+          <tr>
+            <td>{{ l.productId | idName: 'product' }}</td>
+            <td class="text-end cu-mono">{{ l.orderedQuantity | number: '1.0-2' }}</td>
+            <td class="text-end cu-mono">{{ l.receivedQuantity | number: '1.0-2' }}</td>
+            <td class="text-end cu-mono">{{ l.outstandingQuantity | number: '1.0-2' }}</td>
+            <td class="text-end cu-mono">{{ l.unitCost | number: '1.2-2' }}</td>
+            <td><span class="cu-chip" [class.cu-chip--success]="l.isFullyReceived" [class.cu-chip--neutral]="!l.isFullyReceived">{{ l.isFullyReceived ? 'Yes' : 'No' }}</span></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</cu-modal>

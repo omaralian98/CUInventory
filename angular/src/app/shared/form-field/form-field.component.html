@@ -1,0 +1,65 @@
+<div class="mb-3" [formGroup]="formGroup">
+  @if (type === 'checkbox') {
+    <div class="form-check">
+      <input
+        type="checkbox"
+        class="form-check-input"
+        [id]="controlName"
+        [formControlName]="controlName" />
+      <label class="form-check-label" [for]="controlName">{{ label }}</label>
+    </div>
+  } @else {
+    <label class="form-label" [for]="controlName">
+      {{ label }} @if (required) { <span class="text-danger">*</span> }
+    </label>
+
+    @switch (type) {
+      @case ('textarea') {
+        <textarea
+          class="form-control"
+          [id]="controlName"
+          rows="3"
+          [placeholder]="placeholder"
+          [formControlName]="controlName"
+          [class.is-invalid]="invalid"></textarea>
+      }
+      @case ('select') {
+        <select
+          class="form-select"
+          [id]="controlName"
+          [formControlName]="controlName"
+          [class.is-invalid]="invalid">
+          <option [ngValue]="null" disabled>{{ placeholder || 'Select…' }}</option>
+          @for (opt of options; track opt.value) {
+            <option [ngValue]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      }
+      @default {
+        <input
+          [type]="type"
+          class="form-control"
+          [id]="controlName"
+          [placeholder]="placeholder"
+          [step]="step"
+          [min]="min"
+          [formControlName]="controlName"
+          [class.is-invalid]="invalid" />
+      }
+    }
+  }
+
+  @if (hint && !invalid) {
+    <div class="form-text">{{ hint }}</div>
+  }
+  @if (invalid) {
+    <div class="invalid-feedback d-block">
+      @if (control?.errors?.['required']) { {{ label }} is required. }
+      @else if (control?.errors?.['min']) { Must be at least {{ control?.errors?.['min'].min }}. }
+      @else if (control?.errors?.['email']) { Enter a valid email address. }
+      @else if (control?.errors?.['phone']) { Enter a valid phone number. }
+      @else if (control?.errors?.['maxlength']) { Must be at most {{ control?.errors?.['maxlength'].requiredLength }} characters. }
+      @else { {{ label }} is invalid. }
+    </div>
+  }
+</div>

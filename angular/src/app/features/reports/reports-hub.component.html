@@ -1,0 +1,11 @@
+<cu-page-shell title="Reports" subtitle="Filterable operational reports across warehouses, suppliers, categories and dates">
+  <div class="cu-report-grid">
+    @for (card of cards; track card.route) {
+      <a class="cu-report-card" [routerLink]="card.route">
+        <span class="cu-report-icon" [class]="'cu-tile--' + card.tone"><i class="fas {{ card.icon }}"></i></span>
+        <span class="cu-report-title">{{ card.title }}</span>
+        <span class="cu-report-desc">{{ card.description }}</span>
+      </a>
+    }
+  </div>
+</cu-page-shell>

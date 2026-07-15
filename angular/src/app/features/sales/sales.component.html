@@ -1,0 +1,103 @@
+<cu-page-shell title="Sales" subtitle="Create a sale to reserve stock, then confirm to commit — reservations prevent overselling">
+  <ng-container slot="actions">
+    <button type="button" class="btn btn-sm btn-primary" *abpPermission="'CUInventory.Sales.Create'" (click)="create()">
+      <i class="fas fa-plus"></i> New sale
+    </button>
+  </ng-container>
+
+  <cu-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [count]="count()"
+    [list]="list"
+    [actions]="actions"
+    [loading]="loading()"
+    [showToolbar]="true"
+    (action)="onAction($event)">
+    <ng-container slot="toolbar">
+      <select class="form-select form-select-sm cu-inline-filter" [(ngModel)]="filterStatus" (ngModelChange)="applyFilter()">
+        <option [ngValue]="null">Any status</option>
+        @for (o of statusOptions; track o.value) { <option [ngValue]="o.value">{{ o.label }}</option> }
+      </select>
+    </ng-container>
+
+    <ng-template cuCol="status" let-row><cu-status-badge kind="sale-status" [value]="row.status" /></ng-template>
+  </cu-data-table>
+</cu-page-shell>
+
+<!-- Create sale -->
+<cu-modal [open]="createOpen()" title="New sale" size="xl" [busy]="saving()" (closed)="createOpen.set(false)">
+  <p class="cu-muted small">
+    Each line picks how its stock is sourced: <strong>FIFO</strong> (oldest lots first) or pinned to a specific
+    supplier, warehouse, or lot — this is how a sale traces back to the purchase it came from.
+  </p>
+  <form [formGroup]="form">
+    <cu-line-items [formArray]="lines" [headers]="['Product', 'Qty', 'Unit price', 'Source strategy', 'Pinned source']" [newRow]="newLine" addLabel="Add line">
+      <ng-template cuLineRow let-group>
+        <td style="min-width: 180px" [formGroup]="group"><cu-autocomplete formControlName="productId" kind="product" [search]="productSearch(group)" placeholder="Product" /></td>
+        <td style="width: 110px"><cu-form-field [formGroup]="group" controlName="quantity" label="Qty" type="number" [min]="0" /></td>
+        <td style="width: 130px"><cu-form-field [formGroup]="group" controlName="unitPrice" label="Unit price" type="number" [min]="0" [step]="0.01" /></td>
+        <td style="width: 170px"><cu-form-field [formGroup]="group" controlName="kind" label="Strategy" type="select" [options]="kindOptions" /></td>
+        <td style="min-width: 170px" [formGroup]="group">
+          @switch (group.get('kind')?.value) {
+            @case (Kind.SpecificWarehouse) { <cu-autocomplete formControlName="warehouseId" kind="warehouse" placeholder="Warehouse" /> }
+            @case (Kind.SpecificSupplier) { <cu-autocomplete formControlName="supplierId" kind="supplier" placeholder="Supplier" /> }
+            @case (Kind.SpecificLot) { <cu-autocomplete formControlName="lotId" [search]="lotSearch(group)" placeholder="Select lot" /> }
+            @default { <span class="cu-muted small">Oldest stock first</span> }
+          }
+        </td>
+      </ng-template>
+    </cu-line-items>
+  </form>
+  <ng-container slot="footer">
+    <span class="me-auto cu-muted">Total: <strong class="cu-mono">{{ formTotal() | number: '1.2-2' }}</strong></span>
+    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="createOpen.set(false)">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">
+      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } Reserve stock
+    </button>
+  </ng-container>
+</cu-modal>
+
+<!-- Detail: reserved allocations -->
+<cu-modal [open]="detailOpen()" title="Sale details" size="xl" (closed)="detailOpen.set(false)">
+  @if (detail(); as s) {
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <cu-status-badge kind="sale-status" [value]="s.status" />
+      <span class="cu-muted">Created {{ s.creationTime | date: 'short' }}</span>
+      @if (s.confirmedAt) { <span class="cu-muted">· Confirmed {{ s.confirmedAt | date: 'short' }}</span> }
+      <span class="ms-auto">Total <strong class="cu-mono">{{ s.totalAmount | number: '1.2-2' }}</strong></span>
+    </div>
+
+    @for (line of s.lines; track line.id) {
+      <div class="cu-sale-line">
+        <div class="cu-sale-line-head">
+          <strong>{{ line.productId | idName: 'product' }}</strong>
+          <span class="cu-muted">{{ line.quantity | number: '1.0-2' }} × {{ line.unitPrice | number: '1.2-2' }}</span>
+          <cu-status-badge kind="allocation-kind" [value]="line.kind" />
+        </div>
+        @if (line.allocations?.length) {
+          <table class="cu-table">
+            <thead><tr><th>Warehouse</th><th>Supplier</th><th>Lot</th><th class="text-end">Qty</th><th class="text-end">Unit cost</th><th>State</th></tr></thead>
+            <tbody>
+              @for (a of line.allocations; track a.id) {
+                <tr>
+                  <td>{{ a.warehouseId | idName: 'warehouse' }}</td>
+                  <td>{{ a.supplierId | idName: 'supplier' }}</td>
+                  <td class="cu-mono small">{{ a.inventoryLotId ? (a.inventoryLotId | slice: 0 : 8) : '—' }}</td>
+                  <td class="text-end cu-mono">{{ a.quantity | number: '1.0-2' }}</td>
+                  <td class="text-end cu-mono">{{ a.unitCost | number: '1.2-2' }}</td>
+                  <td><span class="cu-chip" [class.cu-chip--warning]="a.isReserved" [class.cu-chip--success]="!a.isReserved">{{ a.isReserved ? 'Reserved' : 'Committed' }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="cu-muted small mb-0">No allocations recorded.</p>
+        }
+      </div>
+    }
+  }
+  <ng-container slot="footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="detailOpen.set(false)">Close</button>
+  </ng-container>
+</cu-modal>

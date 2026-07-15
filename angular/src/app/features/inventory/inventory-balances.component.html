@@ -1,0 +1,60 @@
+<cu-page-shell title="Inventory Balances" subtitle="On-hand, reserved and available stock per warehouse and product — updates live">
+  <ng-container slot="actions">
+    <span class="cu-chip" [class.cu-chip--success]="store.connected()" [class.cu-chip--neutral]="!store.connected()">
+      <i class="fas fa-circle" style="font-size: 0.5rem"></i>
+      {{ store.connected() ? 'Live' : 'Offline' }}
+    </span>
+  </ng-container>
+
+  <cu-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [count]="count()"
+    [list]="list"
+    [actions]="actions"
+    [loading]="loading()"
+    [showToolbar]="true"
+    (action)="onAction($event)">
+    <ng-container slot="toolbar">
+      <cu-autocomplete class="cu-inline-filter" kind="warehouse" [inline]="true" [small]="true" placeholder="All warehouses" [(ngModel)]="warehouseId" (ngModelChange)="onFilter()" />
+      <cu-autocomplete class="cu-inline-filter" kind="product" [inline]="true" [small]="true" placeholder="All products" [(ngModel)]="productId" (ngModelChange)="onFilter()" />
+      <label class="cu-filter-toggle">
+        <input type="checkbox" [(ngModel)]="lowStockOnly" (ngModelChange)="onFilter()" />
+        Low stock only
+      </label>
+      @if (warehouseId || productId || lowStockOnly) {
+        <button type="button" class="btn btn-sm btn-link cu-filter-clear" (click)="clearFilters()">
+          <i class="fas fa-xmark"></i> Clear
+        </button>
+      }
+    </ng-container>
+    <ng-template cuCol="warehouse" let-row>{{ row.warehouseId | idName: 'warehouse' }}</ng-template>
+    <ng-template cuCol="product" let-row>{{ row.productId | idName: 'product' }}</ng-template>
+    <ng-template cuCol="available" let-row>
+      <span class="cu-mono">{{ row.quantityAvailable | number: '1.0-2' }}</span>
+      @if (isLow(row)) {
+        <span class="cu-chip cu-chip--danger ms-2"><i class="fas fa-triangle-exclamation"></i> Low</span>
+      }
+    </ng-template>
+  </cu-data-table>
+</cu-page-shell>
+
+<cu-modal
+  [open]="thresholdModalOpen()"
+  title="Set low-stock threshold"
+  [busy]="savingThreshold()"
+  (closed)="thresholdModalOpen.set(false)">
+  <p class="cu-muted">
+    Alerts fire when available stock drops to or below this threshold. Leave empty to remove the threshold.
+  </p>
+  <div class="mb-3">
+    <label class="form-label" for="threshold">Threshold</label>
+    <input type="number" class="form-control" id="threshold" min="0" [(ngModel)]="thresholdValue" />
+  </div>
+  <ng-container slot="footer">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="savingThreshold()" (click)="thresholdModalOpen.set(false)">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="savingThreshold()" (click)="saveThreshold()">
+      @if (savingThreshold()) { <i class="fas fa-circle-notch fa-spin"></i> } Save
+    </button>
+  </ng-container>
+</cu-modal>

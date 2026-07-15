@@ -1,5 +1,323 @@
 /* You can add global styles to this file, and also import other style files */
+@use 'styles/design-tokens';
 
+/* ---- Reusable utility classes for the inventory module ---- */
+.cu-mono {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+.cu-num {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.cu-muted {
+  color: var(--cu-text-muted);
+}
+
+.cu-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.cu-chip--success { color: var(--cu-success); background: var(--cu-success-bg); }
+.cu-chip--warning { color: var(--cu-warning); background: var(--cu-warning-bg); }
+.cu-chip--danger  { color: var(--cu-danger);  background: var(--cu-danger-bg); }
+.cu-chip--info    { color: var(--cu-info);    background: var(--cu-info-bg); }
+.cu-chip--neutral { color: var(--cu-neutral); background: var(--cu-neutral-bg); }
+
+/* Compact, quiet data table shared by every list page */
+.cu-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+}
+.cu-table th {
+  text-align: start;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cu-text-muted);
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--cu-border);
+  white-space: nowrap;
+}
+.cu-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--cu-border);
+  vertical-align: middle;
+  color: var(--cu-text);
+}
+.cu-table tbody tr:hover td {
+  background: var(--cu-surface-muted);
+}
+.cu-table th.cu-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.cu-table th.cu-sortable:hover { color: var(--cu-text); }
+
+/* Live indicator + dashboard feed */
+.cu-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cu-text-muted);
+}
+.cu-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cu-neutral);
+}
+.cu-live--on {
+  color: var(--cu-success);
+  .cu-live-dot {
+    background: var(--cu-success);
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5);
+    animation: cu-pulse 1.8s infinite;
+  }
+}
+@keyframes cu-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+.cu-tile-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.cu-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  max-height: 320px;
+  overflow-y: auto;
+
+  li {
+    display: flex;
+    gap: var(--sp-2);
+    align-items: flex-start;
+    padding: var(--sp-2);
+    border-radius: var(--radius-sm);
+    background: var(--cu-surface-muted);
+  }
+}
+.cu-feed-body { min-width: 0; }
+
+/* KPI tile row + report panels */
+.cu-tile-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.cu-panel {
+  background: var(--cu-surface);
+  border: 1px solid var(--cu-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--cu-shadow-card);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+
+  > h6 {
+    margin: 0 0 var(--sp-3);
+    font-weight: 600;
+    color: var(--cu-text);
+  }
+}
+
+.cu-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+  flex-wrap: wrap;
+
+  h6 { margin: 0; font-weight: 600; }
+}
+
+/* Sale detail line block */
+.cu-sale-line {
+  border: 1px solid var(--cu-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.cu-sale-line-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+/* Modern form controls app-wide: rounded, quiet borders, soft primary focus ring */
+.form-control,
+.form-select {
+  border-radius: var(--radius-sm);
+  border-color: var(--cu-border);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+
+  &:hover:not(:disabled):not(:focus) {
+    border-color: color-mix(in srgb, var(--cu-primary) 35%, var(--cu-border));
+  }
+
+  &:focus {
+    border-color: var(--cu-primary);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--cu-primary) 15%, transparent);
+  }
+}
+
+.form-select {
+  cursor: pointer;
+}
+
+/* Inline filters that sit in a data-table toolbar: soft pill-shaped controls */
+.cu-inline-filter {
+  width: auto;
+  min-width: 150px;
+}
+select.cu-inline-filter,
+.cu-inline-filter .form-control {
+  border-radius: 999px;
+  background-color: var(--cu-surface-muted);
+  border-color: transparent;
+  padding-inline-start: 0.85rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--cu-border);
+  }
+  &:focus {
+    background-color: var(--cu-surface);
+    border-color: var(--cu-primary);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--cu-primary) 15%, transparent);
+  }
+}
+cu-autocomplete.cu-inline-filter {
+  display: inline-block;
+  min-width: 190px;
+}
+
+/* Checkbox filter rendered as a toggle chip */
+.cu-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: var(--cu-surface-muted);
+  font-size: 0.8rem;
+  color: var(--cu-text-muted);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  input {
+    margin: 0;
+    accent-color: var(--cu-primary);
+  }
+
+  &:hover {
+    border-color: var(--cu-border);
+  }
+
+  &:has(input:checked) {
+    background: color-mix(in srgb, var(--cu-primary) 12%, transparent);
+    border-color: color-mix(in srgb, var(--cu-primary) 45%, transparent);
+    color: var(--cu-primary);
+  }
+}
+
+/* "Clear filters" link shown when any toolbar filter is active */
+.cu-filter-clear {
+  color: var(--cu-text-muted);
+  font-size: 0.8rem;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--cu-danger);
+  }
+}
+
+/* Route line used by transfer detail */
+.cu-transfer-route {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-weight: 600;
+  margin-bottom: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+/* Two-phase status timeline (draft → dispatched → received) */
+.cu-timeline {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: var(--sp-4) 0;
+
+  li {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-2);
+    position: relative;
+    text-align: center;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 7px;
+      inset-inline-start: 50%;
+      width: 100%;
+      height: 2px;
+      background: var(--cu-border);
+      z-index: 0;
+    }
+    &:last-child::before { display: none; }
+
+    .cu-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--cu-surface);
+      border: 2px solid var(--cu-border);
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    &.done .cu-dot {
+      background: var(--cu-success);
+      border-color: var(--cu-success);
+    }
+    &.done::before { background: var(--cu-success); }
+  }
+}
 
 :root {
   --lpx-theme-light-bg: url('assets/images/login/login-bg-img-light.svg');

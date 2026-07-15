@@ -1,0 +1,64 @@
+<cu-page-shell title="Products" subtitle="Catalog of products purchased from suppliers and sold to customers">
+  <ng-container slot="actions">
+    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="onToggleInactive()">
+      <i class="fas" [class.fa-eye]="!includeInactive" [class.fa-eye-slash]="includeInactive"></i>
+      {{ includeInactive ? 'Hide inactive' : 'Show inactive' }}
+    </button>
+    <button type="button" class="btn btn-sm btn-primary" *abpPermission="'CUInventory.Products.Create'" (click)="create()">
+      <i class="fas fa-plus"></i> New product
+    </button>
+  </ng-container>
+
+  <cu-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [count]="count()"
+    [list]="list"
+    [actions]="actions"
+    [loading]="loading()"
+    [showSearch]="true"
+    searchPlaceholder="Search products…"
+    (searchChange)="onSearch($event)"
+    (action)="onAction($event)">
+    <ng-template cuCol="category" let-row>{{ row.categoryId | idName: 'category' }}</ng-template>
+    <ng-template cuCol="type" let-row>
+      <span class="cu-chip" [class.cu-chip--info]="row.isService" [class.cu-chip--neutral]="!row.isService">
+        {{ row.isService ? 'Service' : 'Goods' }}
+      </span>
+    </ng-template>
+    <ng-template cuCol="status" let-row>
+      <cu-status-badge kind="active" [value]="row.isActive ? 1 : 0" />
+    </ng-template>
+  </cu-data-table>
+</cu-page-shell>
+
+<cu-modal
+  [open]="modalOpen()"
+  [title]="editing() ? 'Edit product' : 'New product'"
+  size="lg"
+  [busy]="saving()"
+  (closed)="modalOpen.set(false)">
+  <form [formGroup]="form">
+    <div class="row">
+      <div class="col-md-8">
+        <cu-form-field [formGroup]="form" controlName="name" label="Name" [required]="true" />
+      </div>
+      <div class="col-md-4">
+        <cu-form-field [formGroup]="form" controlName="sku" label="SKU" />
+      </div>
+    </div>
+    <cu-autocomplete formControlName="categoryId" kind="category" label="Category" placeholder="Uncategorized" />
+    <cu-form-field [formGroup]="form" controlName="description" label="Description" type="textarea" />
+    <div class="row">
+      <div class="col-md-4"><cu-form-field [formGroup]="form" controlName="orderIndex" label="Order" type="number" /></div>
+      <div class="col-md-4 d-flex align-items-center"><cu-form-field [formGroup]="form" controlName="isService" label="Is a service" type="checkbox" /></div>
+      <div class="col-md-4 d-flex align-items-center"><cu-form-field [formGroup]="form" controlName="isActive" label="Active" type="checkbox" /></div>
+    </div>
+  </form>
+  <ng-container slot="footer">
+    <button type="button" class="btn btn-outline-secondary" [disabled]="saving()" (click)="modalOpen.set(false)">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">
+      @if (saving()) { <i class="fas fa-circle-notch fa-spin"></i> } Save
+    </button>
+  </ng-container>
+</cu-modal>

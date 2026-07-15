@@ -1,0 +1,35 @@
+@if (segments().length === 0) {
+  <p class="cu-chart-empty cu-muted">{{ emptyText }}</p>
+} @else {
+  <div class="cu-donut">
+    <svg viewBox="0 0 160 160" class="cu-donut-svg" role="img" aria-label="Share by category">
+      <g transform="rotate(-90 80 80)">
+        @for (seg of segments(); track seg.label) {
+          <circle
+            cx="80"
+            cy="80"
+            [attr.r]="radius"
+            fill="none"
+            [attr.stroke]="seg.color"
+            stroke-width="18"
+            [attr.stroke-dasharray]="seg.dash + ' ' + (circumference - seg.dash)"
+            [attr.stroke-dashoffset]="seg.offset">
+            <title>{{ seg.label }}: {{ formatPct(seg.pct) }}</title>
+          </circle>
+        }
+      </g>
+      <text x="80" y="74" text-anchor="middle" class="cu-donut-total">{{ formatTotal() }}</text>
+      <text x="80" y="92" text-anchor="middle" class="cu-donut-caption">{{ centerLabel }}</text>
+    </svg>
+
+    <ul class="cu-donut-legend">
+      @for (seg of segments(); track seg.label) {
+        <li>
+          <span class="cu-donut-swatch" [style.background]="seg.color"></span>
+          <span class="cu-donut-legend-label">{{ seg.label }}</span>
+          <span class="cu-donut-legend-pct cu-mono">{{ formatPct(seg.pct) }}</span>
+        </li>
+      }
+    </ul>
+  </div>
+}

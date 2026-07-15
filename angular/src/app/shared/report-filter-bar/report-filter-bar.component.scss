@@ -1,0 +1,35 @@
+.cu-filter-bar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--cu-surface);
+  border: 1px solid var(--cu-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--cu-shadow-card);
+  margin-bottom: var(--sp-4);
+}
+
+.cu-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 150px;
+  flex: 1 1 150px;
+
+  .form-label {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--cu-text-muted);
+  }
+}
+
+.cu-filter-actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}

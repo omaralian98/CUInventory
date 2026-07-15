@@ -1,0 +1,41 @@
+<cu-page-shell title="Inventory Valuation" subtitle="Total quantity and value on hand, grouped by warehouse and category">
+  <cu-report-filter-bar [show]="['warehouse', 'category']" (apply)="onFilter($event)" />
+
+  @if (report(); as r) {
+    <div class="cu-tile-row">
+      <cu-stat-tile label="Total quantity" [value]="(r.grandTotalQuantity || 0) | number: '1.0-2'" icon="fa-cubes" tone="info" />
+      <cu-stat-tile label="Total value" [value]="(r.grandTotalValue || 0) | number: '1.2-2'" icon="fa-scale-balanced" tone="success" />
+      <cu-stat-tile label="Groups" [value]="r.totalCount || 0" icon="fa-layer-group" tone="neutral" />
+    </div>
+
+    <div class="cu-panel">
+      <h6>Value share by category</h6>
+      <cu-donut-chart [data]="valueByCategory()" centerLabel="Value" />
+    </div>
+
+    <div class="cu-panel">
+      <h6>By warehouse &amp; category</h6>
+      <div class="table-responsive">
+        <table class="cu-table">
+          <thead>
+            <tr><th>Warehouse</th><th>Category</th><th class="text-end">Quantity</th><th class="text-end">Value</th></tr>
+          </thead>
+          <tbody>
+            @for (it of items(); track it.warehouseId + (it.categoryId || '')) {
+              <tr>
+                <td>{{ it.warehouseId | idName: 'warehouse' }}</td>
+                <td>{{ it.categoryId ? (it.categoryId | idName: 'category') : 'Uncategorized' }}</td>
+                <td class="text-end cu-mono">{{ it.totalQuantity | number: '1.0-2' }}</td>
+                <td class="text-end cu-mono">{{ it.totalValue | number: '1.2-2' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4" class="text-center cu-muted py-4">No stock matches these filters.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else if (loading()) {
+    <p class="cu-muted"><i class="fas fa-circle-notch fa-spin"></i> Loading report…</p>
+  }
+</cu-page-shell>

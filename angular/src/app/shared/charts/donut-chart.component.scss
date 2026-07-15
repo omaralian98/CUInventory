@@ -1,0 +1,71 @@
+.cu-donut {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+}
+
+.cu-donut-svg {
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+
+.cu-donut-total {
+  font-size: 1.4rem;
+  font-weight: 700;
+  fill: var(--cu-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.cu-donut-caption {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  fill: var(--cu-text-muted);
+}
+
+.cu-donut-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 180px;
+  flex: 1;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 0.8rem;
+  }
+}
+
+.cu-donut-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.cu-donut-legend-label {
+  color: var(--cu-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cu-donut-legend-pct {
+  margin-inline-start: auto;
+  color: var(--cu-text-muted);
+  font-weight: 600;
+}
+
+.cu-chart-empty {
+  text-align: center;
+  padding: var(--sp-5);
+  margin: 0;
+  font-size: 0.875rem;
+}

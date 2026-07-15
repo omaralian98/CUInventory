@@ -1,0 +1,71 @@
+.cu-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.5);
+  z-index: 1050;
+  animation: cu-fade 0.15s ease;
+}
+
+// Centered without transforms: a transformed ancestor would become the containing
+// block for position: fixed children (the autocomplete dropdown).
+.cu-modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: calc(100% - 2rem);
+  height: fit-content;
+  max-height: calc(100vh - 3rem);
+  display: flex;
+  flex-direction: column;
+  background: var(--cu-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--cu-shadow-pop);
+  z-index: 1055;
+  animation: cu-pop 0.15s ease;
+}
+
+.cu-modal--md { max-width: 520px; }
+.cu-modal--lg { max-width: 760px; }
+.cu-modal--xl { max-width: 1040px; }
+
+.cu-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4);
+  border-bottom: 1px solid var(--cu-border);
+}
+
+.cu-modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--cu-text);
+}
+
+.cu-modal-body {
+  padding: var(--sp-4);
+  overflow-y: auto;
+}
+
+.cu-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--cu-border);
+}
+
+.cu-modal-footer:empty {
+  display: none;
+}
+
+@keyframes cu-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes cu-pop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
