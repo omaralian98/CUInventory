@@ -1,0 +1,26 @@
+{
+  "folders": {},
+  "connections": {
+    "cuinventory-sql": {
+      "provider": "sqlserver",
+      "driver": "microsoft",
+      "name": "CUInventory (SQL Server)",
+      "save-password": true,
+      "read-only": false,
+      "configuration": {
+        "host": "sql",
+        "port": "1433",
+        "database": "CUInventory",
+        "url": "jdbc:sqlserver://sql:1433;databaseName=CUInventory;encrypt=false;trustServerCertificate=true",
+        "configurationType": "MANUAL",
+        "type": "dev",
+        "closeIdleConnection": true,
+        "auth-model": "native",
+        "auth-properties": {
+          "user": "sa",
+          "password": "Cl0udB3aver!Dev"
+        }
+      }
+    }
+  }
+}

@@ -21,6 +21,8 @@ public class Program
         {
             Log.Information("Starting CUInventory.HttpApi.Host.");
             var builder = WebApplication.CreateBuilder(args);
+            builder.AddServiceDefaults(); 
+
             builder.Host
                 .AddAppSettingsSecretsJson()
                 .UseAutofac()

@@ -1,23 +1,25 @@
 <Solution>
-    <Configurations>
-        <Platform Name="Any CPU" />
-    </Configurations>
-    <Folder Name="/src/">
-        <Project Path="src/CUInventory.Domain/CUInventory.Domain.csproj" />
-        <Project Path="src/CUInventory.Application/CUInventory.Application.csproj" />
-        <Project Path="src/CUInventory.EntityFrameworkCore/CUInventory.EntityFrameworkCore.csproj" />
-        <Project Path="src/CUInventory.Domain.Shared/CUInventory.Domain.Shared.csproj" />
-        <Project Path="src/CUInventory.Application.Contracts/CUInventory.Application.Contracts.csproj" />
-        <Project Path="src/CUInventory.HttpApi/CUInventory.HttpApi.csproj" />
-        <Project Path="src/CUInventory.HttpApi.Client/CUInventory.HttpApi.Client.csproj" />
-        <Project Path="src/CUInventory.HttpApi.Host/CUInventory.HttpApi.Host.csproj" />
-        <Project Path="src/CUInventory.DbMigrator/CUInventory.DbMigrator.csproj" />
-    </Folder>
-    <Folder Name="/test/">
-        <Project Path="test/CUInventory.Application.Tests/CUInventory.Application.Tests.csproj" />
-        <Project Path="test/CUInventory.EntityFrameworkCore.Tests/CUInventory.EntityFrameworkCore.Tests.csproj" />
-        <Project Path="test/CUInventory.TestBase/CUInventory.TestBase.csproj" />
-        <Project Path="test/CUInventory.Domain.Tests/CUInventory.Domain.Tests.csproj" />
-        <Project Path="test/CUInventory.HttpApi.Client.ConsoleTestApp/CUInventory.HttpApi.Client.ConsoleTestApp.csproj" />
-    </Folder>
+  <Configurations>
+    <Platform Name="Any CPU" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/CUInventory.Application.Contracts/CUInventory.Application.Contracts.csproj" />
+    <Project Path="src/CUInventory.Application/CUInventory.Application.csproj" />
+    <Project Path="src/CUInventory.DbMigrator/CUInventory.DbMigrator.csproj" />
+    <Project Path="src/CUInventory.Domain.Shared/CUInventory.Domain.Shared.csproj" />
+    <Project Path="src/CUInventory.Domain/CUInventory.Domain.csproj" />
+    <Project Path="src/CUInventory.EntityFrameworkCore/CUInventory.EntityFrameworkCore.csproj" />
+    <Project Path="src/CUInventory.HttpApi.Client/CUInventory.HttpApi.Client.csproj" />
+    <Project Path="src/CUInventory.HttpApi.Host/CUInventory.HttpApi.Host.csproj" />
+    <Project Path="src/CUInventory.HttpApi/CUInventory.HttpApi.csproj" />
+    <Project Path="src\CUInventory.AppHost\CUInventory.AppHost.csproj" Type="Classic C#" />
+    <Project Path="src\CUInventory.ServiceDefaults\CUInventory.ServiceDefaults.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/CUInventory.Application.Tests/CUInventory.Application.Tests.csproj" />
+    <Project Path="test/CUInventory.Domain.Tests/CUInventory.Domain.Tests.csproj" />
+    <Project Path="test/CUInventory.EntityFrameworkCore.Tests/CUInventory.EntityFrameworkCore.Tests.csproj" />
+    <Project Path="test/CUInventory.HttpApi.Client.ConsoleTestApp/CUInventory.HttpApi.Client.ConsoleTestApp.csproj" />
+    <Project Path="test/CUInventory.TestBase/CUInventory.TestBase.csproj" />
+  </Folder>
 </Solution>

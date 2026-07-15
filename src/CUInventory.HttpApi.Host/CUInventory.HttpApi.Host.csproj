@@ -43,6 +43,7 @@
     <ProjectReference Include="..\CUInventory.Application\CUInventory.Application.csproj" />
     <ProjectReference Include="..\CUInventory.HttpApi\CUInventory.HttpApi.csproj" />
     <ProjectReference Include="..\CUInventory.EntityFrameworkCore\CUInventory.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\CUInventory.ServiceDefaults\CUInventory.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>

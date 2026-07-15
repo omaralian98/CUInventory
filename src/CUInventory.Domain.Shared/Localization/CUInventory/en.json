@@ -23,6 +23,7 @@
     "Permission:Sales": "Sales",
     "Permission:InventoryBalances": "Inventory balances",
     "Permission:InventoryLots": "Inventory lots",
+    "Permission:Reports": "Reports",
     "Permission:Create": "Create",
     "Permission:Edit": "Edit",
     "Permission:Delete": "Delete",
@@ -30,6 +31,7 @@
     "Permission:Cancel": "Cancel",
     "Permission:Dispatch": "Dispatch",
     "Permission:Receive": "Receive",
-    "Permission:SetThreshold": "Set low-stock threshold"
+    "Permission:SetThreshold": "Set low-stock threshold",
+    "Permission:SubscribeNotifications": "Subscribe to stock notifications"
   }
 }
