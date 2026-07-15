@@ -52,6 +52,34 @@ public class AllocationStrategyTests
     }
 
     [Fact]
+    public void Fifo_Insufficient_Reports_Requested_And_Available_Quantities()
+    {
+        var strategy = new FifoAllocationStrategy();
+
+        var ex = Should.Throw<InsufficientStockDomainException>(
+            () => strategy.Allocate(new AllocationRequest(Product, 20m, AllocationStrategyKind.Fifo), [Lot(5m, Early)]));
+
+        ex.ShouldSatisfyAllConditions(
+            () => ex.Data["Requested"].ShouldBe(20m),
+            () => ex.Data["Available"].ShouldBe(5m));
+    }
+
+    [Fact]
+    public void Fifo_Breaks_Ties_On_Id_When_ReceivedAt_Matches()
+    {
+        // Both lots share a receipt timestamp, so ordering must fall back to Id for deterministic allocation.
+        var a = Lot(5m, Early);
+        var b = Lot(5m, Early);
+        var strategy = new FifoAllocationStrategy();
+        var expectedFirst = new[] { a, b }.OrderBy(l => l.Id).First();
+
+        var results = strategy.Allocate(new AllocationRequest(Product, 5m, AllocationStrategyKind.Fifo), [b, a]);
+
+        results.ShouldHaveSingleItem();
+        results[0].LotId.ShouldBe(expectedFirst.Id);
+    }
+
+    [Fact]
     public void SpecificLot_Uses_Only_The_Requested_Lots()
     {
         var chosen = Lot(10m, Late);

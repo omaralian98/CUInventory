@@ -144,4 +144,26 @@ public class InventoryBalanceTests
 
         Should.Throw<ArgumentMustBePositiveDomainException>(() => balance.Reserve(new Quantity(0m), Now));
     }
+
+    [Fact]
+    public void ConfirmReservation_Throws_When_More_Than_Reserved()
+    {
+        var balance = NewBalance(onHand: 10m);
+        balance.Reserve(new Quantity(4m), Now);
+
+        var ex = Should.Throw<InsufficientReservedStockDomainException>(
+            () => balance.ConfirmReservation(new Quantity(5m), Now));
+        ex.Code.ShouldBe(CUInventoryDomainErrorCodes.InsufficientReservedStock);
+    }
+
+    [Fact]
+    public void LowStockReached_Is_Raised_Only_Once_Across_The_Threshold_Crossing()
+    {
+        var balance = NewBalance(onHand: 10m, threshold: 5m);
+
+        balance.Reserve(new Quantity(6m), Now); // availability 10 -> 4 crosses the threshold once
+        balance.Reserve(new Quantity(1m), Now); // already below the threshold, must not re-raise
+
+        balance.GetLocalEvents().Select(e => e.EventData).OfType<LowStockReachedDomainEvent>().Count().ShouldBe(1);
+    }
 }
