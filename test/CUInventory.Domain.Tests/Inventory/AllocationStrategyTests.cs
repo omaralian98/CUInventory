@@ -80,6 +80,36 @@ public class AllocationStrategyTests
     }
 
     [Fact]
+    public void Allocate_Offers_Only_Unreserved_Quantity()
+    {
+        var partiallyReserved = Lot(10m, Early);
+        partiallyReserved.Reserve(new Quantity(6m));
+        var newest = Lot(10m, Late);
+        var strategy = new FifoAllocationStrategy();
+
+        var results = strategy.Allocate(new AllocationRequest(Product, 8m, AllocationStrategyKind.Fifo), [newest, partiallyReserved]);
+
+        results.ShouldSatisfyAllConditions(
+            () => results.Count.ShouldBe(2),
+            () => results[0].LotId.ShouldBe(partiallyReserved.Id),
+            () => results[0].Quantity.ShouldBe(4m),
+            () => results[1].LotId.ShouldBe(newest.Id),
+            () => results[1].Quantity.ShouldBe(4m));
+    }
+
+    [Fact]
+    public void Allocate_Skips_Fully_Reserved_Lots()
+    {
+        var fullyReserved = Lot(10m, Early);
+        fullyReserved.Reserve(new Quantity(10m));
+        var strategy = new FifoAllocationStrategy();
+
+        var ex = Should.Throw<InsufficientStockDomainException>(
+            () => strategy.Allocate(new AllocationRequest(Product, 1m, AllocationStrategyKind.Fifo), [fullyReserved]));
+        ex.Data["Available"].ShouldBe(0m);
+    }
+
+    [Fact]
     public void SpecificLot_Uses_Only_The_Requested_Lots()
     {
         var chosen = Lot(10m, Late);

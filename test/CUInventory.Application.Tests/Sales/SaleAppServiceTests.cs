@@ -6,6 +6,7 @@ using CUInventory.Inventory.Dtos;
 using CUInventory.Sales.Dtos;
 using Shouldly;
 using Volo.Abp;
+using Volo.Abp.Data;
 using Volo.Abp.Modularity;
 using Xunit;
 
@@ -110,6 +111,22 @@ public abstract class SaleAppServiceTests<TStartupModule> : CUInventoryStockTest
 
         var stamp = await StampOfSaleAsync(sale.Id);
         await Should.ThrowAsync<BusinessException>(() => SaleAppService.CancelAsync(sale.Id, stamp));
+    }
+
+    [Fact]
+    public async Task Confirm_With_A_Stale_Stamp_Still_Fails_With_A_Concurrency_Error()
+    {
+        var warehouseId = Guid.NewGuid();
+        var productId = Guid.NewGuid();
+        await SeedStockAsync(warehouseId, productId, quantity: 10m);
+
+        var sale = await SaleAppService.CreateAsync(new CreateSaleDto
+        {
+            Lines = { new CreateSaleLineDto { ProductId = productId, Quantity = 4m, UnitPrice = 20m, WarehouseId = warehouseId } }
+        });
+
+        var staleStamp = new Shared.Dtos.ConcurrencyStampDto { ConcurrencyStamp = Guid.NewGuid().ToString("N") };
+        await Should.ThrowAsync<AbpDbConcurrencyException>(() => SaleAppService.ConfirmAsync(sale.Id, staleStamp));
     }
 
     [Fact]

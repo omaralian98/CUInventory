@@ -230,7 +230,7 @@ public abstract class ReportsAppServiceTests<TStartupModule> : CUInventoryStockT
     }
 
     [Fact]
-    public async Task LowStock_Lists_Balances_At_Or_Below_Their_Threshold()
+    public async Task LowStock_Lists_Balances_Below_Their_Threshold()
     {
         var warehouseId = await SeedWarehouseAsync();
         var productId = await SeedProductAsync();
@@ -264,6 +264,26 @@ public abstract class ReportsAppServiceTests<TStartupModule> : CUInventoryStockT
         await InventoryBalanceAppService.SetLowStockThresholdAsync(balanceId, new SetLowStockThresholdDto
         {
             Threshold = 5m,
+            ConcurrencyStamp = (await StampOfBalanceAsync(balanceId)).ConcurrencyStamp
+        });
+
+        var report = await _reports.GetLowStockAsync(new ReportFilterInput { ProductId = productId });
+
+        report.TotalCount.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task LowStock_Excludes_A_Balance_Exactly_At_Its_Threshold()
+    {
+        var warehouseId = await SeedWarehouseAsync();
+        var productId = await SeedProductAsync();
+        var supplierId = Guid.NewGuid();
+        await SeedStockAsync(warehouseId, productId, quantity: 10m, unitCost: 5m, supplierId: supplierId);
+
+        var balanceId = await FindBalanceIdAsync(warehouseId, productId);
+        await InventoryBalanceAppService.SetLowStockThresholdAsync(balanceId, new SetLowStockThresholdDto
+        {
+            Threshold = 10m,
             ConcurrencyStamp = (await StampOfBalanceAsync(balanceId)).ConcurrencyStamp
         });
 

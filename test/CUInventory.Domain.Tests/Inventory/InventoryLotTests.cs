@@ -60,4 +60,96 @@ public class InventoryLotTests
     {
         Should.Throw<ArgumentMustBePositiveDomainException>(() => NewLot(0m));
     }
+
+    [Fact]
+    public void Reserve_Reduces_Available_Without_Touching_Remaining()
+    {
+        var lot = NewLot(10m);
+
+        lot.Reserve(new Quantity(4m));
+
+        lot.ShouldSatisfyAllConditions(
+            () => lot.ReservedQuantity.Value.ShouldBe(4m),
+            () => lot.RemainingQuantity.Value.ShouldBe(10m),
+            () => lot.AvailableQuantity.ShouldBe(6m));
+    }
+
+    [Fact]
+    public void Reserve_Throws_When_Exceeding_Available()
+    {
+        var lot = NewLot(10m);
+        lot.Reserve(new Quantity(7m));
+
+        var ex = Should.Throw<InventoryLotInsufficientAvailableDomainException>(() => lot.Reserve(new Quantity(4m)));
+        ex.Code.ShouldBe(CUInventoryDomainErrorCodes.InventoryLotInsufficientAvailable);
+    }
+
+    [Fact]
+    public void Consume_Cannot_Take_Reserved_Stock()
+    {
+        var lot = NewLot(10m);
+        lot.Reserve(new Quantity(7m));
+
+        Should.Throw<InventoryLotInsufficientRemainingDomainException>(() => lot.Consume(new Quantity(4m)));
+    }
+
+    [Fact]
+    public void ConsumeReserved_Reduces_Remaining_And_Reserved()
+    {
+        var lot = NewLot(10m);
+        lot.Reserve(new Quantity(7m));
+
+        lot.ConsumeReserved(new Quantity(7m));
+
+        lot.ShouldSatisfyAllConditions(
+            () => lot.ReservedQuantity.Value.ShouldBe(0m),
+            () => lot.RemainingQuantity.Value.ShouldBe(3m),
+            () => lot.AvailableQuantity.ShouldBe(3m));
+    }
+
+    [Fact]
+    public void ConsumeReserved_Throws_When_Exceeding_Reserved()
+    {
+        var lot = NewLot(10m);
+        lot.Reserve(new Quantity(2m));
+
+        var ex = Should.Throw<InventoryLotInsufficientReservedDomainException>(() => lot.ConsumeReserved(new Quantity(3m)));
+        ex.Code.ShouldBe(CUInventoryDomainErrorCodes.InventoryLotInsufficientReserved);
+    }
+
+    [Fact]
+    public void ReleaseReservation_Restores_Available()
+    {
+        var lot = NewLot(10m);
+        lot.Reserve(new Quantity(7m));
+
+        lot.ReleaseReservation(new Quantity(7m));
+
+        lot.ShouldSatisfyAllConditions(
+            () => lot.ReservedQuantity.Value.ShouldBe(0m),
+            () => lot.AvailableQuantity.ShouldBe(10m));
+    }
+
+    [Fact]
+    public void ReleaseReservation_Throws_When_Exceeding_Reserved()
+    {
+        var lot = NewLot(10m);
+
+        Should.Throw<InventoryLotInsufficientReservedDomainException>(() => lot.ReleaseReservation(new Quantity(1m)));
+    }
+
+    [Fact]
+    public void Restore_Leaves_Reserved_Untouched()
+    {
+        var lot = NewLot(10m);
+        lot.Reserve(new Quantity(3m));
+        lot.Consume(new Quantity(4m));
+
+        lot.Restore(new Quantity(4m));
+
+        lot.ShouldSatisfyAllConditions(
+            () => lot.RemainingQuantity.Value.ShouldBe(10m),
+            () => lot.ReservedQuantity.Value.ShouldBe(3m),
+            () => lot.AvailableQuantity.ShouldBe(7m));
+    }
 }

@@ -33,7 +33,7 @@ public class InventoryBalanceTests
         balance.Increase(new Quantity(10m), Now);
 
         balance.ShouldSatisfyAllConditions(
-            () => balance.QuantityOnHand.ShouldBe(10m),
+            () => balance.QuantityOnHand.Value.ShouldBe(10m),
             () => balance.QuantityAvailable.ShouldBe(10m),
             () => balance.GetLocalEvents().Select(e => e.EventData).OfType<StockChangedDomainEvent>().ShouldNotBeEmpty());
     }
@@ -46,8 +46,8 @@ public class InventoryBalanceTests
         balance.Reserve(new Quantity(4m), Now);
 
         balance.ShouldSatisfyAllConditions(
-            () => balance.QuantityOnHand.ShouldBe(10m),
-            () => balance.QuantityReserved.ShouldBe(4m),
+            () => balance.QuantityOnHand.Value.ShouldBe(10m),
+            () => balance.QuantityReserved.Value.ShouldBe(4m),
             () => balance.QuantityAvailable.ShouldBe(6m));
     }
 
@@ -71,7 +71,7 @@ public class InventoryBalanceTests
         balance.Reserve(new Quantity(1m), Now);
 
         Should.Throw<InsufficientStockDomainException>(() => balance.Reserve(new Quantity(1m), Now));
-        balance.QuantityReserved.ShouldBe(1m);
+        balance.QuantityReserved.Value.ShouldBe(1m);
     }
 
     [Fact]
@@ -104,8 +104,8 @@ public class InventoryBalanceTests
         balance.ConfirmReservation(new Quantity(4m), Now);
 
         balance.ShouldSatisfyAllConditions(
-            () => balance.QuantityOnHand.ShouldBe(6m),
-            () => balance.QuantityReserved.ShouldBe(0m),
+            () => balance.QuantityOnHand.Value.ShouldBe(6m),
+            () => balance.QuantityReserved.Value.ShouldBe(0m),
             () => balance.QuantityAvailable.ShouldBe(6m));
     }
 

@@ -66,7 +66,7 @@ public class ShipmentManagerTests
             () => lot.Source.ShouldBe(InventoryLotSource.Purchase),
             () => lot.RemainingQuantity.Value.ShouldBe(10m),
             () => lot.ShipmentLineId.ShouldBe(shipment.Lines.Single().Id),
-            () => balance.QuantityOnHand.ShouldBe(10m),
+            () => balance.QuantityOnHand.Value.ShouldBe(10m),
             () => order.Status.ShouldBe(PurchaseOrderStatus.FullyReceived));
     }
 
@@ -81,6 +81,6 @@ public class ShipmentManagerTests
 
         await Should.ThrowAsync<ShipmentNotDispatchedDomainException>(
             () => manager.ReceiveAsync(shipment, order, [balance]));
-        balance.QuantityOnHand.ShouldBe(10m);
+        balance.QuantityOnHand.Value.ShouldBe(10m);
     }
 }

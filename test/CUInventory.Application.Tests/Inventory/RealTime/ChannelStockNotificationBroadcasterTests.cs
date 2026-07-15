@@ -1,6 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 using CUInventory.Inventory.RealTime;
 using Shouldly;
@@ -10,8 +9,6 @@ namespace CUInventory.Inventory.RealTime;
 
 public class ChannelStockNotificationBroadcasterTests
 {
-    private static readonly TimeSpan DrainTimeout = TimeSpan.FromSeconds(1);
-
     private readonly ChannelStockNotificationBroadcaster _broadcaster = new();
 
     [Fact]
@@ -21,7 +18,7 @@ public class ChannelStockNotificationBroadcasterTests
 
         _broadcaster.Publish(NotificationFor(1m));
 
-        var received = await DrainAsync(subscription);
+        var received = await subscription.DrainAsync();
 
         received.ShouldHaveSingleItem().QuantityOnHand.ShouldBe(1m);
     }
@@ -34,8 +31,8 @@ public class ChannelStockNotificationBroadcasterTests
 
         _broadcaster.Publish(NotificationFor(7m));
 
-        var toFirst = await DrainAsync(first);
-        var toSecond = await DrainAsync(second);
+        var toFirst = await first.DrainAsync();
+        var toSecond = await second.DrainAsync();
 
         toFirst.ShouldHaveSingleItem().QuantityOnHand.ShouldBe(7m);
         toSecond.ShouldHaveSingleItem().QuantityOnHand.ShouldBe(7m);
@@ -49,7 +46,7 @@ public class ChannelStockNotificationBroadcasterTests
 
         _broadcaster.Publish(NotificationFor(3m));
 
-        var received = await DrainAsync(subscription);
+        var received = await subscription.DrainAsync();
 
         received.ShouldBeEmpty();
     }
@@ -64,39 +61,46 @@ public class ChannelStockNotificationBroadcasterTests
             _broadcaster.Publish(NotificationFor(i));
         }
 
-        var received = await DrainAsync(subscription);
+        var received = await subscription.DrainAsync();
 
         received.Count.ShouldBe(100);
         received[^1].QuantityOnHand.ShouldBe(150m);
     }
 
-    private static StockNotificationDto NotificationFor(decimal onHand)
+    [Fact]
+    public async Task A_LowStock_Alert_Survives_A_Notification_Flood_To_A_Slow_Subscriber()
+    {
+        using var subscription = _broadcaster.Subscribe();
+
+        for (var i = 1; i <= 100; i++)
+        {
+            _broadcaster.Publish(NotificationFor(i));
+        }
+
+        _broadcaster.Publish(NotificationFor(42m, StockNotificationType.LowStockReached));
+
+        for (var i = 101; i <= 200; i++)
+        {
+            _broadcaster.Publish(NotificationFor(i));
+        }
+
+        var received = await subscription.DrainAsync();
+
+        received.ShouldSatisfyAllConditions(
+            () => received.Single(n => n.Type == StockNotificationType.LowStockReached).QuantityOnHand.ShouldBe(42m),
+            () => received.Last(n => n.Type == StockNotificationType.StockChanged).QuantityOnHand.ShouldBe(200m));
+    }
+
+    private static StockNotificationDto NotificationFor(
+        decimal onHand,
+        StockNotificationType type = StockNotificationType.StockChanged)
     {
         return new StockNotificationDto
         {
-            Type = StockNotificationType.StockChanged,
+            Type = type,
             InventoryBalanceId = Guid.NewGuid(),
             QuantityOnHand = onHand,
             OccurredAt = DateTime.UnixEpoch
         };
-    }
-
-    private static async Task<List<StockNotificationDto>> DrainAsync(IStockNotificationSubscription subscription)
-    {
-        var items = new List<StockNotificationDto>();
-        using var cts = new CancellationTokenSource(DrainTimeout);
-
-        try
-        {
-            await foreach (var item in subscription.ReadAllAsync(cts.Token))
-            {
-                items.Add(item);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-        }
-
-        return items;
     }
 }

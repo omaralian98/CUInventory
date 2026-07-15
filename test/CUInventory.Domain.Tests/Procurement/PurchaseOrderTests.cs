@@ -33,6 +33,18 @@ public class PurchaseOrderTests
     }
 
     [Fact]
+    public void Ctor_Rejects_Duplicate_Product_Lines()
+    {
+        var productId = Guid.NewGuid();
+
+        var ex = Should.Throw<PurchaseOrderDuplicateProductLineDomainException>(
+            () => NewOrder((productId, 10m, 5m), (productId, 4m, 6m)));
+        ex.ShouldSatisfyAllConditions(
+            () => ex.Code.ShouldBe(CUInventoryDomainErrorCodes.PurchaseOrderDuplicateProductLine),
+            () => ex.Data["ProductId"].ShouldBe(productId));
+    }
+
+    [Fact]
     public void Confirm_Throws_When_There_Are_No_Lines()
     {
         var order = NewOrder();

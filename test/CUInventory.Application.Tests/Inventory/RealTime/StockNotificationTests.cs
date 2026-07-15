@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using CUInventory.Inventory.Dtos;
 using CUInventory.Inventory.RealTime;
@@ -16,8 +14,6 @@ namespace CUInventory.Inventory.RealTime;
 public abstract class StockNotificationTests<TStartupModule> : CUInventoryStockTestBase<TStartupModule>
     where TStartupModule : IAbpModule
 {
-    private static readonly TimeSpan DrainTimeout = TimeSpan.FromSeconds(2);
-
     private readonly IStockNotificationBroadcaster _broadcaster;
 
     protected StockNotificationTests()
@@ -35,7 +31,7 @@ public abstract class StockNotificationTests<TStartupModule> : CUInventoryStockT
 
         await SeedStockAsync(warehouseId, productId, quantity: 10m);
 
-        var notifications = await DrainAsync(subscription);
+        var notifications = await subscription.DrainAsync();
 
         var stockChanged = notifications
             .Where(n => n.ProductId == productId && n.Type == StockNotificationType.StockChanged)
@@ -68,7 +64,7 @@ public abstract class StockNotificationTests<TStartupModule> : CUInventoryStockT
             Lines = { new CreateSaleLineDto { ProductId = productId, Quantity = 3m, UnitPrice = 20m, WarehouseId = warehouseId } }
         });
 
-        var notifications = await DrainAsync(subscription);
+        var notifications = await subscription.DrainAsync();
 
         var lowStock = notifications
             .Where(n => n.ProductId == productId && n.Type == StockNotificationType.LowStockReached)
@@ -97,27 +93,8 @@ public abstract class StockNotificationTests<TStartupModule> : CUInventoryStockT
                 Lines = { new CreateSaleLineDto { ProductId = productId, Quantity = 5m, UnitPrice = 20m, WarehouseId = warehouseId } }
             }));
 
-        var notifications = await DrainAsync(subscription);
+        var notifications = await subscription.DrainAsync();
 
         notifications.ShouldNotContain(n => n.ProductId == productId);
-    }
-
-    private static async Task<List<StockNotificationDto>> DrainAsync(IStockNotificationSubscription subscription)
-    {
-        var items = new List<StockNotificationDto>();
-        using var cts = new CancellationTokenSource(DrainTimeout);
-
-        try
-        {
-            await foreach (var item in subscription.ReadAllAsync(cts.Token))
-            {
-                items.Add(item);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-        }
-
-        return items;
     }
 }

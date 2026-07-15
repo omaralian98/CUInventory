@@ -30,11 +30,7 @@ public class StockTransferManagerTests
     }
 
     private static StockTransfer NewTransfer(decimal quantity = 4m)
-        => new(
-            Guid.NewGuid(),
-            Source,
-            Destination,
-            [new StockTransferLineData(Guid.NewGuid(), Product, new Quantity(quantity))]);
+        => StockTransferTestFactory.NewTransfer(Source, Destination, Product, quantity);
 
     private static InventoryBalance Balance(Guid warehouseId, decimal onHand)
     {
@@ -47,8 +43,8 @@ public class StockTransferManagerTests
         return balance;
     }
 
-    private static InventoryLot SourceLot(decimal quantity = 10m, decimal unitCost = 5m)
-        => new(Guid.NewGuid(), Product, Source, InventoryLotSource.Purchase, new Quantity(quantity), new Money(unitCost), Now, Supplier);
+    private static InventoryLot SourceLot(decimal quantity = 10m, decimal unitCost = 5m, DateTime? receivedAt = null, Guid? shipmentLineId = null)
+        => new(Guid.NewGuid(), Product, Source, InventoryLotSource.Purchase, new Quantity(quantity), new Money(unitCost), receivedAt ?? Now, Supplier, shipmentLineId);
 
     [Fact]
     public async Task DispatchAsync_Consumes_Source_Lots_And_Deducts_The_Source_Balance()
@@ -66,7 +62,7 @@ public class StockTransferManagerTests
             () => transfer.Allocations.Single().Quantity.Value.ShouldBe(4m),
             () => transfer.Allocations.Single().SupplierId.ShouldBe(Supplier),
             () => lot.RemainingQuantity.Value.ShouldBe(6m),
-            () => sourceBalance.QuantityOnHand.ShouldBe(6m));
+            () => sourceBalance.QuantityOnHand.Value.ShouldBe(6m));
     }
 
     [Fact]
@@ -75,10 +71,13 @@ public class StockTransferManagerTests
         var manager = CreateManager();
         var transfer = NewTransfer();
         var sourceBalance = Balance(Source, 10m);
-        await manager.DispatchAsync(transfer, [sourceBalance], [SourceLot(10m)]);
+        var originalReceipt = Now.AddMonths(-5);
+        var shipmentLineId = Guid.NewGuid();
+        var sourceLot = SourceLot(10m, receivedAt: originalReceipt, shipmentLineId: shipmentLineId);
+        await manager.DispatchAsync(transfer, [sourceBalance], [sourceLot]);
         var destinationBalance = Balance(Destination, 0m);
 
-        var createdLots = await manager.ReceiveAsync(transfer, [destinationBalance]);
+        var createdLots = await manager.ReceiveAsync(transfer, [destinationBalance], [sourceLot]);
 
         createdLots.ShouldHaveSingleItem();
         var lot = createdLots.Single();
@@ -89,7 +88,27 @@ public class StockTransferManagerTests
             () => lot.Source.ShouldBe(InventoryLotSource.TransferIn),
             () => lot.RemainingQuantity.Value.ShouldBe(4m),
             () => lot.UnitCost.Amount.ShouldBe(5m),
-            () => destinationBalance.QuantityOnHand.ShouldBe(4m));
+            () => lot.ReceivedAt.ShouldBe(originalReceipt),
+            () => lot.ShipmentLineId.ShouldBe(shipmentLineId),
+            () => destinationBalance.QuantityOnHand.Value.ShouldBe(4m));
+    }
+
+    [Fact]
+    public async Task DispatchAsync_Cannot_Take_Stock_Pledged_To_A_Sale()
+    {
+        var manager = CreateManager();
+        var transfer = NewTransfer(6m);
+        var sourceBalance = Balance(Source, 10m);
+        var lot = SourceLot(10m);
+        lot.Reserve(new Quantity(5m));
+        sourceBalance.Reserve(new Quantity(5m), Now);
+
+        await Should.ThrowAsync<InsufficientStockDomainException>(
+            () => manager.DispatchAsync(transfer, [sourceBalance], [lot]));
+
+        lot.ShouldSatisfyAllConditions(
+            () => lot.RemainingQuantity.Value.ShouldBe(10m),
+            () => lot.ReservedQuantity.Value.ShouldBe(5m));
     }
 
     [Fact]
@@ -106,7 +125,7 @@ public class StockTransferManagerTests
         transfer.ShouldSatisfyAllConditions(
             () => transfer.Status.ShouldBe(StockTransferStatus.Cancelled),
             () => lot.RemainingQuantity.Value.ShouldBe(10m),
-            () => sourceBalance.QuantityOnHand.ShouldBe(10m));
+            () => sourceBalance.QuantityOnHand.Value.ShouldBe(10m));
     }
 
     [Fact]
@@ -124,7 +143,7 @@ public class StockTransferManagerTests
         transfer.ShouldSatisfyAllConditions(
             () => transfer.Allocations.Count.ShouldBe(1),
             () => lot.RemainingQuantity.Value.ShouldBe(6m),
-            () => sourceBalance.QuantityOnHand.ShouldBe(6m));
+            () => sourceBalance.QuantityOnHand.Value.ShouldBe(6m));
     }
 
     [Fact]
@@ -134,7 +153,7 @@ public class StockTransferManagerTests
         var transfer = NewTransfer();
 
         await Should.ThrowAsync<StockTransferNotDispatchedDomainException>(
-            () => manager.ReceiveAsync(transfer, [Balance(Destination, 0m)]));
+            () => manager.ReceiveAsync(transfer, [Balance(Destination, 0m)], []));
     }
 
     [Fact]
