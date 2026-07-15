@@ -17,8 +17,7 @@
         "closeIdleConnection": true,
         "auth-model": "native",
         "auth-properties": {
-          "user": "sa",
-          "password": "Cl0udB3aver!Dev"
+          "user": "sa"
         }
       }
     }

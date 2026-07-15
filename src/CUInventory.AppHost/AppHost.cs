@@ -12,7 +12,8 @@ IResourceBuilder<IResource>? dbWait = null;
 
 if (useSqlContainer)
 {
-    var sqlPassword = builder.AddParameter("SqlPassword", "Cl0udB3aver!Dev", secret: true);
+    var sqlPassword = builder.AddParameter("SqlPassword", secret: true);
+    var cloudBeaverAdminPassword = builder.AddParameter("CloudBeaverAdminPassword", secret: true);
 
     var sql = builder
         .AddSqlServer("sql", sqlPassword)
@@ -26,7 +27,7 @@ if (useSqlContainer)
         .WithExternalHttpEndpoints()
         .WithEnvironment("CB_SERVER_NAME", "CUInventory CloudBeaver")
         .WithEnvironment("CB_ADMIN_NAME", "cbadmin")
-        .WithEnvironment("CB_ADMIN_PASSWORD", "Cl0udB3aver!Dev")
+        .WithEnvironment("CB_ADMIN_PASSWORD", cloudBeaverAdminPassword)
         .WithEnvironment("CLOUDBEAVER_APP_GRANT_CONNECTIONS_ACCESS_TO_ANONYMOUS_TEAM", "true")
         .WithVolume("cloudbeaver-workspace", "/opt/cloudbeaver/workspace")
         .WithBindMount("cloudbeaver/data-sources.json",
