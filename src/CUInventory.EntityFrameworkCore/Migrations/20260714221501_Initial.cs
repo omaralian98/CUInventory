@@ -514,6 +514,9 @@ namespace CUInventory.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AppInventoryBalances", x => x.Id);
+                    table.CheckConstraint("CK_AppInventoryBalances_QuantityOnHand_NonNegative", "QuantityOnHand >= 0");
+                    table.CheckConstraint("CK_AppInventoryBalances_QuantityReserved_NonNegative", "QuantityReserved >= 0");
+                    table.CheckConstraint("CK_AppInventoryBalances_QuantityReserved_WithinOnHand", "QuantityReserved <= QuantityOnHand");
                 });
 
             migrationBuilder.CreateTable(
@@ -530,6 +533,7 @@ namespace CUInventory.Migrations
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     OriginalQuantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     RemainingQuantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ReservedQuantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
@@ -544,6 +548,10 @@ namespace CUInventory.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AppInventoryLots", x => x.Id);
+                    table.CheckConstraint("CK_AppInventoryLots_RemainingQuantity_NonNegative", "RemainingQuantity >= 0");
+                    table.CheckConstraint("CK_AppInventoryLots_RemainingQuantity_WithinOriginal", "RemainingQuantity <= OriginalQuantity");
+                    table.CheckConstraint("CK_AppInventoryLots_ReservedQuantity_NonNegative", "ReservedQuantity >= 0");
+                    table.CheckConstraint("CK_AppInventoryLots_ReservedQuantity_WithinRemaining", "ReservedQuantity <= RemainingQuantity");
                 });
 
             migrationBuilder.CreateTable(
@@ -1102,7 +1110,14 @@ namespace CUInventory.Migrations
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderedQuantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ReceivedQuantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1127,7 +1142,14 @@ namespace CUInventory.Migrations
                     SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     LotId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1148,7 +1170,14 @@ namespace CUInventory.Migrations
                     ShipmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1168,7 +1197,14 @@ namespace CUInventory.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StockTransferId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1191,7 +1227,14 @@ namespace CUInventory.Migrations
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1261,8 +1304,16 @@ namespace CUInventory.Migrations
                     WarehouseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     InventoryLotId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsReserved = table.Column<bool>(type: "bit", nullable: false),
                     Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1573,6 +1624,11 @@ namespace CUInventory.Migrations
                 columns: new[] { "ProductId", "WarehouseId", "ReceivedAt", "Id" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppInventoryLots_ReceivedAt",
+                table: "AppInventoryLots",
+                column: "ReceivedAt");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AppInventoryLots_ShipmentLineId",
                 table: "AppInventoryLots",
                 column: "ShipmentLineId");
@@ -1640,9 +1696,9 @@ namespace CUInventory.Migrations
                 column: "SaleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AppSales_Status",
+                name: "IX_AppSales_Status_ConfirmedAt",
                 table: "AppSales",
-                column: "Status");
+                columns: new[] { "Status", "ConfirmedAt" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppShipmentLines_ProductId",

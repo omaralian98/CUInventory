@@ -14,8 +14,8 @@ using Volo.Abp.EntityFrameworkCore;
 namespace CUInventory.Migrations
 {
     [DbContext(typeof(CUInventoryDbContext))]
-    [Migration("20260711142235_Initial")]
-    partial class Initial
+    [Migration("20260715090918_AddPersistedLineAggregates")]
+    partial class AddPersistedLineAggregates
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -227,12 +227,6 @@ namespace CUInventory.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("QuantityOnHand")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("QuantityReserved")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("TenantId");
@@ -240,12 +234,37 @@ namespace CUInventory.Migrations
                     b.Property<Guid>("WarehouseId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "QuantityOnHand", "CUInventory.Inventory.Aggregates.InventoryBalance.QuantityOnHand#Quantity", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Value")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("QuantityOnHand");
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "QuantityReserved", "CUInventory.Inventory.Aggregates.InventoryBalance.QuantityReserved#Quantity", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Value")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("QuantityReserved");
+                        });
+
                     b.HasKey("Id");
 
                     b.HasIndex("WarehouseId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("AppInventoryBalances", (string)null);
+                    b.ToTable("AppInventoryBalances", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_AppInventoryBalances_QuantityOnHand_NonNegative", "QuantityOnHand >= 0");
+
+                            t.HasCheckConstraint("CK_AppInventoryBalances_QuantityReserved_NonNegative", "QuantityReserved >= 0");
+
+                            t.HasCheckConstraint("CK_AppInventoryBalances_QuantityReserved_WithinOnHand", "QuantityReserved <= QuantityOnHand");
+                        });
                 });
 
             modelBuilder.Entity("CUInventory.Inventory.Aggregates.InventoryLot", b =>
@@ -335,6 +354,15 @@ namespace CUInventory.Migrations
                                 .HasColumnName("RemainingQuantity");
                         });
 
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "ReservedQuantity", "CUInventory.Inventory.Aggregates.InventoryLot.ReservedQuantity#Quantity", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Value")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("ReservedQuantity");
+                        });
+
                     b.ComplexProperty(typeof(Dictionary<string, object>), "UnitCost", "CUInventory.Inventory.Aggregates.InventoryLot.UnitCost#Money", b1 =>
                         {
                             b1.IsRequired();
@@ -346,13 +374,24 @@ namespace CUInventory.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ReceivedAt");
+
                     b.HasIndex("ShipmentLineId");
 
                     b.HasIndex("SupplierId");
 
                     b.HasIndex("ProductId", "WarehouseId", "ReceivedAt", "Id");
 
-                    b.ToTable("AppInventoryLots", (string)null);
+                    b.ToTable("AppInventoryLots", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_AppInventoryLots_RemainingQuantity_NonNegative", "RemainingQuantity >= 0");
+
+                            t.HasCheckConstraint("CK_AppInventoryLots_RemainingQuantity_WithinOriginal", "RemainingQuantity <= OriginalQuantity");
+
+                            t.HasCheckConstraint("CK_AppInventoryLots_ReservedQuantity_NonNegative", "ReservedQuantity >= 0");
+
+                            t.HasCheckConstraint("CK_AppInventoryLots_ReservedQuantity_WithinRemaining", "ReservedQuantity <= RemainingQuantity");
+                        });
                 });
 
             modelBuilder.Entity("CUInventory.Inventory.Aggregates.StockTransfer", b =>
@@ -408,6 +447,9 @@ namespace CUInventory.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<int>("LinesCount")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("ReceivedAt")
                         .HasColumnType("datetime2");
 
@@ -432,6 +474,36 @@ namespace CUInventory.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -459,6 +531,36 @@ namespace CUInventory.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -549,6 +651,9 @@ namespace CUInventory.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<int>("LinesCount")
+                        .HasColumnType("int");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -633,6 +738,36 @@ namespace CUInventory.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -726,6 +861,9 @@ namespace CUInventory.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<int>("LinesCount")
+                        .HasColumnType("int");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -733,9 +871,18 @@ namespace CUInventory.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("TenantId");
 
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "TotalAmount", "CUInventory.Sales.Aggregates.Sale.TotalAmount#Money", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("TotalAmount");
+                        });
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Status");
+                    b.HasIndex("Status", "ConfirmedAt");
 
                     b.ToTable("AppSales", (string)null);
                 });
@@ -745,8 +892,41 @@ namespace CUInventory.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
                     b.Property<Guid?>("InventoryLotId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<bool>("IsReserved")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
 
                     b.Property<Guid>("SaleLineId")
                         .HasColumnType("uniqueidentifier");
@@ -789,8 +969,38 @@ namespace CUInventory.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
                     b.Property<int>("Kind")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
 
                     b.Property<Guid?>("LotId")
                         .HasColumnType("uniqueidentifier");
@@ -991,6 +1201,36 @@ namespace CUInventory.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");

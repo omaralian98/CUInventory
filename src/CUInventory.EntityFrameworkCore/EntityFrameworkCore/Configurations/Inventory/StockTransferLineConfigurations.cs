@@ -1,6 +1,7 @@
 using CUInventory.Inventory.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Volo.Abp.EntityFrameworkCore.Modeling;
 
 namespace CUInventory.EntityFrameworkCore.Configurations.Inventory;
 
@@ -10,7 +11,7 @@ public class StockTransferLineConfigurations : IEntityTypeConfiguration<StockTra
     {
         builder.ToModuleTable("StockTransferLines");
 
-        builder.HasKey(x => x.Id);
+        builder.ConfigureByConvention();
         builder.Property(x => x.Id).ValueGeneratedNever();
 
         builder.ComplexProperty(x => x.Quantity, quantity =>

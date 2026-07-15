@@ -1,6 +1,7 @@
 using CUInventory.Warehousing.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Volo.Abp.EntityFrameworkCore.Modeling;
 
 namespace CUInventory.EntityFrameworkCore.Configurations.Warehousing;
 
@@ -10,7 +11,7 @@ public class ShipmentLineConfigurations : IEntityTypeConfiguration<ShipmentLine>
     {
         builder.ToModuleTable("ShipmentLines");
 
-        builder.HasKey(x => x.Id);
+        builder.ConfigureByConvention();
         builder.Property(x => x.Id).ValueGeneratedNever();
 
         builder.ComplexProperty(x => x.Quantity, quantity =>

@@ -1,6 +1,7 @@
 using CUInventory.Procurement.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Volo.Abp.EntityFrameworkCore.Modeling;
 
 namespace CUInventory.EntityFrameworkCore.Configurations.Procurement;
 
@@ -10,7 +11,7 @@ public class PurchaseOrderLineConfigurations : IEntityTypeConfiguration<Purchase
     {
         builder.ToModuleTable("PurchaseOrderLines");
 
-        builder.HasKey(x => x.Id);
+        builder.ConfigureByConvention();
         builder.Property(x => x.Id).ValueGeneratedNever();
 
         builder.Ignore(x => x.OutstandingQuantity);

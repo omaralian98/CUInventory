@@ -15,13 +15,21 @@ public class InventoryBalanceConfigurations : IEntityTypeConfiguration<Inventory
         // QuantityAvailable is derived (OnHand - Reserved); never persisted.
         builder.Ignore(x => x.QuantityAvailable);
 
-        builder
-            .Property(x => x.QuantityOnHand)
-            .HasColumnType("decimal(18,2)");
+        builder.ComplexProperty(x => x.QuantityOnHand, quantity =>
+        {
+            quantity
+                .Property(x => x.Value)
+                .HasColumnName(nameof(InventoryBalance.QuantityOnHand))
+                .HasColumnType("decimal(18,2)");
+        });
 
-        builder
-            .Property(x => x.QuantityReserved)
-            .HasColumnType("decimal(18,2)");
+        builder.ComplexProperty(x => x.QuantityReserved, quantity =>
+        {
+            quantity
+                .Property(x => x.Value)
+                .HasColumnName(nameof(InventoryBalance.QuantityReserved))
+                .HasColumnType("decimal(18,2)");
+        });
 
         builder
             .Property(x => x.LowStockThreshold)
@@ -32,5 +40,12 @@ public class InventoryBalanceConfigurations : IEntityTypeConfiguration<Inventory
         builder
             .HasIndex(x => new { x.WarehouseId, x.ProductId })
             .IsUnique();
+
+        builder.ToTable(t =>
+        {
+            t.HasCheckConstraint("CK_AppInventoryBalances_QuantityOnHand_NonNegative", "QuantityOnHand >= 0");
+            t.HasCheckConstraint("CK_AppInventoryBalances_QuantityReserved_NonNegative", "QuantityReserved >= 0");
+            t.HasCheckConstraint("CK_AppInventoryBalances_QuantityReserved_WithinOnHand", "QuantityReserved <= QuantityOnHand");
+        });
     }
 }

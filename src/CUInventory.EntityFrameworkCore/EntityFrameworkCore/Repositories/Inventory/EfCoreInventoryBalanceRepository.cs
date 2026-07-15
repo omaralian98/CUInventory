@@ -16,4 +16,25 @@ public class EfCoreInventoryBalanceRepository(IDbContextProvider<CUInventoryDbCo
         return await query.FirstOrDefaultAsync(
             x => x.WarehouseId == warehouseId && x.ProductId == productId, GetCancellationToken());
     }
+
+    public async Task<InventoryBalance> InsertOrGetAsync(InventoryBalance balance)
+    {
+        try
+        {
+            return await InsertAsync(balance, autoSave: true);
+        }
+        catch (DbUpdateException)
+        {
+            var dbContext = await GetDbContextAsync();
+            dbContext.Entry(balance).State = EntityState.Detached;
+
+            var existing = await GetByWarehouseAndProductOrDefaultAsync(balance.WarehouseId, balance.ProductId);
+            if (existing is null)
+            {
+                throw;
+            }
+
+            return existing;
+        }
+    }
 }

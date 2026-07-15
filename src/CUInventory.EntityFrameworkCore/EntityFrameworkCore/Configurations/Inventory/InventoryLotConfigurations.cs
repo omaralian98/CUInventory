@@ -12,6 +12,8 @@ public class InventoryLotConfigurations : IEntityTypeConfiguration<InventoryLot>
         builder.ToModuleTable(x => x.InventoryLots);
         builder.ConfigureByConvention();
 
+        builder.Ignore(x => x.AvailableQuantity);
+
         builder.ComplexProperty(x => x.OriginalQuantity, quantity =>
         {
             quantity
@@ -25,6 +27,14 @@ public class InventoryLotConfigurations : IEntityTypeConfiguration<InventoryLot>
             quantity
                 .Property(x => x.Value)
                 .HasColumnName(nameof(InventoryLot.RemainingQuantity))
+                .HasColumnType("decimal(18,2)");
+        });
+
+        builder.ComplexProperty(x => x.ReservedQuantity, quantity =>
+        {
+            quantity
+                .Property(x => x.Value)
+                .HasColumnName(nameof(InventoryLot.ReservedQuantity))
                 .HasColumnType("decimal(18,2)");
         });
 
@@ -42,5 +52,13 @@ public class InventoryLotConfigurations : IEntityTypeConfiguration<InventoryLot>
 
         builder.HasIndex(x => x.ShipmentLineId);
         builder.HasIndex(x => x.ReceivedAt);
+
+        builder.ToTable(t =>
+        {
+            t.HasCheckConstraint("CK_AppInventoryLots_RemainingQuantity_NonNegative", "RemainingQuantity >= 0");
+            t.HasCheckConstraint("CK_AppInventoryLots_ReservedQuantity_NonNegative", "ReservedQuantity >= 0");
+            t.HasCheckConstraint("CK_AppInventoryLots_ReservedQuantity_WithinRemaining", "ReservedQuantity <= RemainingQuantity");
+            t.HasCheckConstraint("CK_AppInventoryLots_RemainingQuantity_WithinOriginal", "RemainingQuantity <= OriginalQuantity");
+        });
     }
 }

@@ -5,6 +5,7 @@ using CUInventory.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -13,9 +14,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace CUInventory.Migrations
 {
     [DbContext(typeof(CUInventoryDbContext))]
-    partial class CUInventoryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260714221501_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -224,30 +227,18 @@ namespace CUInventory.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("QuantityOnHand")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("QuantityReserved")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("TenantId");
 
                     b.Property<Guid>("WarehouseId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "QuantityOnHand", "CUInventory.Inventory.Aggregates.InventoryBalance.QuantityOnHand#Quantity", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<decimal>("Value")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("QuantityOnHand");
-                        });
-
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "QuantityReserved", "CUInventory.Inventory.Aggregates.InventoryBalance.QuantityReserved#Quantity", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<decimal>("Value")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("QuantityReserved");
-                        });
 
                     b.HasKey("Id");
 
@@ -443,9 +434,6 @@ namespace CUInventory.Migrations
                     b.Property<Guid?>("LastModifierId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
-
-                    b.Property<int>("LinesCount")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("ReceivedAt")
                         .HasColumnType("datetime2");
@@ -647,9 +635,6 @@ namespace CUInventory.Migrations
                     b.Property<Guid?>("LastModifierId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
-
-                    b.Property<int>("LinesCount")
-                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -858,24 +843,12 @@ namespace CUInventory.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<int>("LinesCount")
-                        .HasColumnType("int");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("TenantId");
-
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "TotalAmount", "CUInventory.Sales.Aggregates.Sale.TotalAmount#Money", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("TotalAmount");
-                        });
 
                     b.HasKey("Id");
 

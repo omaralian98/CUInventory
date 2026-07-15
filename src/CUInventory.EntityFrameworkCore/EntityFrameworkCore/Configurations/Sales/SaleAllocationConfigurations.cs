@@ -1,6 +1,7 @@
 using CUInventory.Sales.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Volo.Abp.EntityFrameworkCore.Modeling;
 
 namespace CUInventory.EntityFrameworkCore.Configurations.Sales;
 
@@ -10,10 +11,8 @@ public class SaleAllocationConfigurations : IEntityTypeConfiguration<SaleAllocat
     {
         builder.ToModuleTable("SaleAllocations");
 
-        builder.HasKey(x => x.Id);
+        builder.ConfigureByConvention();
         builder.Property(x => x.Id).ValueGeneratedNever();
-
-        builder.Ignore(x => x.IsReserved);
 
         builder.ComplexProperty(x => x.Quantity, quantity =>
         {
@@ -23,7 +22,6 @@ public class SaleAllocationConfigurations : IEntityTypeConfiguration<SaleAllocat
                 .HasColumnType("decimal(18,2)");
         });
 
-        // UnitCost is null until the reservation is confirmed against a specific lot.
         builder.ComplexProperty(x => x.UnitCost, cost =>
         {
             cost.IsRequired(false);
@@ -33,7 +31,6 @@ public class SaleAllocationConfigurations : IEntityTypeConfiguration<SaleAllocat
                 .HasColumnType("decimal(18,2)");
         });
 
-        // Problem 1: trace which lot/supplier a confirmed sale came from.
         builder.HasIndex(x => x.InventoryLotId);
         builder.HasIndex(x => x.SupplierId);
     }

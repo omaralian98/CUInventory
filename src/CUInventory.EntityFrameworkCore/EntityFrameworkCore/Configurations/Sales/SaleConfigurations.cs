@@ -12,6 +12,14 @@ public class SaleConfigurations : IEntityTypeConfiguration<Sale>
         builder.ToModuleTable(x => x.Sales);
         builder.ConfigureByConvention();
 
+        builder.ComplexProperty(x => x.TotalAmount, total =>
+        {
+            total
+                .Property(x => x.Amount)
+                .HasColumnName(nameof(Sale.TotalAmount))
+                .HasColumnType("decimal(18,2)");
+        });
+
         builder
             .HasIndex(x => new { x.Status, x.ConfirmedAt });
 

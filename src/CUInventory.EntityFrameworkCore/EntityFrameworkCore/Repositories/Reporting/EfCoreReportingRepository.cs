@@ -24,8 +24,6 @@ public class EfCoreReportingRepository(
     IDataFilter dataFilter)
     : IReportingRepository, ITransientDependency
 {
-    // Reporting spans historical data, so a product/warehouse deactivated after the fact must still
-    // count. Soft-delete and multi-tenant filters stay on; only the IsActive filter is suppressed.
     private IDisposable IncludeInactive() => dataFilter.Disable<IIsActive>();
 
     public async Task<SalesBySourceReport> GetSalesBySourceAsync(
@@ -197,17 +195,15 @@ public class EfCoreReportingRepository(
         using (IncludeInactive())
         {
             var query =
-                from b in db.Set<InventoryBalance>()
+                from b in db.Set<InventoryBalance>().Where(LowStockRule.BelowThreshold)
                 join p in db.Set<Product>() on b.ProductId equals p.Id
-                where b.LowStockThreshold != null
-                      && (b.QuantityOnHand - b.QuantityReserved) <= b.LowStockThreshold
                 select new LowStockFlat
                 {
                     WarehouseId = b.WarehouseId,
                     ProductId = b.ProductId,
                     CategoryId = p.CategoryId,
-                    QuantityOnHand = b.QuantityOnHand,
-                    QuantityReserved = b.QuantityReserved,
+                    QuantityOnHand = b.QuantityOnHand.Value,
+                    QuantityReserved = b.QuantityReserved.Value,
                     LowStockThreshold = b.LowStockThreshold,
                     BalanceId = b.Id
                 };
@@ -247,9 +243,6 @@ public class EfCoreReportingRepository(
         }
     }
 
-    // Flatten the Sale -> SaleLine -> SaleAllocation -> Product chain for confirmed, lot-bound
-    // allocations into primitive columns. Member-init projections (unlike positional-record ones)
-    // compose with GroupBy, so callers can aggregate or page over the same query shape.
     private static IQueryable<SalesFlat> BuildSalesQuery(CUInventoryDbContext db, ReportQueryFilter filter)
     {
         var query =
