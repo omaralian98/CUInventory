@@ -13,7 +13,7 @@ public class SaleConfigurations : IEntityTypeConfiguration<Sale>
         builder.ConfigureByConvention();
 
         builder
-            .HasIndex(x => x.Status);
+            .HasIndex(x => new { x.Status, x.ConfirmedAt });
 
         builder
             .HasMany(x => x.Lines)

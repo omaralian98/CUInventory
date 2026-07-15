@@ -36,13 +36,11 @@ public class InventoryLotConfigurations : IEntityTypeConfiguration<InventoryLot>
                 .HasColumnType("decimal(18,2)");
         });
 
-        // FIFO allocation ordering + per-product/warehouse availability scans.
         builder.HasIndex(x => new { x.ProductId, x.WarehouseId, x.ReceivedAt, x.Id });
 
-        // Problem 1: "how much did we sell that came from supplier Y".
         builder.HasIndex(x => x.SupplierId);
 
-        // Traceability back to the receiving shipment line.
         builder.HasIndex(x => x.ShipmentLineId);
+        builder.HasIndex(x => x.ReceivedAt);
     }
 }

@@ -61,8 +61,11 @@ public class CUInventoryPermissionDefinitionProvider : PermissionDefinitionProvi
 
         var inventoryBalances = group.AddPermission(CUInventoryPermissions.InventoryBalances.Default, L("Permission:InventoryBalances"));
         inventoryBalances.AddChild(CUInventoryPermissions.InventoryBalances.SetThreshold, L("Permission:SetThreshold"));
+        inventoryBalances.AddChild(CUInventoryPermissions.InventoryBalances.SubscribeNotifications, L("Permission:SubscribeNotifications"));
 
         group.AddPermission(CUInventoryPermissions.InventoryLots.Default, L("Permission:InventoryLots"));
+
+        group.AddPermission(CUInventoryPermissions.Reports.Default, L("Permission:Reports"));
     }
 
     private static LocalizableString L(string name)

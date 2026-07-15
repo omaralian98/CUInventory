@@ -81,10 +81,16 @@ public static class CUInventoryPermissions
     {
         public const string Default = GroupName + "." + nameof(InventoryBalances);
         public const string SetThreshold = Default + "." + nameof(SetThreshold);
+        public const string SubscribeNotifications = Default + "." + nameof(SubscribeNotifications);
     }
 
     public static class InventoryLots
     {
         public const string Default = GroupName + "." + nameof(InventoryLots);
+    }
+
+    public static class Reports
+    {
+        public const string Default = GroupName + "." + nameof(Reports);
     }
 }
